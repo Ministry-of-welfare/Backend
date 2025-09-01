@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36203.30 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server_pra", "ConsoleApp3\server_pra.csproj", "{443D6A76-43CE-4790-B1BA-4CFFC5DDBDE5}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{443D6A76-43CE-4790-B1BA-4CFFC5DDBDE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{443D6A76-43CE-4790-B1BA-4CFFC5DDBDE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{443D6A76-43CE-4790-B1BA-4CFFC5DDBDE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{443D6A76-43CE-4790-B1BA-4CFFC5DDBDE5}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {E1CC1F65-0C6A-403B-AAEC-BDF4952535FD}
+	EndGlobalSection
+EndGlobal
