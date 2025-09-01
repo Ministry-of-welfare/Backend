@@ -1,6 +1,10 @@
 {
   "ExpandedNodes": [
     "",
+    "\\Dal",
+    "\\Dal\\Models",
+    "\\Server",
+    "\\Server\\Controllers",
     "\\server_pra"
   ],
   "PreviewInSolutionExplorer": false

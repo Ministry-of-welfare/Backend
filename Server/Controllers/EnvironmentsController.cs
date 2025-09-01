@@ -1,0 +1,100 @@
+
+using Dal;
+using Dal.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace Server.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class EnvironmentsController : ControllerBase
+    {
+        private readonly AppDbContext _context;
+
+        public EnvironmentsController(AppDbContext context)
+        {
+            _context = context;
+        }
+
+        // GET: api/Environments
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<EnvironmentEntity>>> GetEnvironments()
+        {
+            return await _context.Environments.ToListAsync();
+        }
+
+        // GET: api/Environments/5
+        [HttpGet("{id}")]
+        public async Task<ActionResult<EnvironmentEntity>> GetEnvironment(int id)
+        {
+            var environment = await _context.Environments.FindAsync(id);
+
+            if (environment == null)
+            {
+                return NotFound();
+            }
+
+            return environment;
+        }
+
+        // POST: api/Environments
+        [HttpPost]
+        public async Task<ActionResult<EnvironmentEntity>> PostEnvironment(EnvironmentEntity environment)
+        {
+            _context.Environments.Add(environment);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetEnvironment), new { id = environment.EnvironmentId }, environment);
+        }
+
+        // PUT: api/Environments/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutEnvironment(int id, EnvironmentEntity environment)
+        {
+            if (id != environment.EnvironmentId)
+            {
+                return BadRequest();
+            }
+
+            _context.Entry(environment).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Environments.Any(e => e.EnvironmentId == id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        // DELETE: api/Environments/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteEnvironment(int id)
+        {
+            var environment = await _context.Environments.FindAsync(id);
+            if (environment == null)
+            {
+                return NotFound();
+            }
+
+            _context.Environments.Remove(environment);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+    }
+}
+
