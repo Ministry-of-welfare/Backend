@@ -1,6 +1,0 @@
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.csproj.AssemblyReference.cache
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.AssemblyInfoInputs.cache
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.AssemblyInfo.cs
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.csproj.CoreCompileInputs.cache
-C:\Users\User\Desktop\projects\server_pra\Dal\obj\Debug\net9.0\Dal.sourcelink.json

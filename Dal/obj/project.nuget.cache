@@ -11,6 +11,15 @@
       "message": "Unable to load the service index for source https://api.nuget.org/v3/index.json.\r\n  Response status code does not indicate success: 418 (Blocked by NetFree).",
       "projectPath": "C:\\Users\\User\\Desktop\\projects\\server_pra\\Dal\\Dal.csproj",
       "filePath": "C:\\Users\\User\\Desktop\\projects\\server_pra\\Dal\\Dal.csproj",
+      "libraryId": "Microsoft.EntityFrameworkCore.SqlServer",
+      "targetGraphs": []
+    },
+    {
+      "code": "NU1301",
+      "level": "Error",
+      "message": "Unable to load the service index for source https://api.nuget.org/v3/index.json.\r\n  Response status code does not indicate success: 418 (Blocked by NetFree).",
+      "projectPath": "C:\\Users\\User\\Desktop\\projects\\server_pra\\Dal\\Dal.csproj",
+      "filePath": "C:\\Users\\User\\Desktop\\projects\\server_pra\\Dal\\Dal.csproj",
       "libraryId": "Microsoft.EntityFrameworkCore",
       "targetGraphs": []
     }
