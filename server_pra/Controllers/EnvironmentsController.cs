@@ -1,8 +1,6 @@
-
-using Dal;
-using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Dal;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -60,22 +58,7 @@ namespace Server.Controllers
             }
 
             _context.Entry(environment).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_context.Environments.Any(e => e.EnvironmentId == id))
-                {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
-            }
+            await _context.SaveChangesAsync();
 
             return NoContent();
         }
@@ -97,4 +80,3 @@ namespace Server.Controllers
         }
     }
 }
-
