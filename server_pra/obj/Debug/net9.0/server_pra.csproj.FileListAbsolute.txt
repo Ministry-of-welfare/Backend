@@ -1,9 +1,0 @@
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.csproj.AssemblyReference.cache
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\rpswa.dswa.cache.json
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.AssemblyInfoInputs.cache
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.AssemblyInfo.cs
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.csproj.CoreCompileInputs.cache
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.MvcApplicationPartsAssemblyInfo.cache
-C:\Users\User\Desktop\projects\server_pra\server_pra\obj\Debug\net9.0\server_pra.sourcelink.json
