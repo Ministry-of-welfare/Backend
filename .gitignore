@@ -1,3 +1,21 @@
+# Visual Studio files
 .vs/
+*.vscode/
 bin/
 obj/
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+*.dll
+*.exe
+*.log
+
+# Backup & cache
+*.cache
+*.pdb
+*.tmp
