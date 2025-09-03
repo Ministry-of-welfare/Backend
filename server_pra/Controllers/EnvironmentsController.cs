@@ -20,14 +20,14 @@ namespace Server.Controllers
 
         // GET: api/Environments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Environment>>> GetEnvironments()
+        public async Task<ActionResult<IEnumerable<DalEnvironment>>> GetEnvironments()
         {
             return await _context.Environments.ToListAsync();
         }
 
         // GET: api/Environments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Environment>> GetEnvironment(int id)
+        public async Task<ActionResult<DalEnvironment>> GetEnvironment(int id)
         {
             var environment = await _context.Environments.FindAsync(id);
 
@@ -41,7 +41,7 @@ namespace Server.Controllers
 
         // POST: api/Environments
         [HttpPost]
-        public async Task<ActionResult<Environment>> PostEnvironment(Environment environment)
+        public async Task<ActionResult<DalEnvironment>> PostEnvironment(DalEnvironment environment)
         {
             _context.Environments.Add(environment);
             await _context.SaveChangesAsync();
@@ -51,7 +51,7 @@ namespace Server.Controllers
 
         // PUT: api/Environments/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEnvironment(int id, Environment environment)
+        public async Task<IActionResult> PutEnvironment(int id, DalEnvironment environment)
         {
             if (id != environment.EnvironmentId)
             {

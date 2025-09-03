@@ -1,57 +1,113 @@
-
-using BL.Models;
-using Dal.Api;   // בשביל ה-IDal
-using Dal.Models;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using BL.Api;
+using BL.Models;
+using Dal.Api;
+using Dal.Models;
 
 namespace BL.Services
 {
-    public class BLEnvironmentEntityService
+    public class BlEnvironmentEntityService : IBlEnvironmentEntity
     {
-        private readonly IDal _dal;
+        private readonly IdalEnvironment _dal;
 
-        public BLEnvironmentEntityService(IDal dal)
+        public BlEnvironmentEntityService(IdalEnvironment dal)
         {
             _dal = dal;
         }
 
-        public IEnumerable<BLEnvironmentEntity> GetAll()
-        {
-            var dalEntities = _dal.Environment.GetAll();
+        #region GetAll
+        //public async Task<List<BlEnvironmentEntity>> GetAll()
+        //{
+        //    var data = await _dal.GetAll();
+        //    return data.Select(CastingEnvironmentEntityFromDalToBl).ToList();
+        //}
+        #endregion
 
-            return dalEntities.Select(e => new BLEnvironmentEntity
+        #region GetById
+        //public async Task<BlEnvironmentEntity> GetById(int id)
+        //{
+        //    var entity = await _dal.GetById(id);
+        //    return CastingEnvironmentEntityFromDalToBl(entity);
+        //}
+        #endregion
+
+        #region Create
+        //public async Task<BlEnvironmentEntity> Create(BlEnvironmentEntity item)
+        //{
+        //    var dalEntity = CastingEnvironmentEntityFromBlToDal(item);
+        //    var created = await _dal.Create(dalEntity);
+        //    return CastingEnvironmentEntityFromDalToBl(created);
+        //}
+        #endregion
+
+        #region Update
+        //public async Task<BlEnvironmentEntity> Update(BlEnvironmentEntity item)
+        //{
+        //    var dalEntity = CastingEnvironmentEntityFromBlToDal(item);
+        //    var updated = await _dal.Update(dalEntity);
+        //    return CastingEnvironmentEntityFromDalToBl(updated);
+        //}
+        #endregion
+
+        #region Delete
+        public async Task Delete(int id)
+        {
+            await _dal.Delete(id);
+        }
+        #endregion
+
+
+        // פונקציות המרה
+
+        #region  CastingEnvironmentEntityFromDalToBl
+
+        public BlEnvironmentEntity CastingEnvironmentEntityFromDalToBl(DalEnvironment e) =>
+            new BlEnvironmentEntity
             {
                 EnvironmentId = e.EnvironmentId,
                 EnvironmentCode = e.EnvironmentCode,
                 EnvironmentName = e.EnvironmentName,
                 Description = e.Description
-            });
-        }
-
-        public BLEnvironmentEntity? GetById(int id)
-        {
-            var entity = _dal.Environments.GetById(id);
-
-            if (entity == null) return null;
-
-            return new BLEnvironmentEntity
-            {
-                EnvironmentId = entity.EnvironmentId,
-                EnvironmentCode = entity.EnvironmentCode,
-                EnvironmentName = entity.EnvironmentName,
-                Description = entity.Description
             };
+        #endregion
+
+        #region  CastingEnvironmentEntityFromBlToDal
+
+        public DalEnvironment CastingEnvironmentEntityFromBlToDal(BlEnvironmentEntity? e) =>
+            new DalEnvironment
+            {
+                EnvironmentId = e?.EnvironmentId ?? 0,
+                EnvironmentCode = e?.EnvironmentCode ?? string.Empty,
+                EnvironmentName = e?.EnvironmentName ?? string.Empty,
+                Description = e?.Description
+            };
+
+        BlEnvironmentEntity IBlEnvironmentEntity.CastingEnvironmentEntityFromBlToDal(BlEnvironmentEntity? e)
+        {
+            throw new NotImplementedException();
         }
 
-        public void Add(BLEnvironmentEntity entity)
+        public Task<List<BlEnvironmentEntity>> GetAll()
         {
-            _dal.Environments.Add(new Dal.Models.Environment
-            {
-                EnvironmentId = entity.EnvironmentId,
-                EnvironmentCode = entity.EnvironmentCode,
-                EnvironmentName = entity.EnvironmentName,
-                Description = entity.Description
-            });
+            throw new NotImplementedException();
         }
+
+        public Task<BlEnvironmentEntity> GetById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BlEnvironmentEntity> Create(BlEnvironmentEntity item)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<BlEnvironmentEntity> Update(BlEnvironmentEntity item)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }

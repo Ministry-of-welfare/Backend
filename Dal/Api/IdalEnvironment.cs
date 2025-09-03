@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Dal.Api
 {
-    public interface IdalEnvironment: ICrud<Environment>
+    public interface IdalEnvironment: ICrud<DalEnvironment>
     {
        
     }

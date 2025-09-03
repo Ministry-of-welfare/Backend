@@ -1,17 +1,28 @@
-
-
+using BL.Api;
 using BL.Services;
-using Dal;
+using Dal.Api;
+using Dal.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace BL
 {
-    public class BLManager
+    public class BlManager : IBl
     {
-        public BLEnvironmentEntityService Environments { get; }
+        public IBlEnvironmentEntity EnvironmentEntity { get; }
 
-        public BLManager(IDal dal)
+        public BlManager()
         {
-            Environments = new BLEnvironmentEntityService(dal);
+            var services = new ServiceCollection();
+
+            // DAL
+            services.AddSingleton<IdalEnvironment, DalEnvironmentService>();
+
+            // BL
+            services.AddSingleton<IBlEnvironmentEntity, BlEnvironmentEntityService>();
+
+            var provider = services.BuildServiceProvider();
+
+            EnvironmentEntity = provider.GetRequiredService<IBlEnvironmentEntity>();
         }
     }
 }

@@ -3,8 +3,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dal.Models
 {
-    [Table("Environments")] // שם הטבלה במסד הנתונים
-    public class Environment
+    //[Table("Environments")] // שם הטבלה במסד הנתונים
+    public class DalEnvironment
     {
         //[Key]
         //public int EnvironmentId { get; set; }
@@ -20,6 +20,9 @@ namespace Dal.Models
 
 
 
-
+        public int EnvironmentId { get; set; }
+        public string EnvironmentCode { get; set; } = string.Empty;
+        public string EnvironmentName { get; set; } = string.Empty;
+        public string? Description { get; set; } = null;
     }
 }

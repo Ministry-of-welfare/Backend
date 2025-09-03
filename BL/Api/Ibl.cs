@@ -1,9 +1,10 @@
-using BL.Api;
+using System;
 
-namespace BL
+namespace BL.Api
 {
-    public class BLL
+    public interface IBl
     {
-      
+        IBlEnvironmentEntity EnvironmentEntity { get; }
+
     }
 }

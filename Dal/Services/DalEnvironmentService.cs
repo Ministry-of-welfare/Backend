@@ -15,24 +15,24 @@ namespace Dal.Services
             _context = context;
         }
 
-        public async Task<List<Environment>> GetAll()
+        public async Task<List<DalEnvironment>> GetAll()
         {
             return await _context.Environments.ToListAsync();
         }
         
 
-        public async Task<Environment?> GetByIdAsync(int id)
+        public async Task<DalEnvironment?> GetByIdAsync(int id)
         {
             return await _context.Environments.FindAsync(id);
         }
 
-        public async Task create(Environment entity)
+        public async Task create(DalEnvironment entity)
         {
             _context.Environments.Add(entity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(Environment entity)
+        public async Task Update(DalEnvironment entity)
         {
             _context.Environments.Update(entity);
             await _context.SaveChangesAsync();
