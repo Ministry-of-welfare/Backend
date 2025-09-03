@@ -1,12 +1,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dal.Api;
-using Dal.Models;
 using Microsoft.EntityFrameworkCore;
+using server_pra.Models;
 
 namespace Dal.Services
 {
-    public class DalEnvironmentService : IdalEnvironment
+    public class DalEnvironmentService : IDalEnvironment
     {
         private readonly AppDbContext _context;
 
@@ -15,24 +15,23 @@ namespace Dal.Services
             _context = context;
         }
 
-        public async Task<List<DalEnvironment>> GetAll()
+        public async Task<List<Environment>> GetAll()
         {
             return await _context.Environments.ToListAsync();
         }
 
-
-        public async Task<DalEnvironment?> GetByIdAsync(int id)
+        public async Task<Environment> GetByIdAsync(int id)
         {
             return await _context.Environments.FindAsync(id);
         }
 
-        public async Task create(DalEnvironment entity)
+        public async Task create(Environment entity)
         {
             _context.Environments.Add(entity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(DalEnvironment entity)
+        public async Task Update(Environment entity)
         {
             _context.Environments.Update(entity);
             await _context.SaveChangesAsync();
@@ -48,8 +47,6 @@ namespace Dal.Services
             }
         }
 
-
-
-
+      
     }
 }

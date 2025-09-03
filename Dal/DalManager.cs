@@ -1,42 +1,19 @@
 ﻿using Dal.Api;
-using Dal.Models;
+using server_pra.Models;
 
 namespace Dal
 {
-    public class DalManager
+    public class DalManager : IDal
     {
-        public IdalEnvironment Environment { get; }
-
         private readonly AppDbContext _context;
-        //public DalManager()
-        //{
+        public DalManager()
+        {
 
+         Environments=new Services.DalEnvironmentService(_context);
 
+         }
+        public IDalEnvironment Environments { get; }
 
-
-        //    ServiceCollection services = new ServiceCollection();
-
-        //    services.AddSingleton<IDalCustomer, DalCustomerService>();
-        //    services.AddSingleton<IdalInvestmentProvider, DalInvestmentProviderService>();
-        //    services.AddSingleton<IDalInvestment, DalInvestmentService>();
-        //    services.AddSingleton<IDalRequest, DalRequestService>();
-
-        //    services.AddSingleton<dbcontext>();
-        //    ServiceProvider servicesProvider = services.BuildServiceProvider();
-
-
-        //    // Customer = new DalCustomerService(data);
-        //    Customer = servicesProvider.GetRequiredService<IDalCustomer>();
-        //    InvestmentProvider = servicesProvider.GetRequiredService<IdalInvestmentProvider>();
-        //    Investment = servicesProvider.GetRequiredService<IDalInvestment>();
-
-        //    RequestDetails = servicesProvider.GetRequiredService<IDalRequest>();
-
-
-        //}
-
-
-
-
+       
     }
 }

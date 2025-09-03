@@ -3,8 +3,6 @@ using System.Threading.Tasks;
 
 namespace Dal.Api
 {
-
-
     public interface ICrud<T>
     {
 

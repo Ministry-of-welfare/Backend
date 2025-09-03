@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server_pra.Models;
 
 namespace Server.Controllers
 {
@@ -19,14 +19,14 @@ namespace Server.Controllers
 
         // GET: api/Environments
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<DalEnvironment>>> GetEnvironments()
+        public async Task<ActionResult<IEnumerable<Environment>>> GetEnvironments()
         {
             return await _context.Environments.ToListAsync();
         }
 
         // GET: api/Environments/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<DalEnvironment>> GetEnvironment(int id)
+        public async Task<ActionResult<Environment>> GetEnvironment(int id)
         {
             var environment = await _context.Environments.FindAsync(id);
 
@@ -40,7 +40,7 @@ namespace Server.Controllers
 
         // POST: api/Environments
         [HttpPost]
-        public async Task<ActionResult<DalEnvironment>> PostEnvironment(DalEnvironment environment)
+        public async Task<ActionResult<Environment>> PostEnvironment(Environment environment)
         {
             _context.Environments.Add(environment);
             await _context.SaveChangesAsync();
@@ -50,7 +50,7 @@ namespace Server.Controllers
 
         // PUT: api/Environments/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutEnvironment(int id, DalEnvironment environment)
+        public async Task<IActionResult> PutEnvironment(int id, Environment environment)
         {
             if (id != environment.EnvironmentId)
             {
