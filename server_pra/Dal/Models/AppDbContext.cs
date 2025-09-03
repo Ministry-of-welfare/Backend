@@ -1,6 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
 
-namespace server_pra.Models;
+namespace server_pra.Dal.Models;
 
 public partial class AppDbContext : DbContext
 {
@@ -26,11 +28,27 @@ public partial class AppDbContext : DbContext
         modelBuilder.Entity<Environment>(entity =>
         {
             entity.HasKey(e => e.EnvironmentId).HasName("PK__Environm__4B909A4913B864C9");
+
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.EnvironmentCode)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.EnvironmentName)
+                .IsRequired()
+                .HasMaxLength(50);
         });
 
         modelBuilder.Entity<TemplateStatus>(entity =>
         {
             entity.HasKey(e => e.TemplateStatusId).HasName("PK__Template__B255A4CFA76FFF8D");
+
+            entity.Property(e => e.Description).HasMaxLength(255);
+            entity.Property(e => e.StatusCode)
+                .IsRequired()
+                .HasMaxLength(20);
+            entity.Property(e => e.StatusName)
+                .IsRequired()
+                .HasMaxLength(50);
         });
 
         OnModelCreatingPartial(modelBuilder);

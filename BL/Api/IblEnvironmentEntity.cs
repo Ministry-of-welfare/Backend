@@ -5,7 +5,6 @@ namespace BL.Api
     public interface IBlEnvironmentEntity
     {
 
-
         Task<List<BlEnvironmentEntity>> GetAll();
         Task<BlEnvironmentEntity> GetById(int id);
         Task<BlEnvironmentEntity> Create(BlEnvironmentEntity item);
