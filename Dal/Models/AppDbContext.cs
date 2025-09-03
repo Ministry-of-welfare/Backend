@@ -8,6 +8,6 @@ namespace Dal.Models
             : base(options) { }
 
         // כאן רושמים את כל ה־Entities כטבלאות
-        public DbSet<EnvironmentEntity> Environments { get; set; }
+        public DbSet<Environment> Environments { get; set; }
     }
 }

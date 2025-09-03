@@ -1,65 +1,49 @@
-using Microsoft.AspNetCore.Mvc;
-using BL.Api;
-using BL.Models;
+﻿using Dal.Api;
+using Dal.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace server_pra.Controllers
+namespace Dal
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EnvironmentsController : ControllerBase
+    public class DalManager
     {
-        private readonly IblEnvironmentEntityService _service;
+        public IdalEnvironment Environment { get; }
 
-        public EnvironmentsController(IblEnvironmentEntityService service)
-        {
-            _service = service;
-        }
+        private readonly AppDbContext _context;
+        //public DalManager()
+        //{
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<BlEnvironmentEntity>>> GetAll()
-        {
-            var environments = await _service.GetAllAsync();
-            return Ok(environments);
-        }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<BlEnvironmentEntity>> GetById(int id)
-        {
-            var env = await _service.GetByIdAsync(id);
-            if (env == null)
-                return NotFound();
 
-            return Ok(env);
-        }
 
-        [HttpPost]
-        public async Task<ActionResult> Create(BlEnvironmentEntity env)
-        {
-            await _service.AddAsync(env);
-            return CreatedAtAction(nameof(GetById), new { id = env.EnvironmentId }, env);
-        }
+        //    ServiceCollection services = new ServiceCollection();
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, BlEnvironmentEntity env)
-        {
-            if (id != env.EnvironmentId)
-                return BadRequest();
+        //    services.AddSingleton<IDalCustomer, DalCustomerService>();
+        //    services.AddSingleton<IdalInvestmentProvider, DalInvestmentProviderService>();
+        //    services.AddSingleton<IDalInvestment, DalInvestmentService>();
+        //    services.AddSingleton<IDalRequest, DalRequestService>();
 
-            var updated = await _service.UpdateAsync(env);
-            if (!updated)
-                return NotFound();
+        //    services.AddSingleton<dbcontext>();
+        //    ServiceProvider servicesProvider = services.BuildServiceProvider();
 
-            return NoContent();
-        }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var deleted = await _service.DeleteAsync(id);
-            if (!deleted)
-                return NotFound();
+        //    // Customer = new DalCustomerService(data);
+        //    Customer = servicesProvider.GetRequiredService<IDalCustomer>();
+        //    InvestmentProvider = servicesProvider.GetRequiredService<IdalInvestmentProvider>();
+        //    Investment = servicesProvider.GetRequiredService<IDalInvestment>();
 
-            return NoContent();
-        }
+        //    RequestDetails = servicesProvider.GetRequiredService<IDalRequest>();
+
+
+        //}
+
+
+
+
     }
 }

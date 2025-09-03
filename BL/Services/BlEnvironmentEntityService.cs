@@ -17,7 +17,7 @@ namespace BL.Services
 
         public IEnumerable<BLEnvironmentEntity> GetAll()
         {
-            var dalEntities = _dal.Environments.GetAll();
+            var dalEntities = _dal.Environment.GetAll();
 
             return dalEntities.Select(e => new BLEnvironmentEntity
             {
@@ -45,7 +45,7 @@ namespace BL.Services
 
         public void Add(BLEnvironmentEntity entity)
         {
-            _dal.Environments.Add(new Dal.Models.EnvironmentEntity
+            _dal.Environments.Add(new Dal.Models.Environment
             {
                 EnvironmentId = entity.EnvironmentId,
                 EnvironmentCode = entity.EnvironmentCode,

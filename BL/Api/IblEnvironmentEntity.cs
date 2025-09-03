@@ -1,11 +1,16 @@
 
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
 namespace BL.Api
 {
     public interface IblEnvironmentEntity
     {
-        int EnvironmentId { get; set; }
-        string EnvironmentCode { get; set; }
-        string EnvironmentName { get; set; }
-        string? Description { get; set; }
+        Task<List<Blê> GetAll();
+        Task create(BlCustomer customer);
+        Task DeleteById(String id);
+        Task<BlCustomer> getCustomerById(String id);
+
+        Task update(BlCustomer customer);
     }
 }

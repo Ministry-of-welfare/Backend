@@ -6,38 +6,39 @@ using System.Threading.Tasks;
 
 namespace Dal.Services
 {
-    public class DalEnvironmentEntityService : IEnvironmentEntity
+    public class DalEnvironmentService : IdalEnvironment
     {
         private readonly AppDbContext _context;
 
-        public DalEnvironmentEntityService(AppDbContext context)
+        public DalEnvironmentService(AppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<EnvironmentEntity>> GetAllAsync()
+        public async Task<List<Environment>> GetAll()
         {
             return await _context.Environments.ToListAsync();
         }
+        
 
-        public async Task<EnvironmentEntity?> GetByIdAsync(int id)
+        public async Task<Environment?> GetByIdAsync(int id)
         {
             return await _context.Environments.FindAsync(id);
         }
 
-        public async Task AddAsync(EnvironmentEntity entity)
+        public async Task create(Environment entity)
         {
             _context.Environments.Add(entity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(EnvironmentEntity entity)
+        public async Task Update(Environment entity)
         {
             _context.Environments.Update(entity);
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task Delete(int id)
         {
             var entity = await _context.Environments.FindAsync(id);
             if (entity != null)
@@ -46,5 +47,9 @@ namespace Dal.Services
                 await _context.SaveChangesAsync();
             }
         }
+
+       
+
+      
     }
 }
