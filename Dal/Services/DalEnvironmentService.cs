@@ -1,8 +1,8 @@
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Dal.Api;
 using Dal.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Dal.Services
 {
@@ -19,7 +19,7 @@ namespace Dal.Services
         {
             return await _context.Environments.ToListAsync();
         }
-        
+
 
         public async Task<DalEnvironment?> GetByIdAsync(int id)
         {
@@ -48,8 +48,8 @@ namespace Dal.Services
             }
         }
 
-       
 
-      
+
+
     }
 }

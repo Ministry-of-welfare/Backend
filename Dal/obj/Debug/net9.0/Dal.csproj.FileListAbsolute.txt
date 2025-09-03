@@ -13,3 +13,18 @@ C:\Users\משתמש\Projects\practicom\Backend\Dal\obj\Debug\net9.0\refint\Dal.d
 C:\Users\משתמש\Projects\practicom\Backend\Dal\obj\Debug\net9.0\Dal.pdb
 C:\Users\משתמש\Projects\practicom\Backend\Dal\obj\Debug\net9.0\Dal.genruntimeconfig.cache
 C:\Users\משתמש\Projects\practicom\Backend\Dal\obj\Debug\net9.0\ref\Dal.dll
+C:\משרד הרווחה\Backend\Dal\bin\Debug\net9.0\Dal.deps.json
+C:\משרד הרווחה\Backend\Dal\bin\Debug\net9.0\Dal.runtimeconfig.json
+C:\משרד הרווחה\Backend\Dal\bin\Debug\net9.0\Dal.dll
+C:\משרד הרווחה\Backend\Dal\bin\Debug\net9.0\Dal.pdb
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.csproj.AssemblyReference.cache
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.GeneratedMSBuildEditorConfig.editorconfig
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.AssemblyInfoInputs.cache
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.AssemblyInfo.cs
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.csproj.CoreCompileInputs.cache
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.sourcelink.json
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.dll
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\refint\Dal.dll
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.pdb
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\Dal.genruntimeconfig.cache
+C:\משרד הרווחה\Backend\Dal\obj\Debug\net9.0\ref\Dal.dll

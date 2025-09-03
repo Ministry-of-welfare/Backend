@@ -1,9 +1,8 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Dal;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dal.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Server.Controllers
 {

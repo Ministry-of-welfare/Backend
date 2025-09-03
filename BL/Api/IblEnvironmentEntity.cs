@@ -1,10 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BL.Models;
-using Dal.Models;
-
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BL.Api
 {
@@ -19,7 +13,7 @@ namespace BL.Api
         Task Delete(int id);
 
         // פונקציות המרה בין שכבות
-        
+
         BlEnvironmentEntity CastingEnvironmentEntityFromBlToDal(BlEnvironmentEntity? e);
 
     }

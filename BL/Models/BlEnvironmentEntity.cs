@@ -1,5 +1,3 @@
-using System;
-
 namespace BL.Models
 {
     public class BlEnvironmentEntity
