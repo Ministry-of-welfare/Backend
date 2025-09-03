@@ -1,6 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
-namespace server_pra.Models;
+namespace Dal.Models;
 
 public partial class Environment
 {
@@ -17,4 +21,7 @@ public partial class Environment
 
     [StringLength(255)]
     public string Description { get; set; }
+
+    [InverseProperty("Environment")]
+    public virtual ICollection<Template> Templates { get; set; } = new List<Template>();
 }

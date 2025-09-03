@@ -4,24 +4,24 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
-namespace Dal.Models;
+namespace server_pra.Models;
 
-public partial class TemplateStatus
+public partial class Environment
 {
     [Key]
-    public int TemplateStatusId { get; set; }
+    public int EnvironmentId { get; set; }
 
     [Required]
     [StringLength(20)]
-    public string StatusCode { get; set; }
+    public string EnvironmentCode { get; set; }
 
     [Required]
     [StringLength(50)]
-    public string StatusName { get; set; }
+    public string EnvironmentName { get; set; }
 
     [StringLength(255)]
     public string Description { get; set; }
 
-    [InverseProperty("TemplateStatus")]
+    [InverseProperty("Environment")]
     public virtual ICollection<Template> Templates { get; set; } = new List<Template>();
 }

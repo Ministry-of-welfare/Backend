@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dal.Api;
 using Microsoft.EntityFrameworkCore;
-using server_pra.Models;
+using Dal.Models;
 
 namespace Dal.Services
 {

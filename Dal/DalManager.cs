@@ -1,5 +1,5 @@
 ﻿using Dal.Api;
-using server_pra.Models;
+using Dal.Models;
 
 namespace Dal
 {
