@@ -15,34 +15,34 @@ namespace Dal.Services
             _context = context;
         }
 
-        public async Task<List<TDataSourceType>> GetAll()
+        public async Task<List<DataSourceType>> GetAll()
         {
-            return await _context.TDataSourceTypes.ToListAsync();
+            return await _context.TDataSourceTypes.ToListAsync(); // Updated property name
         }
 
-        public async Task<TDataSourceType> GetByIdAsync(int id)
+        public async Task<DataSourceType> GetByIdAsync(int id)
         {
-            return await _context.TDataSourceTypes.FindAsync(id);
+            return await _context.TDataSourceTypes.FindAsync(id); // Updated property name
         }
 
-        public async Task Create(TDataSourceType entity)
+        public async Task Create(DataSourceType entity)
         {
-            _context.TDataSourceTypes.Add(entity);
+            _context.TDataSourceTypes.Add(entity); // Updated property name
             await _context.SaveChangesAsync();
         }
 
-        public async Task Update(TDataSourceType entity)
+        public async Task Update(DataSourceType entity)
         {
-            _context.TDataSourceTypes.Update(entity);
+            _context.TDataSourceTypes.Update(entity); // Updated property name
             await _context.SaveChangesAsync();
         }
 
         public async Task Delete(int id)
         {
-            var entity = await _context.TDataSourceTypes.FindAsync(id);
+            var entity = await _context.TDataSourceTypes.FindAsync(id); // Updated property name
             if (entity != null)
             {
-                _context.TDataSourceTypes.Remove(entity);
+                _context.TDataSourceTypes.Remove(entity); // Updated property name
                 await _context.SaveChangesAsync();
             }
         }

@@ -19,14 +19,14 @@ namespace Server.Controllers
 
         // GET: api/Systems
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BlSystem>>> GetSystems()
+        public async Task<ActionResult<IEnumerable<BlTSystem>>> GetSystems()
         {
             return Ok(await _blSystem.GetAll());
         }
 
         // GET: api/Systems/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BlSystem>> GetSystem(int id)
+        public async Task<ActionResult<BlTSystem>> GetSystem(int id)
         {
             var system = await _blSystem.GetById(id);
 
@@ -40,7 +40,7 @@ namespace Server.Controllers
 
         // POST: api/Systems
         [HttpPost]
-        public async Task<ActionResult<BlSystem>> PostSystem(BlSystem system)
+        public async Task<ActionResult<BlTSystem>> PostSystem(BlTSystem system)
         {
             var createdSystem = await _blSystem.Create(system);
 
@@ -49,7 +49,7 @@ namespace Server.Controllers
 
         // PUT: api/Systems/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutSystem(int id, BlSystem system)
+        public async Task<IActionResult> PutSystem(int id, BlTSystem system)
         {
             if (id != system.SystemId)
             {

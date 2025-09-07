@@ -37,7 +37,7 @@ namespace BL.Services
 
         public async Task<BlTDataSourceType> Create(BlTDataSourceType item)
         {
-            var dataSourceType = new Dal.Models.TDataSourceType
+            var dataSourceType = new Dal.Models.DataSourceType
             {
                 DataSourceTypeDesc = item.DataSourceTypeDesc
             };
@@ -50,7 +50,7 @@ namespace BL.Services
 
         public async Task<BlTDataSourceType> Update(BlTDataSourceType item)
         {
-            var dataSourceType = new Dal.Models.TDataSourceType
+            var dataSourceType = new Dal.Models.DataSourceType
             {
                 DataSourceTypeId = item.DataSourceTypeId,
                 DataSourceTypeDesc = item.DataSourceTypeDesc

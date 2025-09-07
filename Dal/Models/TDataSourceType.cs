@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Models;
 
@@ -10,7 +8,7 @@ namespace Dal.Models;
 /// טבלת סוגי מקור הקלטה
 /// </summary>
 [Table("T_DataSourceType")]
-public partial class TDataSourceType
+public partial class DataSourceType
 {
     /// <summary>
     /// קוד מקור

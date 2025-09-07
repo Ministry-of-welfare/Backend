@@ -83,7 +83,7 @@ public partial class TabImportDataSource
 
     [ForeignKey("DataSourceTypeId")]
     [InverseProperty("TabImportDataSources")]
-    public virtual TDataSourceType DataSourceType { get; set; }
+    public virtual DataSourceType DataSourceType { get; set; }
 
     [InverseProperty("ImportDataSource")]
     public virtual ICollection<TabImportError> TabImportErrors { get; set; } = new List<TabImportError>();

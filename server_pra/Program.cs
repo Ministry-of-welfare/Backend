@@ -4,6 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using BL.Api;
+using BL.Services;
+using Dal.Api;
+using Dal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +28,11 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+builder.Services.AddScoped<IDalSystem, DalSystemService>();
+builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
+
+builder.Services.AddScoped<IBlSystem, BlSystemService>();
+builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
 
 var app = builder.Build();
 

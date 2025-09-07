@@ -19,14 +19,14 @@ namespace Server.Controllers
 
         // GET: api/DataSourceTypes
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BlDataSourceType>>> GetDataSourceTypes()
+        public async Task<ActionResult<IEnumerable<BlTDataSourceType>>> GetDataSourceTypes()
         {
             return Ok(await _blDataSourceType.GetAll());
         }
 
         // GET: api/DataSourceTypes/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<BlDataSourceType>> GetDataSourceType(int id)
+        public async Task<ActionResult<BlTDataSourceType>> GetDataSourceType(int id)
         {
             var dataSourceType = await _blDataSourceType.GetById(id);
 
@@ -40,7 +40,7 @@ namespace Server.Controllers
 
         // POST: api/DataSourceTypes
         [HttpPost]
-        public async Task<ActionResult<BlDataSourceType>> PostDataSourceType(BlDataSourceType dataSourceType)
+        public async Task<ActionResult<BlTDataSourceType>> PostDataSourceType(BlTDataSourceType dataSourceType)
         {
             var createdDataSourceType = await _blDataSourceType.Create(dataSourceType);
 
@@ -49,7 +49,7 @@ namespace Server.Controllers
 
         // PUT: api/DataSourceTypes/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutDataSourceType(int id, BlDataSourceType dataSourceType)
+        public async Task<IActionResult> PutDataSourceType(int id, BlTDataSourceType dataSourceType)
         {
             if (id != dataSourceType.DataSourceTypeId)
             {
