@@ -5,5 +5,7 @@ namespace Dal.Api
        public IDalEnvironment Environments { get; }
         public IDalDataSourceType DataSourceType { get; }
         public IDalSystem System { get; }
+        public IDalTabImportDataSource TabImportDataSource { get; }
+
     }
 }

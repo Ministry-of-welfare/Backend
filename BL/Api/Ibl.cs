@@ -5,6 +5,8 @@ namespace BL.Api
         IBlEnvironmentEntity EnvironmentEntity { get; }
         IBlDataSourceType DataSourceType { get; }
         IBlSystem System { get; }
+        IBlTabImportDataSource TabImportDataSource { get; } 
+
 
     }
 }
