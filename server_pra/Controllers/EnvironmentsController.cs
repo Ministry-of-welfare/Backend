@@ -17,15 +17,16 @@ namespace Server.Controllers
             _context = context;
         }
 
-        // GET: api/Environments
-        [HttpGet]
+        // GET: api/Environments/getAll
+        [HttpGet("getAll")]
+
         public async Task<ActionResult<IEnumerable<Environment>>> GetEnvironments()
         {
             return await _context.Environments.ToListAsync();
         }
 
-        // GET: api/Environments/5
-        [HttpGet("{id}")]
+        // GET: api/Environments/get/5
+        [HttpGet("get/{id}")]
         public async Task<ActionResult<Environment>> GetEnvironment(int id)
         {
             var environment = await _context.Environments.FindAsync(id);
@@ -38,8 +39,8 @@ namespace Server.Controllers
             return environment;
         }
 
-        // POST: api/Environments
-        [HttpPost]
+        // POST: api/Environments/create
+        [HttpPost("create")]
         public async Task<ActionResult<Environment>> PostEnvironment(Environment environment)
         {
             _context.Environments.Add(environment);
@@ -49,7 +50,7 @@ namespace Server.Controllers
         }
 
         // PUT: api/Environments/5
-        [HttpPut("{id}")]
+        [HttpPut("update/{id}")]
         public async Task<IActionResult> PutEnvironment(int id, Environment environment)
         {
             if (id != environment.EnvironmentId)
@@ -64,7 +65,7 @@ namespace Server.Controllers
         }
 
         // DELETE: api/Environments/5
-        [HttpDelete("{id}")]
+        [HttpDelete("delete/{id}")]
         public async Task<IActionResult> DeleteEnvironment(int id)
         {
             var environment = await _context.Environments.FindAsync(id);
