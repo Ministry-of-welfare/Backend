@@ -22,7 +22,7 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<System> Systems { get; set; }
 
-    public virtual DbSet<TDataSourceType> TDataSourceTypes { get; set; }
+    public virtual DbSet<DataSourceType> TDataSourceTypes { get; set; }
 
     public virtual DbSet<TImportStatus> TImportStatuses { get; set; }
 
@@ -148,7 +148,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.SystemName).HasComment("שם תצוגה של המערכת");
         });
 
-        modelBuilder.Entity<TDataSourceType>(entity =>
+        modelBuilder.Entity<DataSourceType>(entity =>
         {
             entity.HasKey(e => e.DataSourceTypeId).HasName("PK__T_DataSo__CE60140A2ED5101D");
 

@@ -7,7 +7,7 @@ namespace Dal.Api
     {
 
         Task<List<T>> GetAll();
-        Task create(T item);
+        Task Create(T item);
 
         Task Delete(int item);
 

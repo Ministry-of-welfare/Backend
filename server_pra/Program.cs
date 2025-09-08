@@ -2,9 +2,15 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+
+using BL.Api;
+using BL.Services;
+using Dal.Api;
+using Dal.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,8 +43,28 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200") // כתובת הלקוח
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+builder.Services.AddScoped<IDalSystem, DalSystemService>();
+builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
+
+builder.Services.AddScoped<IBlSystem, BlSystemService>();
+builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
 
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 // סוואגר
 if (app.Environment.IsDevelopment())
@@ -46,6 +72,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+app.UseCors("AllowAngular");
+
+// ודאי שאת משתמשת במדיניות הנכונה
 app.UseCors("AllowAngular");
 
 app.UseHttpsRedirection();
