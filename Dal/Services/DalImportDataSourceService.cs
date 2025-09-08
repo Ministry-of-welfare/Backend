@@ -48,5 +48,17 @@ namespace Dal.Services
                 await _db.SaveChangesAsync();
             }
         }
+
+       
+
+        Task ICrud<TabImportDataSource>.Update(TabImportDataSource item)
+        {
+            return Update(item);
+        }
+
+        Task ICrud<TabImportDataSource>.Create(TabImportDataSource item)
+        {
+            return Create(item);
+        }
     }
 }

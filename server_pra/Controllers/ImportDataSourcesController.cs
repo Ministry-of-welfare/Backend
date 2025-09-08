@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using server_pr.Models; // לוודא שיש פה DbContext + TabImportDataSource
+using server_pra.Models; // לוודא שיש פה DbContext + TabImportDataSource
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -38,13 +38,13 @@ namespace server.Controllers
             _context.TabImportDataSources.Add(item);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetById), new { id = item.Id }, item);
+            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] TabImportDataSource item)
         {
-            if (id != item.Id)
+            if (id != item.ImportDataSourceId)
                 return BadRequest("ID mismatch");
 
             _context.Entry(item).State = EntityState.Modified;
@@ -55,7 +55,7 @@ namespace server.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!await _context.TabImportDataSources.AnyAsync(e => e.Id == id))
+                if (!await _context.TabImportDataSources.AnyAsync(e => e.ImportDataSourceId == id))
                     return NotFound();
                 throw;
             }
