@@ -9,7 +9,7 @@ namespace BL.Api
     {
         Task<List<BlTabImportDataSource>> GetAll();
         Task<BlTabImportDataSource> GetById(int id);
-        Task<BlTabImportDataSource> Create(BlTabImportDataSource item);
+        Task Create(BlTabImportDataSource item);
         Task<BlTabImportDataSource> Update(BlTabImportDataSource item);
         Task Delete(int id);
     }

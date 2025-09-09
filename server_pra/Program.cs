@@ -15,18 +15,18 @@ using Dal.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 //// רישום DbContext עם חיבור מתוך appsettings.json
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAngular",
-        policy =>
-        {
-            policy.WithOrigins("http://localhost:4200") // ה־Frontend שלך
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
+//builder.Services.AddDbContext<AppDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+//builder.Services.AddCors(options =>
+//{
+//    options.AddPolicy("AllowAngular",
+//        policy =>
+//        {
+//            policy.WithOrigins("http://localhost:4200") // ה־Frontend שלך
+//                  .AllowAnyHeader()
+//                  .AllowAnyMethod();
+//        });
+//});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
@@ -53,11 +53,13 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddScoped<IDalSystem, DalSystemService>();
+builder.Services.AddScoped<IDalImportStatus, DalImportStatusService>();
+builder.Services.AddScoped<IDalImportDataSource, DalImportDataSourceService>();
 builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
-
+builder.Services.AddScoped<IBlImportStatus, BlImportStatusService>();
 builder.Services.AddScoped<IBlSystem, BlSystemService>();
 builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
-
+builder.Services.AddScoped<IBlTabImportDataSource, BlTabImportDataSourceService>();
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

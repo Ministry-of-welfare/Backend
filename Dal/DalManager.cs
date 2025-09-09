@@ -12,6 +12,7 @@ namespace Dal
             Environments = new Services.DalEnvironmentService(_context);
             DataSourceType = new Services.DalDataSourceTypeService(_context);
             System = new Services.DalSystemService(_context);
+            ImportStatus = new Services.DalImportStatusService(_context);
             TabImportDataSource = new Services.DalImportDataSourceService(_context);
 
 
@@ -19,6 +20,8 @@ namespace Dal
         public IDalEnvironment Environments { get; }
         public IDalDataSourceType DataSourceType { get; }
         public IDalSystem System { get; }
+
+        public IDalImportStatus ImportStatus { get; }
         public IDalImportDataSource TabImportDataSource { get; }
 
 
