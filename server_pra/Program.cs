@@ -53,8 +53,10 @@ builder.Services.AddCors(options =>
     });
 });
 builder.Services.AddScoped<IDalSystem, DalSystemService>();
-builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
+builder.Services.AddScoped<IDalImportStatus, DalImportStatusService>();
 
+builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
+builder.Services.AddScoped<IBlImportStatus, BlImportStatusService>();
 builder.Services.AddScoped<IBlSystem, BlSystemService>();
 builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
 

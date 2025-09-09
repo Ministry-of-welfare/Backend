@@ -19,6 +19,8 @@ namespace Dal
         public IDalEnvironment Environments { get; }
         public IDalDataSourceType DataSourceType { get; }
         public IDalSystem System { get; }
+
+        public IDalImportStatus ImportStatus { get; }
         public IDalImportDataSource TabImportDataSource { get; }
 
 
