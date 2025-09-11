@@ -1,9 +1,10 @@
 
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace server.Controllers
 {
@@ -42,11 +43,19 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
         }
 
-        [HttpPut("{id}")]
+        private void SetEndDateToNow(TabImportDataSource item)
+        {
+            item.EndDate = DateTime.Now;
+        }
+
+        [HttpPut("updateJustEndDate/{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] TabImportDataSource item)
         {
             if (id != item.ImportDataSourceId)
                 return BadRequest("ID mismatch");
+
+            // קריאה לפונקציה שמעדכנת את EndDate
+            SetEndDateToNow(item);
 
             _context.Entry(item).State = EntityState.Modified;
 
