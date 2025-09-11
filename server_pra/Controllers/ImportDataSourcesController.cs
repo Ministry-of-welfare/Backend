@@ -1,11 +1,15 @@
 
+
 using BL.Api;
 using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
+
 
 namespace server.Controllers
 {
