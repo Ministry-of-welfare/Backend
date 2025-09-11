@@ -12,6 +12,14 @@ namespace BL.Api
         Task Create(BlTabImportDataSource item);
         Task<BlTabImportDataSource> Update(BlTabImportDataSource item);
         Task Delete(int id);
+
+
+        // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
+        string GetTableName(int id);
+        List<ColumnDef> GetColumns(int id);
+        bool TableExists(string tableName);
+        void ExecuteSql(string sql);
+        void CreateDynamicTable(int importDataSourceId);
     }
 }
 

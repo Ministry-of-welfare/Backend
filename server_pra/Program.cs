@@ -1,32 +1,20 @@
-﻿using Dal.Models;
+﻿using BL;
+using BL.Api;
+using BL.Services;
+using Dal;
+using Dal.Api;
+using Dal.Models;
+using Dal.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-
-using BL.Api;
-using BL.Services;
-using Dal.Api;
-using Dal.Services;
+using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-//// רישום DbContext עם חיבור מתוך appsettings.json
-//builder.Services.AddDbContext<AppDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-//builder.Services.AddCors(options =>
-//{
-//    options.AddPolicy("AllowAngular",
-//        policy =>
-//        {
-//            policy.WithOrigins("http://localhost:4200") // ה־Frontend שלך
-//                  .AllowAnyHeader()
-//                  .AllowAnyMethod();
-//        });
-//});
 
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
@@ -52,6 +40,17 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
+
+// Add the missing connectionString variable initialization at the top of the file.
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddScoped<IDal>(sp =>
+{
+    var context = sp.GetRequiredService<AppDbContext>();
+    return new DalManager(context);
+});
+//builder.Services.AddScoped<IDal, DalManager>();  // המימוש שלך של ה־DAL
+builder.Services.AddScoped<IBl, BlManager>();  // המימוש שלך של ה־BL
 builder.Services.AddScoped<IDalSystem, DalSystemService>();
 builder.Services.AddScoped<IDalImportStatus, DalImportStatusService>();
 builder.Services.AddScoped<IDalImportDataSource, DalImportDataSourceService>();
@@ -60,7 +59,13 @@ builder.Services.AddScoped<IBlImportStatus, BlImportStatusService>();
 builder.Services.AddScoped<IBlSystem, BlSystemService>();
 builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
 builder.Services.AddScoped<IBlTabImportDataSource, BlTabImportDataSourceService>();
+//builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
+
 var app = builder.Build();
+
+
+
+
 
 if (app.Environment.IsDevelopment())
 {

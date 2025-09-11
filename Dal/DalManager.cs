@@ -1,29 +1,33 @@
-﻿using Dal.Api;
+﻿
+
+using Dal.Api;
 using Dal.Models;
+using Dal.Services;
 
 namespace Dal
 {
-    public class DalManager : IDal
+    public class DalManager:IDal
     {
         private readonly AppDbContext _context;
-        public DalManager()
+        
+
+        public DalManager (AppDbContext context)
         {
+            _context = context;
+            //_connectionString = connectionString;
 
-            Environments = new Services.DalEnvironmentService(_context);
-            DataSourceType = new Services.DalDataSourceTypeService(_context);
-            System = new Services.DalSystemService(_context);
-            ImportStatus = new Services.DalImportStatusService(_context);
-            TabImportDataSource = new Services.DalImportDataSourceService(_context);
-
-
+            Environments = new DalEnvironmentService(_context);
+            DataSourceType = new DalDataSourceTypeService(_context);
+            System = new DalSystemService(_context);
+            ImportStatus = new DalImportStatusService(_context);
+            TabImportDataSource = new DalImportDataSourceService(_context);
         }
+
         public IDalEnvironment Environments { get; }
         public IDalDataSourceType DataSourceType { get; }
         public IDalSystem System { get; }
-
         public IDalImportStatus ImportStatus { get; }
         public IDalImportDataSource TabImportDataSource { get; }
-
-
+        //public IDalImportDataSource TabImportDataSource => new DalImportDataSourceService(_context, _connectionString);
     }
 }

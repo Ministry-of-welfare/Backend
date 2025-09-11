@@ -1,10 +1,11 @@
 
+using BL.Api;
+using Dal.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace server.Controllers
 {
@@ -14,8 +15,11 @@ namespace server.Controllers
     {
         private readonly AppDbContext _context;
 
-        public ImportDataSourcesController(AppDbContext context)
+        private readonly IBl _bl;
+
+        public ImportDataSourcesController(AppDbContext context, IBl bl)
         {
+            _bl = bl;
             _context = context;
         }
 
@@ -85,5 +89,27 @@ namespace server.Controllers
 
             return NoContent();
         }
+
+        //יצירת טבלה דינאמית
+        [HttpPost("{id}/create-table")]
+        public IActionResult CreateDynamicTable(int id)
+        {
+            try
+            {
+                if (_bl == null)
+                    throw new Exception("_bl is null");
+                if (_bl.TabImportDataSource == null)
+                    throw new Exception("_bl.TabImportDataSource is");
+
+
+                                _bl.TabImportDataSource.CreateDynamicTable(id);
+                return Ok($"טבלה נוצרה בהצלחה עבור ImportDataSourceId {id}");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"שגיאה: {ex.Message}\n{ex.StackTrace}");
+            }
+        }
+
     }
 }
