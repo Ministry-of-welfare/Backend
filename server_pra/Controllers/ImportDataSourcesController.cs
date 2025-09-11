@@ -42,14 +42,6 @@ namespace server.Controllers
             return entity;
         }
 
-        [HttpPost]
-        public async Task<ActionResult<TabImportDataSource>> Create([FromBody] TabImportDataSource item)
-        {
-            _context.TabImportDataSources.Add(item);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
-        }
 
         private void SetEndDateToNow(TabImportDataSource item)
         {
@@ -94,6 +86,14 @@ namespace server.Controllers
             return NoContent();
         }
 
+        [HttpPost]
+        public async Task<ActionResult<TabImportDataSource>> Create([FromBody] TabImportDataSource item)
+        {
+            _context.TabImportDataSources.Add(item);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
+        }
         //יצירת טבלה דינאמית
         [HttpPost("{id}/create-table")]
         public IActionResult CreateDynamicTable(int id)
@@ -114,6 +114,8 @@ namespace server.Controllers
                 return BadRequest($"שגיאה: {ex.Message}\n{ex.StackTrace}");
             }
         }
+
+        
 
     }
 }
