@@ -1,14 +1,14 @@
 
 
-using BL.Api;
-using Dal.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BL.Api;
+using BL.Models;
+using Dal.Models;
 using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 
 namespace server.Controllers
@@ -43,34 +43,19 @@ namespace server.Controllers
         }
 
 
-        private void SetEndDateToNow(TabImportDataSource item)
-        {
-            item.EndDate = DateTime.Now;
-        }
+        //private void SetEndDateToNow(TabImportDataSource item)
+        //{
+        //    item.EndDate = DateTime.Now;
+        //}
 
         [HttpPut("updateJustEndDate/{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] TabImportDataSource item)
+        public async Task<IActionResult> UpdateEndDate(int id)
         {
-            if (id != item.ImportDataSourceId)
-                return BadRequest("ID mismatch");
+            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); // BL מחזיר BL model
+            if (updated == null)
+                return NotFound();
 
-            // קריאה לפונקציה שמעדכנת את EndDate
-            SetEndDateToNow(item);
-
-            _context.Entry(item).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!await _context.TabImportDataSources.AnyAsync(e => e.ImportDataSourceId == id))
-                    return NotFound();
-                throw;
-            }
-
-            return NoContent();
+            return Ok(new { message = "עודכן בהצלחה" });
         }
 
         [HttpDelete("{id}")]
@@ -86,13 +71,11 @@ namespace server.Controllers
             return NoContent();
         }
 
-        [HttpPost]
-        public async Task<ActionResult<TabImportDataSource>> Create([FromBody] TabImportDataSource item)
+        [HttpPost("create")]
+        public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
         {
-            _context.TabImportDataSources.Add(item);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
+            await _bl.TabImportDataSource.Create(item);          // אין החזרת ערך
+            return Ok(new { message = "נוצר בהצלחה" });       // ניתן לשנות הודעה לפי הצורך
         }
         //יצירת טבלה דינאמית
         [HttpPost("{id}/create-table")]

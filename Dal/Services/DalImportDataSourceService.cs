@@ -31,18 +31,18 @@ namespace Dal.Services
             return await _db.TabImportDataSources.FindAsync(id);
         }
 
-        public async Task<TabImportDataSource> Create(TabImportDataSource item)
+        public async Task Create(TabImportDataSource item)
         {
             _db.TabImportDataSources.Add(item);
             await _db.SaveChangesAsync();
-            return item;
+            
         }
 
-        public async Task<TabImportDataSource> Update(TabImportDataSource item)
+        public async Task Update(TabImportDataSource item)
         {
             _db.TabImportDataSources.Update(item);
             await _db.SaveChangesAsync();
-            return item;
+           
         }
 
         public async Task Delete(int id)

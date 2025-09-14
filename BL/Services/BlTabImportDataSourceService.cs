@@ -81,6 +81,7 @@ namespace BL.Services
         {
             var dalEntity = ToDal(item);
             await _dal.Create(dalEntity);
+
         }
 
         //public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
@@ -168,6 +169,15 @@ namespace BL.Services
             throw new NotImplementedException();
         }
 
-       
+        public async Task<BlTabImportDataSource> UpdateEndDate(int id)
+        {
+            var entity = await _dal.GetById(id);
+            if (entity == null) return null!;
+
+            entity.EndDate = DateTime.Now; // לוגיקה עסקית
+            await _dal.Update(entity);     // שימוש ב-ICrud, לא מחזיר ערך
+
+            return ToBl(entity);            // החזרת BL model ל-Controller
+        }
     }
 }
