@@ -9,6 +9,9 @@ using Dal.Models;
 using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server_pra.Models;
+using AppDbContext = Dal.Models.AppDbContext;
+using TabImportDataSource = Dal.Models.TabImportDataSource;
 
 
 namespace server.Controllers
@@ -43,10 +46,7 @@ namespace server.Controllers
         }
 
 
-        //private void SetEndDateToNow(TabImportDataSource item)
-        //{
-        //    item.EndDate = DateTime.Now;
-        //}
+       
 
         [HttpPut("updateJustEndDate/{id}")]
         public async Task<IActionResult> UpdateEndDate(int id)
@@ -56,6 +56,18 @@ namespace server.Controllers
                 return NotFound();
 
             return Ok(new { message = "עודכן בהצלחה" });
+        }
+        [HttpPut("update{id}")]
+        public async Task<IActionResult> Update(int id, BlTabImportDataSource ds)
+        {
+            if (id != ds.DataSourceTypeId)
+            {
+                return BadRequest();
+            }
+
+            await _bl.TabImportDataSource.Update(ds);
+
+            return NoContent();
         }
 
         [HttpDelete("{id}")]

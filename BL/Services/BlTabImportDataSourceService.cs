@@ -164,9 +164,15 @@ namespace BL.Services
 
             ExecuteSql(sql);
         }
-        public Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
+        public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
         {
-            throw new NotImplementedException();
+            var entity = await _dal.GetById(item.ImportDataSourceId);
+            if (entity == null) return null!;
+
+            entity.EndDate = DateTime.Now; // לוגיקה עסקית
+            await _dal.Update(entity);     // שימוש ב-ICrud, לא מחזיר ערך
+
+            return ToBl(entity);
         }
 
         public async Task<BlTabImportDataSource> UpdateEndDate(int id)
