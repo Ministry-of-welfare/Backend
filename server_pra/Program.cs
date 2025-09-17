@@ -40,7 +40,16 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 // Add the missing connectionString variable initialization at the top of the file.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
