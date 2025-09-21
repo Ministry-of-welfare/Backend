@@ -13,6 +13,8 @@ namespace BL
         public IBlImportStatus ImportStatus { get; }
         public IBlTabImportDataSource TabImportDataSource { get; }
 
+        
+
         // אפשר למחוק את זה אם אין בו צורך
         // public IBlTabImportDataSource TabImportDataSourceService { get; }
 

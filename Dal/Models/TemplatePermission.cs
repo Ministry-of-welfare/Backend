@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Models;
 
@@ -14,7 +11,6 @@ public partial class TemplatePermission
     /// <summary>
     /// מזהה הרשאה
     /// </summary>
-    [Key]
     public int PermissionId { get; set; }
 
     /// <summary>
@@ -25,15 +21,11 @@ public partial class TemplatePermission
     /// <summary>
     /// סוג ישות (User או Group)
     /// </summary>
-    [Required]
-    [StringLength(20)]
     public string PrincipalType { get; set; }
 
     /// <summary>
     /// שם משתמש או קבוצה (user@domain.gov.il או Developers)
     /// </summary>
-    [Required]
-    [StringLength(100)]
     public string PrincipalName { get; set; }
 
     /// <summary>
@@ -56,7 +48,5 @@ public partial class TemplatePermission
     /// </summary>
     public bool CanDuplicate { get; set; }
 
-    [ForeignKey("TemplateId")]
-    [InverseProperty("TemplatePermissions")]
     public virtual Template Template { get; set; }
 }
