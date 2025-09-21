@@ -25,7 +25,7 @@ namespace Dal.Services
             return await _context.Environments.FindAsync(id);
         }
       
-        public async Task create(Environment entity)
+        public async Task Create(Environment entity)
         {
             _context.Environments.Add(entity);
             await _context.SaveChangesAsync();
@@ -47,9 +47,6 @@ namespace Dal.Services
             }
         }
 
-        public Task Create(Environment item)
-        {
-            throw new System.NotImplementedException();
-        }
+        
     }
 }

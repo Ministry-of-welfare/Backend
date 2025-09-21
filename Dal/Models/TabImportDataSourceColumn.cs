@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Models;
 
 /// <summary>
 /// טבלת עמודות לכל סוג קובץ
 /// </summary>
-[Table("TAB_ImportDataSourceColumns")]
 public partial class TabImportDataSourceColumn
 {
     /// <summary>
     /// קוד עמודה
     /// </summary>
-    [Key]
     public int ImportDataSourceColumnsId { get; set; }
 
     /// <summary>
@@ -31,9 +26,6 @@ public partial class TabImportDataSourceColumn
     /// <summary>
     /// שם עמודה
     /// </summary>
-    [Required]
-    [StringLength(200)]
-    [Unicode(false)]
     public string ColumnName { get; set; }
 
     /// <summary>
@@ -44,11 +36,9 @@ public partial class TabImportDataSourceColumn
     /// <summary>
     /// שם עמודה בעברית עבור קובץ השגיאות
     /// </summary>
-    [StringLength(200)]
-    [Unicode(false)]
     public string ColumnNameHebDescription { get; set; }
 
-    [ForeignKey("FormatColumnId")]
-    [InverseProperty("TabImportDataSourceColumns")]
     public virtual TabFormatColumn FormatColumn { get; set; }
+
+    public virtual TabImportDataSource ImportDataSource { get; set; }
 }
