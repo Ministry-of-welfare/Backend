@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dal.Models;
 
-[Table("TFileStatus")]
+[Table("T_FileStatus")]
 public partial class TFileStatus
 {
     [Key]

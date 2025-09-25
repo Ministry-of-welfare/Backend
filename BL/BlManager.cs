@@ -17,10 +17,6 @@ namespace BL
         public IBlimportControl ImportControl { get; }
 
 
-
-
-
-
         // אפשר למחוק את זה אם אין בו צורך
         // public IBlTabImportDataSource TabImportDataSourceService { get; }
 

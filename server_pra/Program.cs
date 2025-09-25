@@ -40,7 +40,16 @@ builder.Services.AddCors(options =>
               .AllowAnyHeader();
     });
 });
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 // Add the missing connectionString variable initialization at the top of the file.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -66,7 +75,7 @@ builder.Services.AddScoped<IBlTabImportDataSource, BlTabImportDataSourceService>
 builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 
-//builder.Services.AddScoped<DalFileStatusService>();
+builder.Services.AddScoped<DalFileStatusService>();
 
 
 //builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
