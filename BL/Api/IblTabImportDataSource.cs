@@ -1,7 +1,5 @@
 ﻿using BL.Models;
 using Dal.Models;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace BL.Api
 {
@@ -14,7 +12,7 @@ namespace BL.Api
         Task<BlTabImportDataSource> UpdateEndDate(int id);
 
         Task Delete(int id);
-        
+
 
         // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
         string GetTableName(int id);
@@ -22,9 +20,20 @@ namespace BL.Api
         bool TableExists(string tableName);
         void ExecuteSql(string sql);
         void CreateDynamicTable(int importDataSourceId);
+
+        // פונקציית חיפוש למסך קליטות שבוצעו 
+        Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
+            DateTime? startDate,
+            DateTime? endDate,
+            int? systemId,
+            string systemName,
+            string importDataSourceDesc,
+            int? importStatusId,
+            string fileName,
+            bool showErrorsOnly);
     }
 }
 
 
-  
+
 

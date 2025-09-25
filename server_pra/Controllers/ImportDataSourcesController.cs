@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using BL.Api;
 using BL.Models;
+using BL.Services;
 using Dal.Models;
 using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
 using Microsoft.AspNetCore.Mvc;
@@ -109,8 +110,25 @@ namespace server.Controllers
                 return BadRequest($"שגיאה: {ex.Message}\n{ex.StackTrace}");
             }
         }
+        //// פונקציית חיפוש למסך קליטות שבוצעו 
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchImportDataSources(
+            [FromQuery] DateTime? startDate,
+            [FromQuery] DateTime? endDate,
+            [FromQuery] int? systemId,
+            [FromQuery] string systemName,
+            [FromQuery] string importDataSourceDesc,
+            [FromQuery] int? importStatusId,
+            [FromQuery] string fileName,
+            [FromQuery] bool showErrorsOnly)
+        {
+            var results = await _bl.TabImportDataSource.SearchImportDataSourcesAsync(
+                startDate, endDate, systemId, systemName, importDataSourceDesc, importStatusId, fileName, showErrorsOnly);
 
-        
+            return Ok(results);
+        }
+
+
 
     }
 }

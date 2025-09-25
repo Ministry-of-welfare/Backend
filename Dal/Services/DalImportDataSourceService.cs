@@ -1,11 +1,11 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Dal.Api;
 using Dal.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Data.SqlClient;
-using System.Threading.Tasks;
 
 namespace Dal.Services
 {
@@ -35,14 +35,14 @@ namespace Dal.Services
         {
             _db.TabImportDataSources.Add(item);
             await _db.SaveChangesAsync();
-            
+
         }
 
         public async Task Update(TabImportDataSource item)
         {
             _db.TabImportDataSources.Update(item);
             await _db.SaveChangesAsync();
-           
+
         }
 
         public async Task Delete(int id)
@@ -55,7 +55,7 @@ namespace Dal.Services
             }
         }
 
-       
+
 
         Task ICrud<TabImportDataSource>.Update(TabImportDataSource item)
         {
@@ -68,12 +68,12 @@ namespace Dal.Services
         }
 
 
-   
+
         /// <summary>
         /// הוספת טבלה בצורה דינאמית
         //
         /// </summary>
-     
+
         public string GetTableName(int id)
         {
             using var conn = new SqlConnection(_connectionString);
@@ -145,7 +145,7 @@ namespace Dal.Services
 
             return list;
         }
-        
+
         public T GetFieldValue<T>(string table, string field, int id)
         {
             using var conn = new SqlConnection(_connectionString);
@@ -193,6 +193,94 @@ namespace Dal.Services
             cmd.ExecuteNonQuery();
         }
 
-        
+        // פונקציית חיפוש למסך קליטות שבוצעו 
+
+        public async Task<IEnumerable<TabImportDataSource>> SearchImportDataSourcesAsync(
+      DateTime? startDate,
+      DateTime? endDate,
+      int? systemId,
+      string systemName,
+      string importDataSourceDesc,
+      int? importStatusId,
+      string fileName,
+      bool showErrorsOnly)
+        {
+            // התחלת שאילתה על בסיס DbSet
+            var query = _db.TabImportDataSources
+                .Include(x => x.DataSourceType) // טבלת סוגי מקור קליטה
+                .Include(x => x.TabImportErrors) // טבלת שגיאות קליטה
+                .AsQueryable();
+
+            // סינון לפי תאריך התחלה
+            if (startDate.HasValue)
+                query = query.Where(x => x.StartDate.HasValue && x.StartDate.Value >= startDate.Value);
+
+            // סינון לפי תאריך סיום
+            if (endDate.HasValue)
+                query = query.Where(x => x.EndDate.HasValue && x.EndDate.Value <= endDate.Value);
+
+            // סינון לפי מזהה מערכת
+            if (systemId.HasValue)
+                query = query.Where(x => x.SystemId.HasValue && x.SystemId.Value == systemId.Value);
+
+            // סינון לפי שם מערכת (טבלת System)
+            if (!string.IsNullOrEmpty(systemName))
+            {
+                query = query.Join(
+                    _db.Systems,
+                    dataSource => dataSource.SystemId,
+                    system => system.SystemId,
+                    (dataSource, system) => new { dataSource, system }
+                )
+                .Where(joined => joined.system.SystemName.Contains(systemName))
+                .Select(joined => joined.dataSource);
+            }
+
+            // סינון לפי תיאור מקור קליטה
+            if (!string.IsNullOrEmpty(importDataSourceDesc))
+                query = query.Where(x => !string.IsNullOrEmpty(x.ImportDataSourceDesc) && x.ImportDataSourceDesc.Contains(importDataSourceDesc));
+
+            // סינון לפי סטטוס קליטה (טבלת TImportStatus)
+            if (importStatusId.HasValue)
+            {
+                query = query.Join(
+                    _db.AppImportControls,
+                    dataSource => dataSource.ImportDataSourceId,
+                    control => control.ImportDataSourceId,
+                    (dataSource, control) => new { dataSource, control }
+                )
+                .Where(joined => joined.control.ImportStatusId == importStatusId.Value)
+                .Select(joined => joined.dataSource);
+            }
+
+            // סינון לפי שם קובץ
+            if (!string.IsNullOrEmpty(fileName))
+                query = query.Where(x => !string.IsNullOrEmpty(x.UrlFile) && x.UrlFile.Contains(fileName));
+
+            // סינון לפי שורות פגומות
+            if (showErrorsOnly)
+                query = query.Where(x => x.TabImportErrors.Any(error => error.ImportErrorId > 0));
+
+            // החזרת התוצאות
+            return await query.ToListAsync();
+        }
+        public async Task<AppImportControl?> GetImportControlByDataSourceId(int importDataSourceId)
+        {
+            return await _db.AppImportControls
+                .FirstOrDefaultAsync(control => control.ImportDataSourceId == importDataSourceId);
+        }
+
+        public async Task<TImportStatus?> GetImportStatusById(int importStatusId)
+        {
+            return await _db.TImportStatuses
+                .FirstOrDefaultAsync(status => status.ImportStatusId == importStatusId);
+        }
+
+
+
+
+
+
+
     }
 }

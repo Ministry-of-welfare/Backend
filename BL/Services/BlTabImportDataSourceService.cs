@@ -3,12 +3,6 @@ using BL.Api;
 using BL.Models;
 using Dal.Api;
 using Dal.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 namespace BL.Services
 {
     public class BlTabImportDataSourceService : IBlTabImportDataSource
@@ -147,17 +141,17 @@ namespace BL.Services
                 throw new Exception("לא הוגדרו עמודות לטבלה");
 
             // בניית ה־SQL לפי הפורמט הנכון
-        
 
-                    var columnsDef = columns
-                .Where(c => !string.IsNullOrWhiteSpace(c.ColumnName) && !string.IsNullOrWhiteSpace(c.DataType))
-                .Select(c => $"[{c.ColumnName}] {c.DataType}")
-                .ToList();
+
+            var columnsDef = columns
+        .Where(c => !string.IsNullOrWhiteSpace(c.ColumnName) && !string.IsNullOrWhiteSpace(c.DataType))
+        .Select(c => $"[{c.ColumnName}] {c.DataType}")
+        .ToList();
 
             if (columnsDef.Count == 0)
                 throw new InvalidOperationException("No valid columns found to create the table.");
 
-                    var sql = $@"
+            var sql = $@"
             CREATE TABLE {tableName} (
                 {string.Join(",", columnsDef)}
             )";
@@ -185,5 +179,49 @@ namespace BL.Services
 
             return ToBl(entity);            // החזרת BL model ל-Controller
         }
+        // פונקציית חיפוש למסך קליטות שבוצעו 
+        public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
+         DateTime? startDate,
+         DateTime? endDate,
+         int? systemId,
+         string systemName,
+         string importDataSourceDesc,
+         int? importStatusId,
+         string fileName,
+         bool showErrorsOnly)
+        {
+            var results = await _dal.SearchImportDataSourcesAsync(
+                startDate, endDate, systemId, systemName, importDataSourceDesc, importStatusId, fileName, showErrorsOnly);
+
+            // טעינת נתונים נוספים מטבלאות קשורות
+            var enrichedResults = results
+      .Select(async x => new
+      {
+          DataSource = x,
+          ImportControl = await _dal.GetImportControlByDataSourceId(x.ImportDataSourceId), // טבלת AppImportControl
+          ImportStatus = await _dal.GetImportStatusById(x.ImportDataSourceId), // טבלת TImportStatus
+          ErrorCount = x.TabImportErrors?.Count() ?? 0 // מספר שגיאות
+      })
+      .Select(t => t.Result);
+
+
+            return enrichedResults.Select(x => new BlTabImportDataSourceForQuery
+            {
+                ImportControlId = x.DataSource.ImportDataSourceId, // מזהה קליטה
+                ImportDataSourceDesc = x.DataSource.ImportDataSourceDesc ?? string.Empty, // תיאור מקור קליטה
+                SystemName = x.DataSource.DataSourceType?.DataSourceTypeDesc ?? string.Empty, // שם מערכת
+                FileName = x.DataSource.UrlFile ?? string.Empty, // שם קובץ
+                ImportStartDate = x.DataSource.StartDate ?? DateTime.MaxValue, // תאריך התחלת קליטה
+                ImportFinishDate = x.DataSource.EndDate ?? DateTime.MaxValue, // תאריך סיום קליטה
+                TotalRows = x.ImportControl?.TotalRows ?? 0, // סך כל השורות בקובץ
+                TotalRowsAffected = x.ImportControl?.TotalRowsAffected ?? 0, // סך השורות שנקלטו
+                RowsInvalid = x.ErrorCount, // סך השורות הפגומות
+                ImportStatusId = x.ImportControl?.ImportStatusId ?? 0, // מזהה סטטוס קליטה
+                UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty, // נתיב קובץ לאחר עיבוד
+                ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty // נתיב לדוח שגיאות
+            });
+        }
+
+
     }
 }
