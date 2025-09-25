@@ -317,6 +317,20 @@ public partial class AppDbContext : DbContext
 
             entity.HasOne(d => d.Template).WithMany(p => p.TemplateAuditLogs).HasConstraintName("FK_TemplateAuditLog_Template");
         });
+        modelBuilder.Entity<TFileStatus>(entity =>
+        {
+            entity.HasKey(e => e.FileStatusId);
+
+            entity.ToTable("T_FileStatus");
+
+            entity.Property(e => e.FileStatusId)
+                  .ValueGeneratedNever()
+                  .HasComment("קוד סטטוס");
+
+            entity.Property(e => e.FileStatusDesc)
+                  .HasMaxLength(400)
+                  .HasComment("תיאור סטטוס");
+        });
 
         modelBuilder.Entity<TemplatePermission>(entity =>
         {

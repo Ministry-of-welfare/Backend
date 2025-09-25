@@ -13,7 +13,9 @@ namespace BL
         public IBlImportStatus ImportStatus { get; }
         public IBlTabImportDataSource TabImportDataSource { get; }
 
-        
+        public IBlFileStatus FileStatus { get; }
+        public IBlimportControl ImportControl { get; }
+
 
         // אפשר למחוק את זה אם אין בו צורך
         // public IBlTabImportDataSource TabImportDataSourceService { get; }
@@ -25,6 +27,8 @@ namespace BL
             System = new BlSystemService(dal.System);
             ImportStatus = new BlImportStatusService(dal.ImportStatus);
             TabImportDataSource = new BlTabImportDataSourceService(dal.TabImportDataSource);
+            FileStatus = new BlFileStatusService(dal.Tfilestatus);
+            ImportControl = new BlImportControlService(dal.ImportControl);
             // TabImportDataSourceService = TabImportDataSource; // אם אתה עדיין צריך אותו
         }
     }

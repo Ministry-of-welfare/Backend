@@ -75,7 +75,7 @@ builder.Services.AddScoped<IBlTabImportDataSource, BlTabImportDataSourceService>
 builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 
-//builder.Services.AddScoped<DalFileStatusService>();
+builder.Services.AddScoped<DalFileStatusService>();
 
 
 //builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
