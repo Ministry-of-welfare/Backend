@@ -37,4 +37,5 @@ namespace BL.Models
         public string UrlFileAfterProcess { get; set; } = string.Empty; // נתיב קובץ לאחר עיבוד
         public string ErrorReportPath { get; set; } = string.Empty; // נתיב לדוח שגיאות
     }
+
 }

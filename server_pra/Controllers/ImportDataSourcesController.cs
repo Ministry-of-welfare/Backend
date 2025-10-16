@@ -94,18 +94,15 @@ namespace server.Controllers
 
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
-        { 
-            // בדיקת תקינות תאריכים
-            if (item.StartDate != null && item.EndDate != null)
+        {
+            // בדיקת תאריך סיום לעומת התחלה
+            if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
             {
-                if (item.EndDate < item.StartDate)
-                {
-                    return BadRequest(new { message = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה." });
-                }
+                return BadRequest(new { message = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה." });
             }
 
-            // ולידציה על כתובת מייל
-                        if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
+            // בדיקת תקינות כתובות מייל
+            if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
                 var recipients = item.ErrorRecipients
@@ -116,7 +113,7 @@ namespace server.Controllers
                     var trimmed = email.Trim();
                     if (!Regex.IsMatch(trimmed, emailPattern))
                     {
-                        return BadRequest(new { message = $"כתובת המייל '{trimmed}' אינה תקינה" });
+                        return BadRequest(new { message = $"כתובת המייל '{trimmed}' אינה תקינה." });
                     }
                 }
             }
