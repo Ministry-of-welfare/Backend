@@ -33,7 +33,7 @@ namespace BL.Models
         public int TotalRows { get; set; } // סך כל השורות בקובץ
         public int TotalRowsAffected { get; set; } // סך השורות שנקלטו
         public int RowsInvalid { get; set; } // סך השורות הפגומות
-        public int ImportStatusId { get; set; } // מזהה סטטוס קליטה
+        public string ImportStatusDesc { get; set; } = string.Empty;// מזהה סטטוס קליטה
         public string UrlFileAfterProcess { get; set; } = string.Empty; // נתיב קובץ לאחר עיבוד
         public string ErrorReportPath { get; set; } = string.Empty; // נתיב לדוח שגיאות
     }

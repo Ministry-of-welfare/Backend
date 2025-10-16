@@ -215,6 +215,7 @@ namespace BL.Services
           DataSource = x,
           ImportControl = await _dal.GetImportControlByDataSourceId(x.ImportDataSourceId), // טבלת AppImportControl
           ImportStatus = await _dal.GetImportStatusById(x.ImportDataSourceId), // טבלת TImportStatus
+          System = await _dal.GetSystemById(x.SystemId ?? -1),
           ErrorCount = x.TabImportErrors?.Count() ?? 0 // מספר שגיאות
       })
       .Select(t => t.Result);
@@ -224,14 +225,14 @@ namespace BL.Services
             {
                 ImportControlId = x.DataSource.ImportDataSourceId, // מזהה קליטה
                 ImportDataSourceDesc = x.DataSource.ImportDataSourceDesc ?? string.Empty, // תיאור מקור קליטה
-                SystemName = x.DataSource.DataSourceType?.DataSourceTypeDesc ?? string.Empty, // שם מערכת
+                SystemName = x.System.SystemName ?? string.Empty, // שם מערכת
                 FileName = x.DataSource.UrlFile ?? string.Empty, // שם קובץ
-                ImportStartDate = x.DataSource.StartDate ?? DateTime.MaxValue, // תאריך התחלת קליטה
-                ImportFinishDate = x.DataSource.EndDate ?? DateTime.MaxValue, // תאריך סיום קליטה
+                ImportStartDate = x.ImportControl.ImportStartDate != default ? x.ImportControl.ImportStartDate : DateTime.Now, // תאריך התחלת קליטה
+                ImportFinishDate = x.ImportControl.ImportFinishDate ?? DateTime.MaxValue, // תאריך סיום קליטה
                 TotalRows = x.ImportControl?.TotalRows ?? 0, // סך כל השורות בקובץ
                 TotalRowsAffected = x.ImportControl?.TotalRowsAffected ?? 0, // סך השורות שנקלטו
                 RowsInvalid = x.ErrorCount, // סך השורות הפגומות
-                ImportStatusId = x.ImportControl?.ImportStatusId ?? 0, // מזהה סטטוס קליטה
+                ImportStatusDesc =  x.ImportStatus?.ImportStatusDesc ?? "", // מזהה סטטוס קליטה
                 UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty, // נתיב קובץ לאחר עיבוד
                 ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty // נתיב לדוח שגיאות
             });
