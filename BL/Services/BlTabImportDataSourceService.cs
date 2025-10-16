@@ -1,9 +1,10 @@
-
+using System.Text.RegularExpressions;
 using BL.Api;
 using BL.Models;
 using Dal.Api;
 using Dal.Models;
 namespace BL.Services
+
 {
     public class BlTabImportDataSourceService : IBlTabImportDataSource
     {
@@ -57,7 +58,27 @@ namespace BL.Services
                 StartDate = bl.StartDate
             };
         }
+        private void ValidateImportDataSource(BlTabImportDataSource item)
+        {
+            // בדיקת טווח תאריכים
+            if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
+                throw new InvalidOperationException("תאריך הסיום לא יכול להיות לפני תאריך ההתחלה.");
 
+            // בדיקת תקינות כתובות מייל (אם יש)
+            if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
+            {
+                var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
+                var recipients = item.ErrorRecipients
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var email in recipients)
+                {
+                    var trimmed = email.Trim();
+                    if (!Regex.IsMatch(trimmed, emailPattern))
+                        throw new InvalidOperationException($"כתובת המייל '{trimmed}' אינה תקינה.");
+                }
+            }
+        }
         // === CRUD רגיל ===
         public async Task<List<BlTabImportDataSource>> GetAll()
         {
@@ -73,6 +94,7 @@ namespace BL.Services
 
         public async Task Create(BlTabImportDataSource item)
         {
+            ValidateImportDataSource(item); // ולידציה לפני יצירה
             var dalEntity = ToDal(item);
             await _dal.Create(dalEntity);
 
@@ -84,6 +106,7 @@ namespace BL.Services
         //    var updated = await _dal.Update(dalEntity);
         //    return ToBl(updated);
         //}
+      
 
         public async Task Delete(int id)
         {
@@ -148,10 +171,13 @@ namespace BL.Services
         }
         public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
         {
+            ValidateImportDataSource(item); // ולידציה לפני עדכון
             var entity = await _dal.GetById(item.ImportDataSourceId);
             if (entity == null) return null!;
 
-            entity.EndDate = DateTime.Now; // לוגיקה עסקית
+            entity.EndDate = item.EndDate ?? DateTime.Now;
+            entity.StartDate = item.StartDate;
+            entity.ErrorRecipients = item.ErrorRecipients;
             await _dal.Update(entity);     // שימוש ב-ICrud, לא מחזיר ערך
 
             return ToBl(entity);
@@ -159,6 +185,7 @@ namespace BL.Services
 
         public async Task<BlTabImportDataSource> UpdateEndDate(int id)
         {
+
             var entity = await _dal.GetById(id);
             if (entity == null) return null!;
 

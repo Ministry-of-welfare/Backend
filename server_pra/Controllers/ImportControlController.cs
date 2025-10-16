@@ -2,6 +2,7 @@
 using BL.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace server_pra.Controllers
@@ -23,6 +24,7 @@ namespace server_pra.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BlAppImportControl>>> GetImportControls()
         {
+
             return Ok(await _blImportControl.GetAll());
         }
 

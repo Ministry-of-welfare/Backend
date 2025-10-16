@@ -1,8 +1,5 @@
 
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using BL.Api;
 using BL.Models;
 using BL.Services;
@@ -11,6 +8,10 @@ using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_pra.Models;
+using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using AppDbContext = Dal.Models.AppDbContext;
 using TabImportDataSource = Dal.Models.TabImportDataSource;
 
@@ -65,7 +66,14 @@ namespace server.Controllers
             {
                 return BadRequest();
             }
-
+            // בדיקת תקינות תאריכים
+            if (ds.StartDate != null && ds.EndDate != null)
+            {
+                if (ds.EndDate < ds.StartDate)
+                {
+                    return BadRequest(new { message = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה." });
+                }
+            }
             await _bl.TabImportDataSource.Update(ds);
 
             return NoContent();
@@ -87,6 +95,28 @@ namespace server.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
         {
+            // בדיקת תאריך סיום לעומת התחלה
+            if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
+            {
+                return BadRequest(new { message = "תאריך הסיום לא יכול להיות לפני תאריך ההתחלה." });
+            }
+
+            // בדיקת תקינות כתובות מייל
+            if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
+            {
+                var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
+                var recipients = item.ErrorRecipients
+                    .Split(new[] { ',', ';' }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (var email in recipients)
+                {
+                    var trimmed = email.Trim();
+                    if (!Regex.IsMatch(trimmed, emailPattern))
+                    {
+                        return BadRequest(new { message = $"כתובת המייל '{trimmed}' אינה תקינה." });
+                    }
+                }
+            }
             await _bl.TabImportDataSource.Create(item);          // אין החזרת ערך
             return Ok(new { message = "נוצר בהצלחה" });       // ניתן לשנות הודעה לפי הצורך
         }

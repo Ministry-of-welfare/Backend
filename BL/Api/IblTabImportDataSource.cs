@@ -37,4 +37,5 @@ namespace BL.Api
         Task AdditionalMethod1();
         Task AdditionalMethod2();
     }
+
 }

@@ -78,6 +78,14 @@ builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<DalFileStatusService>();
 
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost",
+        policy => policy
+            .WithOrigins("http://localhost:54515")
+            .AllowAnyHeader()
+            .AllowAnyMethod());
+});
 //builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
 
 var app = builder.Build();
