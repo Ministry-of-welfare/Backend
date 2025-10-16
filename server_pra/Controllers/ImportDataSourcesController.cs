@@ -90,6 +90,16 @@ namespace server.Controllers
             await _bl.TabImportDataSource.Create(item);          // אין החזרת ערך
             return Ok(new { message = "נוצר בהצלחה" });       // ניתן לשנות הודעה לפי הצורך
         }
+
+        //הוספה והחזרת id
+        [HttpPost("CreateAndReturnId")]
+        public async Task<IActionResult> CreateAndReturnId([FromBody] BlTabImportDataSource item)
+        {
+            await _bl.TabImportDataSource.Create(item);          // אין החזרת ערך
+            return Ok(new { message = "נוצר בהצלחה" });       // ניתן לשנות הודעה לפי הצורך
+        }
+
+
         //יצירת טבלה דינאמית
         [HttpPost("{id}/create-table")]
         public IActionResult CreateDynamicTable(int id)

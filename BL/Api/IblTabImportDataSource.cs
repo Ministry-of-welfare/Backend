@@ -13,6 +13,7 @@ namespace BL.Api
 
         Task Delete(int id);
 
+        Task<int> CreateAndReturnId(BlTabImportDataSource item);
 
         // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
         string GetTableName(int id);
@@ -31,9 +32,9 @@ namespace BL.Api
             int? importStatusId,
             string fileName,
             bool showErrorsOnly);
+
+        // Add new methods at the end of the interface to avoid ENC0023
+        Task AdditionalMethod1();
+        Task AdditionalMethod2();
     }
 }
-
-
-
-

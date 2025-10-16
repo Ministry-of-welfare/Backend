@@ -89,7 +89,17 @@ namespace BL.Services
         {
             await _dal.Delete(id);
         }
+        /// <summary>
+        /// פונקציה ליצירת רשומה חדשה 
+        /// </summary>
+        /// <returns>importDataSourceId</returns>
+        public async Task<int> CreateAndReturnId(BlTabImportDataSource item)
+        {
+            var dalEntity = ToDal(item);
+            await _dal.Create(dalEntity);
+            return item.ImportDataSourceId;
 
+        }
         // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
         public string GetTableName(int id) => _dal.GetTableName(id);
 
@@ -102,29 +112,7 @@ namespace BL.Services
         /// <summary>
         /// פונקציה ראשית ליצירת הטבלה הדינאמית
         /// </summary>
-        //public void CreateDynamicTable(int importDataSourceId)
-        //{
-        //    var tableName = GetTableName(importDataSourceId);
-        //    if (string.IsNullOrWhiteSpace(tableName))
-        //        throw new Exception($"לא נמצא שם טבלה ל־ImportDataSourceId {importDataSourceId}");
-
-        //    tableName = $"{tableName}_BULK";
-
-
-
-        //    if (TableExists(tableName))
-        //        throw new Exception($"הטבלה {tableName} כבר קיימת");
-
-        //    var columns = GetColumns(importDataSourceId);
-        //    if (columns == null || !columns.Any())
-        //        throw new Exception("לא הוגדרו עמודות לטבלה");
-
-        //    // בניית SQL
-        //    var sql = $"CREATE TABLE {tableName} ({string.Join(",", columns.Select(c => $"[{c}] NVARCHAR(MAX)"))})";
-
-        //    ExecuteSql(sql);
-        //}
-
+       
         public void CreateDynamicTable(int importDataSourceId)
         {
             var tableName = GetTableName(importDataSourceId);
@@ -220,6 +208,21 @@ namespace BL.Services
                 UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty, // נתיב קובץ לאחר עיבוד
                 ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty // נתיב לדוח שגיאות
             });
+        }
+        // Adding implementations for the missing methods 'AdditionalMethod1' and 'AdditionalMethod2' to resolve the errors.
+
+        public async Task AdditionalMethod1()
+        {
+            // Implementation for AdditionalMethod1
+            // Add your logic here or leave it as a placeholder if no specific functionality is required yet.
+            await Task.CompletedTask;
+        }
+
+        public async Task AdditionalMethod2()
+        {
+            // Implementation for AdditionalMethod2
+            // Add your logic here or leave it as a placeholder if no specific functionality is required yet.
+            await Task.CompletedTask;
         }
 
 
