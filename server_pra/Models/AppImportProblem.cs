@@ -1,21 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace server_pra.Models;
 
 /// <summary>
 /// טבלת בעיות/שגיאות בקליטה
 /// </summary>
-[Table("APP_ImportProblem")]
 public partial class AppImportProblem
 {
     /// <summary>
     /// מס’ רץ טבלת שגיאות
     /// </summary>
-    [Key]
     public int ImportProblemId { get; set; }
 
     /// <summary>
@@ -53,7 +48,7 @@ public partial class AppImportProblem
     /// </summary>
     public string ErrorDetail { get; set; }
 
-    [ForeignKey("ImportControlId")]
-    [InverseProperty("AppImportProblems")]
     public virtual AppImportControl ImportControl { get; set; }
+
+    public virtual TabImportError ImportError { get; set; }
 }

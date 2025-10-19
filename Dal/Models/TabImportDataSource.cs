@@ -18,6 +18,8 @@ public partial class TabImportDataSource
     /// </summary>
     public string ImportDataSourceDesc { get; set; }
 
+    public int? FileStatusId { get; set; }
+
     /// <summary>
     /// סוג קליטה (מקושר ל-T_DataSourceType)
     /// </summary>
@@ -70,7 +72,9 @@ public partial class TabImportDataSource
 
     public virtual ICollection<AppImportControl> AppImportControls { get; set; } = new List<AppImportControl>();
 
-    public virtual DataSourceType DataSourceType { get; set; }
+    public virtual TDataSourceType DataSourceType { get; set; }
+
+    public virtual TFileStatus FileStatus { get; set; }
 
     public virtual ICollection<TabColumnHebDescription> TabColumnHebDescriptions { get; set; } = new List<TabColumnHebDescription>();
 

@@ -6,7 +6,7 @@ namespace Dal.Models;
 /// <summary>
 /// טבלת סוגי מקור הקלטה
 /// </summary>
-public partial class DataSourceType
+public partial class TDataSourceType
 {
     /// <summary>
     /// קוד מקור

@@ -1,28 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace server_pra.Models;
 
 /// <summary>
 /// טבלת סוגי קליטה
 /// </summary>
-[Table("TAB_ImportDataSource")]
 public partial class TabImportDataSource
 {
     /// <summary>
     /// מס’ רץ סוג קליטה
     /// </summary>
-    [Key]
     public int ImportDataSourceId { get; set; }
 
     /// <summary>
     /// תיאור סוג קליטה
     /// </summary>
-    [StringLength(200)]
     public string ImportDataSourceDesc { get; set; }
+
+    public int? FileStatusId { get; set; }
 
     /// <summary>
     /// סוג קליטה (מקושר ל-T_DataSourceType)
@@ -37,31 +33,26 @@ public partial class TabImportDataSource
     /// <summary>
     /// שם הג&apos;וב שמפעיל את טבלת ImportControl
     /// </summary>
-    [StringLength(400)]
     public string JobName { get; set; }
 
     /// <summary>
     /// שם טבלה שמקושרת לתהליך
     /// </summary>
-    [StringLength(100)]
     public string TableName { get; set; }
 
     /// <summary>
     /// נתיב בו קיימים הקבצים
     /// </summary>
-    [Required]
     public string UrlFile { get; set; }
 
     /// <summary>
     /// נתיב להעברת הקבצים בעת קליטה (מתועד ב־ImportControl)
     /// </summary>
-    [Required]
     public string UrlFileAfterProcess { get; set; }
 
     /// <summary>
     /// תאריך סיום של תהליך שכבר לא פעיל
     /// </summary>
-    [Column(TypeName = "datetime")]
     public DateTime? EndDate { get; set; }
 
     /// <summary>
@@ -72,19 +63,22 @@ public partial class TabImportDataSource
     /// <summary>
     /// תאריך הכנסת השורה
     /// </summary>
-    [Column(TypeName = "datetime")]
     public DateTime InsertDate { get; set; }
 
     /// <summary>
     /// תאריך תחילת ההרצה
     /// </summary>
-    [Column(TypeName = "datetime")]
     public DateTime? StartDate { get; set; }
 
-    [ForeignKey("DataSourceTypeId")]
-    [InverseProperty("TabImportDataSources")]
+    public virtual ICollection<AppImportControl> AppImportControls { get; set; } = new List<AppImportControl>();
+
     public virtual TDataSourceType DataSourceType { get; set; }
 
-    [InverseProperty("ImportDataSource")]
+    public virtual TFileStatus FileStatus { get; set; }
+
+    public virtual ICollection<TabColumnHebDescription> TabColumnHebDescriptions { get; set; } = new List<TabColumnHebDescription>();
+
+    public virtual ICollection<TabImportDataSourceColumn> TabImportDataSourceColumns { get; set; } = new List<TabImportDataSourceColumn>();
+
     public virtual ICollection<TabImportError> TabImportErrors { get; set; } = new List<TabImportError>();
 }
