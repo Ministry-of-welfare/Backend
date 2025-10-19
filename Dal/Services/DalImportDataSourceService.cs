@@ -275,6 +275,11 @@ namespace Dal.Services
             return await _db.TImportStatuses
                 .FirstOrDefaultAsync(status => status.ImportStatusId == importStatusId);
         }
+        public async Task<Dal.Models.System> GetSystemById(int systemId)
+        {
+            return await _db.Systems
+                .FirstOrDefaultAsync(system => system.SystemId == systemId);
+        }
 
 
 
