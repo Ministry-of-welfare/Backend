@@ -1,24 +1,22 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
 namespace server_pra.Models;
 
 /// <summary>
-/// טבלת סטטוסי קובץ
+/// טבלת סטטוס קבצים
 /// </summary>
-[Table("FileStatus")]
-public partial class FileStatus
+public partial class TFileStatus
 {
     /// <summary>
-    /// מזהה סטטוס קובץ
+    /// קוד סטטוס (1=פעיל, 2=לא פעיל, 3=בהקמה)
     /// </summary>
-    [Key]
     public int FileStatusId { get; set; }
 
     /// <summary>
-    /// תיאור סטטוס קובץ
+    /// תיאור סטטוס
     /// </summary>
-    [Required]
-    [StringLength(100)]
     public string FileStatusDesc { get; set; }
+
+    public virtual ICollection<TabImportDataSource> TabImportDataSources { get; set; } = new List<TabImportDataSource>();
 }

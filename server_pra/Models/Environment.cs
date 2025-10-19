@@ -1,27 +1,32 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace server_pra.Models;
 
+/// <summary>
+/// טבלת הסביבות (פיתוח, בדיקות, ייצור וכו׳)
+/// </summary>
 public partial class Environment
 {
-    [Key]
+    /// <summary>
+    /// מזהה סביבה (1, 2, 3...)
+    /// </summary>
     public int EnvironmentId { get; set; }
 
-    [Required]
-    [StringLength(20)]
+    /// <summary>
+    /// קוד סביבה (DEV, TEST, PREPROD, PROD)
+    /// </summary>
     public string EnvironmentCode { get; set; }
 
-    [Required]
-    [StringLength(50)]
+    /// <summary>
+    /// שם תצוגה של הסביבה (סביבת פיתוח, ייצור וכו׳)
+    /// </summary>
     public string EnvironmentName { get; set; }
 
-    [StringLength(255)]
+    /// <summary>
+    /// תיאור חופשי על הסביבה
+    /// </summary>
     public string Description { get; set; }
 
-    [InverseProperty("Environment")]
     public virtual ICollection<Template> Templates { get; set; } = new List<Template>();
 }
