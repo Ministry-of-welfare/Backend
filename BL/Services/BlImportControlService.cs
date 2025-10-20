@@ -1,6 +1,8 @@
 ﻿using BL.Api;
 using BL.Models;
 using Dal.Api;
+
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace BL.Services
 {
-    public class BlImportControlService:IBlimportControl
+    public class BlImportControlService : IBlimportControl
     {
 
         private readonly IDalImportControl _dal;
@@ -22,7 +24,7 @@ namespace BL.Services
         public async Task<List<BlAppImportControl>> GetAll()
         {
             var status = await _dal.GetAll();
-            return status.Select(s => new BlAppImportControl 
+            return status.Select(s => new BlAppImportControl
             {
                 ImportControlId = s.ImportControlId,
                 ImportDataSourceId = s.ImportDataSourceId,
@@ -32,14 +34,19 @@ namespace BL.Services
                 TotalRowsAffected = s.TotalRowsAffected,
                 RowsInvalid = s.RowsInvalid,
                 FileName = s.FileName,
-                ErrorReportPath = s.ErrorReportPath
+                ErrorReportPath = s.ErrorReportPath,
+                UrlFileAfterProcess = s.UrlFileAfterProcess,   // <-- נוספה
+                ImportFromDate = s.ImportFromDate,
+                ImportToDate = s.ImportToDate,
+                ImportStatusId = s.ImportStatusId,
+                EmailSento = s.EmailSento
             }).ToList();
         }
 
         public async Task<BlAppImportControl> GetById(int id)
         {
-            var s= await _dal.GetByIdAsync(id);
-            if (s== null) return null;
+            var s = await _dal.GetByIdAsync(id);
+            if (s == null) return null;
             else
                 return new BlAppImportControl
                 {
@@ -51,7 +58,12 @@ namespace BL.Services
                     TotalRowsAffected = s.TotalRowsAffected,
                     RowsInvalid = s.RowsInvalid,
                     FileName = s.FileName,
-                    ErrorReportPath = s.ErrorReportPath
+                    ErrorReportPath = s.ErrorReportPath,
+                    UrlFileAfterProcess = s.UrlFileAfterProcess,  // <-- נוספה
+                    ImportFromDate = s.ImportFromDate,
+                    ImportToDate = s.ImportToDate,
+                    ImportStatusId = s.ImportStatusId,
+                    EmailSento = s.EmailSento
                 };
         }
 
@@ -68,16 +80,16 @@ namespace BL.Services
                 RowsInvalid = item.RowsInvalid,
                 FileName = item.FileName,
                 ErrorReportPath = item.ErrorReportPath,
-
-
-
-
-
+                UrlFileAfterProcess = item.UrlFileAfterProcess, // <-- נוספה
+                ImportFromDate = item.ImportFromDate,
+                ImportToDate = item.ImportToDate,
+                ImportStatusId = item.ImportStatusId,
+                EmailSento = item.EmailSento
             };
 
             await _dal.Create(system);
 
-            item.ImportControlId = system.ImportStatusId;
+            item.ImportControlId = system.ImportControlId; // <-- תוקן (היה system.ImportStatusId)
             return item;
         }
 
@@ -93,7 +105,12 @@ namespace BL.Services
                 TotalRowsAffected = item.TotalRowsAffected,
                 RowsInvalid = item.RowsInvalid,
                 FileName = item.FileName,
-                ErrorReportPath = item.ErrorReportPath
+                ErrorReportPath = item.ErrorReportPath,
+                UrlFileAfterProcess = item.UrlFileAfterProcess, // <-- נוספה
+                ImportFromDate = item.ImportFromDate,
+                ImportToDate = item.ImportToDate,
+                ImportStatusId = item.ImportStatusId,
+                EmailSento = item.EmailSento
             };
 
             await _dal.Update(system);
