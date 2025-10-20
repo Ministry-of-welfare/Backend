@@ -119,8 +119,9 @@ namespace BL.Services
         public async Task<int> CreateAndReturnId(BlTabImportDataSource item)
         {
             var dalEntity = ToDal(item);
-            await _dal.Create(dalEntity);
-            return item.ImportDataSourceId;
+            var result= await _dal.CreateAndReturnId(dalEntity);
+            
+            return result;
 
         }
         // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
@@ -196,47 +197,45 @@ namespace BL.Services
         }
         // פונקציית חיפוש למסך קליטות שבוצעו 
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
-         DateTime? startDate,
-         DateTime? endDate,
-         int? systemId,
-         string systemName,
-         string importDataSourceDesc,
-         int? importStatusId,
-         string fileName,
-         bool showErrorsOnly)
+    DateTime? startDate,
+    DateTime? endDate,
+    int? systemId,
+    string systemName,
+    string importDataSourceDesc,
+    int? importStatusId,
+    string fileName,
+    bool showErrorsOnly)
         {
             var results = await _dal.SearchImportDataSourcesAsync(
                 startDate, endDate, systemId, systemName, importDataSourceDesc, importStatusId, fileName, showErrorsOnly);
 
             // טעינת נתונים נוספים מטבלאות קשורות
-            var enrichedResults = results
-      .Select(async x => new
-      {
-          DataSource = x,
-          ImportControl = await _dal.GetImportControlByDataSourceId(x.ImportDataSourceId), // טבלת AppImportControl
-          ImportStatus = await _dal.GetImportStatusById(x.ImportDataSourceId), // טבלת TImportStatus
-          System = await _dal.GetSystemById(x.SystemId ?? -1),
-          ErrorCount = x.TabImportErrors?.Count() ?? 0 // מספר שגיאות
-      })
-      .Select(t => t.Result);
-
+            var enrichedResults = await Task.WhenAll(results.Select(async x => new
+            {
+                DataSource = x,
+                ImportControl = await _dal.GetImportControlByDataSourceId(x.ImportDataSourceId),
+                ImportStatus = await _dal.GetImportStatusById(x.ImportDataSourceId),
+                System = await _dal.GetSystemById(x.SystemId ?? -1),
+                ErrorCount = x.TabImportErrors?.Count() ?? 0
+            }));
 
             return enrichedResults.Select(x => new BlTabImportDataSourceForQuery
             {
-                ImportControlId = x.DataSource.ImportDataSourceId, // מזהה קליטה
-                ImportDataSourceDesc = x.DataSource.ImportDataSourceDesc ?? string.Empty, // תיאור מקור קליטה
-                SystemName = x.System.SystemName ?? string.Empty, // שם מערכת
-                FileName = x.DataSource.UrlFile ?? string.Empty, // שם קובץ
-                ImportStartDate = x.ImportControl.ImportStartDate != default ? x.ImportControl.ImportStartDate : DateTime.Now, // תאריך התחלת קליטה
-                ImportFinishDate = x.ImportControl.ImportFinishDate ?? DateTime.MaxValue, // תאריך סיום קליטה
-                TotalRows = x.ImportControl?.TotalRows ?? 0, // סך כל השורות בקובץ
-                TotalRowsAffected = x.ImportControl?.TotalRowsAffected ?? 0, // סך השורות שנקלטו
-                RowsInvalid = x.ErrorCount, // סך השורות הפגומות
-                ImportStatusDesc =  x.ImportStatus?.ImportStatusDesc ?? "", // מזהה סטטוס קליטה
-                UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty, // נתיב קובץ לאחר עיבוד
-                ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty // נתיב לדוח שגיאות
+                ImportControlId = x.DataSource.ImportDataSourceId,
+                ImportDataSourceDesc = x.DataSource.ImportDataSourceDesc ?? string.Empty,
+                SystemName = x.System?.SystemName ?? string.Empty,
+                FileName = x.DataSource.UrlFile ?? string.Empty,
+                ImportStartDate = x.ImportControl?.ImportStartDate != default ? x.ImportControl.ImportStartDate : DateTime.Now,
+                ImportFinishDate = x.ImportControl?.ImportFinishDate ?? DateTime.MaxValue,
+                TotalRows = x.ImportControl?.TotalRows ?? 0,
+                TotalRowsAffected = x.ImportControl?.TotalRowsAffected ?? 0,
+                RowsInvalid = x.ErrorCount,
+                ImportStatusDesc = x.ImportStatus?.ImportStatusDesc ?? string.Empty,
+                UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty,
+                ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty
             });
         }
+
         // Adding implementations for the missing methods 'AdditionalMethod1' and 'AdditionalMethod2' to resolve the errors.
 
         public async Task AdditionalMethod1()
