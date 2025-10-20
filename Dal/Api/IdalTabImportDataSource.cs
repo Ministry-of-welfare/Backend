@@ -1,12 +1,17 @@
 using Dal.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Dal.Api
 {
     public interface IDalImportDataSource : ICrud<TabImportDataSource>
     {
+        IQueryable<TabImportDataSource> GetTabImportDataSourcesQuery();
+
+        Task<int> CreateAndReturnId(TabImportDataSource item);
+
         string GetTableName(int id);
         List<ColumnDef> GetColumns(int id);
         bool TableExists(string tableName);

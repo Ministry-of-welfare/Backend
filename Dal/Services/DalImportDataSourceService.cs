@@ -20,6 +20,15 @@ namespace Dal.Services
             _db = db;
             _connectionString = _db.Database.GetConnectionString();
         }
+        public IQueryable<TabImportDataSource> GetTabImportDataSourcesQuery()
+        {
+            return _db.TabImportDataSources
+                .Include(x => x.AppImportControls)
+                .ThenInclude(control => control.ImportStatus)
+                .Include(x => x.System) // טעינת המערכת
+                .Include(x => x.TabImportErrors);
+        }
+
 
         public async Task<List<TabImportDataSource>> GetAll()
         {
@@ -37,6 +46,13 @@ namespace Dal.Services
             await _db.SaveChangesAsync();
 
         }
+        public async Task<int> CreateAndReturnId(TabImportDataSource item)
+        {
+            _db.TabImportDataSources.Add(item);
+            await _db.SaveChangesAsync();
+            return item.ImportDataSourceId;
+        }
+
 
         public async Task Update(TabImportDataSource item)
         {
@@ -270,11 +286,13 @@ namespace Dal.Services
                 .FirstOrDefaultAsync(control => control.ImportDataSourceId == importDataSourceId);
         }
 
-        public async Task<TImportStatus?> GetImportStatusById(int importStatusId)
+        public async Task<TImportStatus> GetImportStatusById(int importStatusId)
         {
             return await _db.TImportStatuses
                 .FirstOrDefaultAsync(status => status.ImportStatusId == importStatusId);
         }
+
+
         public async Task<Dal.Models.System> GetSystemById(int systemId)
         {
             return await _db.Systems

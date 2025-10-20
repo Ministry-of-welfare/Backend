@@ -383,6 +383,10 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.FileStatus).WithMany(p => p.TabImportDataSources)
                 .HasForeignKey(d => d.FileStatusId)
                 .HasConstraintName("FK_ImportDataSource_FileStatus");
+            entity.HasOne(e => e.System)
+                 .WithMany()
+                 .HasForeignKey(e => e.SystemId)
+                 .OnDelete(DeleteBehavior.ClientSetNull); // הגדרת הקשר
         });
 
         modelBuilder.Entity<TabImportDataSourceColumn>(entity =>

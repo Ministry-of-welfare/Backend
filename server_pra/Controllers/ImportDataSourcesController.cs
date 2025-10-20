@@ -123,10 +123,10 @@ namespace server.Controllers
 
         //הוספה והחזרת id
         [HttpPost("CreateAndReturnId")]
-        public async Task<IActionResult> CreateAndReturnId([FromBody] BlTabImportDataSource item)
+        public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            await _bl.TabImportDataSource.Create(item);          // אין החזרת ערך
-            return Ok(new { message = "נוצר בהצלחה" });       // ניתן לשנות הודעה לפי הצורך
+            var result= await _bl.TabImportDataSource.CreateAndReturnId(item);
+            return result;        
         }
 
 
