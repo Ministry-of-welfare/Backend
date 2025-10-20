@@ -3,6 +3,7 @@ using BL.Api;
 using BL.Models;
 using Dal.Api;
 using Dal.Models;
+using Microsoft.EntityFrameworkCore;
 namespace BL.Services
 
 {
@@ -197,42 +198,59 @@ namespace BL.Services
         }
         // פונקציית חיפוש למסך קליטות שבוצעו 
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
-    DateTime? startDate,
-    DateTime? endDate,
-    int? systemId,
-    string systemName,
-    string importDataSourceDesc,
-    int? importStatusId,
-    string fileName,
-    bool showErrorsOnly)
+      DateTime? startDate,
+      DateTime? endDate,
+      int? systemId,
+      string systemName,
+      string importDataSourceDesc,
+      int? importStatusId,
+      string fileName,
+      bool showErrorsOnly)
         {
-            var results = await _dal.SearchImportDataSourcesAsync(
-                startDate, endDate, systemId, systemName, importDataSourceDesc, importStatusId, fileName, showErrorsOnly);
+            var query = _dal.GetTabImportDataSourcesQuery();
 
-            // טעינת נתונים נוספים מטבלאות קשורות
-            var enrichedResults = await Task.WhenAll(results.Select(async x => new
-            {
-                DataSource = x,
-                ImportControl = await _dal.GetImportControlByDataSourceId(x.ImportDataSourceId),
-                ImportStatus = await _dal.GetImportStatusById(x.ImportDataSourceId),
-                System = await _dal.GetSystemById(x.SystemId ?? -1),
-                ErrorCount = x.TabImportErrors?.Count() ?? 0
-            }));
+            if (startDate.HasValue)
+                query = query.Where(x => x.StartDate.HasValue && x.StartDate.Value >= startDate.Value);
 
-            return enrichedResults.Select(x => new BlTabImportDataSourceForQuery
+            if (endDate.HasValue)
+                query = query.Where(x => x.EndDate.HasValue && x.EndDate.Value <= endDate.Value);
+
+            if (systemId.HasValue)
+                query = query.Where(x => x.SystemId.HasValue && x.SystemId.Value == systemId.Value);
+
+            //if (!string.IsNullOrEmpty(systemName))
+            //    query = query.Where(x => x.System.SystemName.Contains(systemName));
+
+            if (!string.IsNullOrEmpty(importDataSourceDesc))
+                query = query.Where(x => x.ImportDataSourceDesc.Contains(importDataSourceDesc));
+
+            if (importStatusId.HasValue)
+                query = query.Where(x => x.AppImportControls.Any(control => control.ImportStatusId == importStatusId.Value));
+
+            if (!string.IsNullOrEmpty(fileName))
+                query = query.Where(x => x.UrlFile.Contains(fileName));
+
+            if (showErrorsOnly)
+                query = query.Where(x => x.TabImportErrors.Any());
+
+            var results = await query.ToListAsync();
+
+
+            // מיפוי התוצאות
+            return results.Select(x => new BlTabImportDataSourceForQuery
             {
-                ImportControlId = x.DataSource.ImportDataSourceId,
-                ImportDataSourceDesc = x.DataSource.ImportDataSourceDesc ?? string.Empty,
-                SystemName = x.System?.SystemName ?? string.Empty,
-                FileName = x.DataSource.UrlFile ?? string.Empty,
-                ImportStartDate = x.ImportControl?.ImportStartDate != default ? x.ImportControl.ImportStartDate : DateTime.Now,
-                ImportFinishDate = x.ImportControl?.ImportFinishDate ?? DateTime.MaxValue,
-                TotalRows = x.ImportControl?.TotalRows ?? 0,
-                TotalRowsAffected = x.ImportControl?.TotalRowsAffected ?? 0,
-                RowsInvalid = x.ErrorCount,
-                ImportStatusDesc = x.ImportStatus?.ImportStatusDesc ?? string.Empty,
-                UrlFileAfterProcess = x.DataSource.UrlFileAfterProcess ?? string.Empty,
-                ErrorReportPath = x.ImportControl?.ErrorReportPath ?? string.Empty
+                ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,
+                ImportDataSourceDesc = x.ImportDataSourceDesc ?? string.Empty,
+              //  SystemName = x.System?.SystemName ?? string.Empty,
+                FileName = x.UrlFile ?? string.Empty,
+                ImportStartDate = x.AppImportControls.FirstOrDefault()?.ImportStartDate ?? DateTime.Now,
+                ImportFinishDate = x.AppImportControls.FirstOrDefault()?.ImportFinishDate ?? DateTime.MaxValue,
+                TotalRows = x.AppImportControls.FirstOrDefault()?.TotalRows ?? 0,
+                TotalRowsAffected = x.AppImportControls.FirstOrDefault()?.TotalRowsAffected ?? 0,
+                RowsInvalid = x.TabImportErrors.Count,
+                ImportStatusDesc = x.AppImportControls.FirstOrDefault()?.ImportStatus?.ImportStatusDesc ?? string.Empty,
+                UrlFileAfterProcess = x.UrlFileAfterProcess ?? string.Empty,
+                ErrorReportPath = x.AppImportControls.FirstOrDefault()?.ErrorReportPath ?? string.Empty
             });
         }
 
