@@ -218,8 +218,8 @@ namespace BL.Services
             if (systemId.HasValue)
                 query = query.Where(x => x.SystemId.HasValue && x.SystemId.Value == systemId.Value);
 
-            //if (!string.IsNullOrEmpty(systemName))
-            //    query = query.Where(x => x.System.SystemName.Contains(systemName));
+            if (!string.IsNullOrEmpty(systemName))
+               query = query.Where(x => x.System.SystemName.Contains(systemName));
 
             if (!string.IsNullOrEmpty(importDataSourceDesc))
                 query = query.Where(x => x.ImportDataSourceDesc.Contains(importDataSourceDesc));
@@ -241,7 +241,7 @@ namespace BL.Services
             {
                 ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,
                 ImportDataSourceDesc = x.ImportDataSourceDesc ?? string.Empty,
-              //  SystemName = x.System?.SystemName ?? string.Empty,
+                SystemName = x.System?.SystemName ?? string.Empty,
                 FileName = x.UrlFile ?? string.Empty,
                 ImportStartDate = x.AppImportControls.FirstOrDefault()?.ImportStartDate ?? DateTime.Now,
                 ImportFinishDate = x.AppImportControls.FirstOrDefault()?.ImportFinishDate ?? DateTime.MaxValue,

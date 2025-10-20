@@ -25,7 +25,7 @@ namespace Dal.Services
             return _db.TabImportDataSources
                 .Include(x => x.AppImportControls)
                 .ThenInclude(control => control.ImportStatus)
-               // .Include(x => x.System) // טעינת המערכת
+                .Include(x => x.System) // טעינת המערכת
                 .Include(x => x.TabImportErrors);
         }
 
