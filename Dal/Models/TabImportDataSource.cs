@@ -69,6 +69,7 @@ public partial class TabImportDataSource
     /// תאריך תחילת ההרצה
     /// </summary>
     public DateTime? StartDate { get; set; }
+    public virtual System System { get; set; } // ניווט למערכת
 
     public virtual ICollection<AppImportControl> AppImportControls { get; set; } = new List<AppImportControl>();
 
