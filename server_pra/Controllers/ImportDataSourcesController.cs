@@ -3,7 +3,6 @@
 using BL.Api;
 using BL.Models;
 using BL.Services;
-using Dal.Models;
 using Dal.Models; // לוודא שזה אותו namespace של AppDbContext ושל ה־Entities
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

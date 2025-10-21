@@ -12,5 +12,6 @@ namespace BL.Models
         public int OrderId { get; set; }
         public string ColumnName { get; set; } = string.Empty;
         public int? FormatColumnId { get; set; }
+        public string ColumnNameHebDescription { get; set; } = string.Empty;
     }
 }

@@ -38,25 +38,10 @@ namespace server_pra.Controllers
 
         [HttpPost]
         public async Task<ActionResult<TabImportDataSourceColumn>> Create([FromBody] TabImportDataSourceColumn item)
-        { // לוגינג אבחוני
-            Console.WriteLine($"DEBUG before save - ID: {item.ImportDataSourceColumnsId}");
-            foreach (var entry in _context.ChangeTracker.Entries())
-            {
-                Console.WriteLine($"Entry: {entry.Entity.GetType().Name}, State: {entry.State}");
-                foreach (var prop in entry.Properties)
-                {
-                    Console.WriteLine($"  {prop.Metadata.Name} = {prop.CurrentValue} (IsTemporary={prop.IsTemporary})");
-                }
-            }
-            item.ImportDataSourceColumnsId = 0; // לא נותנים ידנית ID
-            _context.TabImportDataSourceColumns.Add(item);
-            await _context.SaveChangesAsync();
-            
-                return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceColumnsId }, item);
-            //_context.TabImportDataSourceColumns.Add(item);
-            //await _context.SaveChangesAsync();
-
-            //return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
+        {
+            var blItem = BL.Services.BlTabImportDataSourceColumnService.ToBl(item);
+            await _bl.TabImportDataSourceColumn.Create(blItem);
+            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceColumnsId }, item);
         }
 
         [HttpDelete("{id}")]
