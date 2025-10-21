@@ -8,6 +8,7 @@ namespace Dal.Api
 
         public IDalImportStatus ImportStatus { get; }
         public IDalImportDataSource TabImportDataSource { get; }
+        public IDalImportDataSourceColumn ImportDataSourceColumn { get; }
         public IDalFileStatus Tfilestatus { get; }
         public IDalImportControl  ImportControl { get; }
 

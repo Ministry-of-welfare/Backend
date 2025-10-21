@@ -21,7 +21,7 @@ namespace Dal.Services
         }
         public async Task<TabImportDataSourceColumn> Create(TabImportDataSourceColumn item)
         {
-            
+            item.ImportDataSourceColumnsId = 0;
             _db.TabImportDataSourceColumns.Add(item);
             await _db.SaveChangesAsync();
             return item;
