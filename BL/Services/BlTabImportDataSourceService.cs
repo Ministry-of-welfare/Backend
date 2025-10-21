@@ -16,7 +16,7 @@ namespace BL.Services
             _dal = dal;
         }
 
-        // оойш DAL -> BL
+        // пїЅпїЅпїЅпїЅ DAL -> BL
         public static BlTabImportDataSource ToBl(TabImportDataSource dto)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
@@ -38,7 +38,7 @@ namespace BL.Services
             };
         }
 
-        // оойш BL -> DAL
+        // пїЅпїЅпїЅпїЅ BL -> DAL
         public static TabImportDataSource ToDal(BlTabImportDataSource bl)
         {
             if (bl == null) throw new ArgumentNullException(nameof(bl));
@@ -61,11 +61,11 @@ namespace BL.Services
         }
         private void ValidateImportDataSource(BlTabImportDataSource item)
         {
-            // бгйчъ иеез ъашйлйн
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
-                throw new InvalidOperationException("ъашйк дсйен ма йлем мдйеъ мфрй ъашйк ддъзмд.");
+                throw new InvalidOperationException("пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ.");
 
-            // бгйчъ ъчйреъ лъебеъ оййм (ан йщ)
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅ пїЅпїЅ)
             if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
@@ -76,11 +76,11 @@ namespace BL.Services
                 {
                     var trimmed = email.Trim();
                     if (!Regex.IsMatch(trimmed, emailPattern))
-                        throw new InvalidOperationException($"лъебъ доййм '{trimmed}' айрд ъчйрд.");
+                        throw new InvalidOperationException($"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ '{trimmed}' пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ.");
                 }
             }
         }
-        // === CRUD швйм ===
+        // === CRUD пїЅпїЅпїЅпїЅ ===
         public async Task<List<BlTabImportDataSource>> GetAll()
         {
             var data = await _dal.GetAll();
@@ -95,7 +95,7 @@ namespace BL.Services
 
         public async Task Create(BlTabImportDataSource item)
         {
-            ValidateImportDataSource(item); // емйгцйд мфрй йцйшд
+            ValidateImportDataSource(item); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             var dalEntity = ToDal(item);
             await _dal.Create(dalEntity);
 
@@ -114,7 +114,7 @@ namespace BL.Services
             await _dal.Delete(id);
         }
         /// <summary>
-        /// ферчцйд мйцйшъ шщеод згщд 
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ 
         /// </summary>
         /// <returns>importDataSourceId</returns>
         public async Task<int> CreateAndReturnId(BlTabImportDataSource item)
@@ -125,7 +125,7 @@ namespace BL.Services
             return result;
 
         }
-        // === ферчцйеъ ййзегйеъ мйцйшъ ибмд гйраойъ ===
+        // === пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ===
         public string GetTableName(int id) => _dal.GetTableName(id);
 
         public List<ColumnDef> GetColumns(int id) => _dal.GetColumns(id);
@@ -135,30 +135,34 @@ namespace BL.Services
         public void ExecuteSql(string sql) => _dal.ExecuteSql(sql);
 
         /// <summary>
-        /// ферчцйд шащйъ мйцйшъ дибмд дгйраойъ
+        /// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         /// </summary>
        
         public void CreateDynamicTable(int importDataSourceId)
         {
             var tableName = GetTableName(importDataSourceId);
             if (string.IsNullOrWhiteSpace(tableName))
-                throw new Exception($"ма роца щн ибмд мОImportDataSourceId {importDataSourceId}");
+                throw new Exception($"пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅImportDataSourceId {importDataSourceId}");
 
-            tableName = tableName + "_BULK"; // десфъ дсйеоъ
+            tableName = tableName + "_BULK"; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
             if (TableExists(tableName))
-                throw new Exception($"дибмд {tableName} лбш чййоъ");
+                throw new Exception($"пїЅпїЅпїЅпїЅпїЅ {tableName} пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
 
             var columns = _dal.GetColumns(importDataSourceId);
             if (columns == null || !columns.Any())
-                throw new Exception("ма девгше тоегеъ мибмд");
+                throw new Exception("пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ");
 
-            // брййъ дОSQL мфй дфешои дрлеп
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅSQL пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
 
             var columnsDef = columns
         .Where(c => !string.IsNullOrWhiteSpace(c.ColumnName) && !string.IsNullOrWhiteSpace(c.DataType))
-        .Select(c => $"[{c.ColumnName}] {c.DataType}")
+        .SelectMany(c => new[] {
+            $"[{c.ColumnName}] {c.DataType}",
+            !string.IsNullOrWhiteSpace(c.ColumnNameHeb) ? $"[{c.ColumnNameHeb}] {c.DataType}" : null
+        })
+        .Where(col => col != null)
         .ToList();
 
             if (columnsDef.Count == 0)
@@ -173,14 +177,14 @@ namespace BL.Services
         }
         public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
         {
-            ValidateImportDataSource(item); // емйгцйд мфрй тглеп
+            ValidateImportDataSource(item); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             var entity = await _dal.GetById(item.ImportDataSourceId);
             if (entity == null) return null!;
 
             entity.EndDate = item.EndDate ?? DateTime.Now;
             entity.StartDate = item.StartDate;
             entity.ErrorRecipients = item.ErrorRecipients;
-            await _dal.Update(entity);     // щйоещ б-ICrud, ма озжйш тшк
+            await _dal.Update(entity);     // пїЅпїЅпїЅпїЅпїЅ пїЅ-ICrud, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 
             return ToBl(entity);
         }
@@ -191,12 +195,12 @@ namespace BL.Services
             var entity = await _dal.GetById(id);
             if (entity == null) return null!;
 
-            entity.EndDate = DateTime.Now; // мевйчд тсчйъ
-            await _dal.Update(entity);     // щйоещ б-ICrud, ма озжйш тшк
+            entity.EndDate = DateTime.Now; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+            await _dal.Update(entity);     // пїЅпїЅпїЅпїЅпїЅ пїЅ-ICrud, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 
-            return ToBl(entity);            // дзжшъ BL model м-Controller
+            return ToBl(entity);            // пїЅпїЅпїЅпїЅпїЅ BL model пїЅ-Controller
         }
-        // ферчцййъ зйфещ моск чмйиеъ щбецте 
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
       DateTime? startDate,
       DateTime? endDate,
@@ -236,7 +240,7 @@ namespace BL.Services
             var results = await query.ToListAsync();
 
 
-            // ойфей дъецаеъ
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             return results.Select(x => new BlTabImportDataSourceForQuery
             {
                 ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,

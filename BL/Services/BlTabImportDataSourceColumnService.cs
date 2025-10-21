@@ -21,11 +21,12 @@ namespace BL.Services
 
             return new BlTabImportDataSourceColumn
             {
-                ImportDataSourceColumnsId = dto.ImportDataSourceId,
+                ImportDataSourceColumnsId = dto.ImportDataSourceColumnsId,
                 ImportDataSourceId = dto.ImportDataSourceId,
                 OrderId = dto.OrderId,
                 ColumnName = dto.ColumnName,
-                FormatColumnId = dto.FormatColumnId
+                FormatColumnId = dto.FormatColumnId,
+                ColumnNameHebDescription = dto.ColumnNameHebDescription
             };
         }
 
@@ -36,11 +37,12 @@ namespace BL.Services
 
             return new TabImportDataSourceColumn
             {
-                ImportDataSourceColumnsId = bl.ImportDataSourceId,
+                ImportDataSourceColumnsId = bl.ImportDataSourceColumnsId,
                 ImportDataSourceId = bl.ImportDataSourceId,
                 OrderId = bl.OrderId,
                 ColumnName = bl.ColumnName,
-                FormatColumnId = bl.FormatColumnId
+                FormatColumnId = bl.FormatColumnId,
+                ColumnNameHebDescription = bl.ColumnNameHebDescription
             };
         }
 

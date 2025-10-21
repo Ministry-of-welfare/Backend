@@ -402,7 +402,6 @@ public partial class AppDbContext : DbContext
             entity.HasIndex(e => e.FormatColumnId, "IX_TAB_ImportDataSourceColumns_FormatColumn");
 
             entity.Property(e => e.ImportDataSourceColumnsId)
-                .ValueGeneratedNever()
                 .HasComment("קוד עמודה");
             entity.Property(e => e.ColumnName)
                 .IsRequired()

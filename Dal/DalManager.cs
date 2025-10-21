@@ -21,6 +21,7 @@ namespace Dal
             System = new DalSystemService(_context);
             ImportStatus = new DalImportStatusService(_context);
             TabImportDataSource = new DalImportDataSourceService(_context);
+            ImportDataSourceColumn = new DalImportDataSourceColumnService(_context);
         }
 
         public IDalEnvironment Environments { get; }
@@ -28,8 +29,8 @@ namespace Dal
         public IDalSystem System { get; }
         public IDalImportStatus ImportStatus { get; }
         public IDalImportDataSource TabImportDataSource { get; }
+        public IDalImportDataSourceColumn ImportDataSourceColumn { get; }
         public IDalFileStatus Tfilestatus { get; }
-
         public IDalImportControl ImportControl { get; }
 
 
