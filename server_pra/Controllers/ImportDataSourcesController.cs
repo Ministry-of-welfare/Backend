@@ -121,11 +121,18 @@ namespace server.Controllers
         }
 
         //הוספה והחזרת id
+
         [HttpPost("CreateAndReturnId")]
         public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            var result= await _bl.TabImportDataSource.CreateAndReturnId(item);
-            return result;        
+            // ברירת מחדל לסטטוס
+            if (item.FileStatusId == null || item.FileStatusId == 0)
+            {
+                item.FileStatusId = 3; // בהקמה
+            }
+
+            var result = await _bl.TabImportDataSource.CreateAndReturnId(item);
+            return result;
         }
 
 
