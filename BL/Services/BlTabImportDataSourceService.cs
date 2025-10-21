@@ -195,12 +195,15 @@ namespace BL.Services
             var entity = await _dal.GetById(id);
             if (entity == null) return null!;
 
-            entity.EndDate = DateTime.Now; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
-            await _dal.Update(entity);     // пїЅпїЅпїЅпїЅпїЅ пїЅ-ICrud, пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+            entity.EndDate = DateTime.Now; // мевйчд тсчйъ
+            entity.FileStatusId = 2; // отбйш аъ дшщеод моцб 'ма фтйм'
 
-            return ToBl(entity);            // пїЅпїЅпїЅпїЅпїЅ BL model пїЅ-Controller
+            await _dal.Update(entity);     // щйоещ б-ICrud, ма озжйш тшк
+
+
+            return ToBl(entity);            // дзжшъ BL model м-Controller
+
         }
-        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
       DateTime? startDate,
       DateTime? endDate,
