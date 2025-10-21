@@ -8,6 +8,7 @@ namespace BL.Models
         public int ImportDataSourceId { get; set; } // מזהה מקור קליטה
         public string ImportDataSourceDesc { get; set; } = string.Empty; // תיאור מקור קליטה
         public int DataSourceTypeId { get; set; } // סוג מקור קליטה
+        public int? FileStatusId { get; set; }
         public int? SystemId { get; set; } // מזהה מערכת
         public string? JobName { get; set; } // שם משימה
         public string? TableName { get; set; } // שם טבלה

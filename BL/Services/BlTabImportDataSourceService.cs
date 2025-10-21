@@ -192,7 +192,10 @@ namespace BL.Services
             if (entity == null) return null!;
 
             entity.EndDate = DateTime.Now; // לוגיקה עסקית
+            entity.FileStatusId = 2; // מעביר את הרשומה למצב 'לא פעיל'
+
             await _dal.Update(entity);     // שימוש ב-ICrud, לא מחזיר ערך
+
 
             return ToBl(entity);            // החזרת BL model ל-Controller
         }
