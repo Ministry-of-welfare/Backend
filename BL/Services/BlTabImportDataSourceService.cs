@@ -34,7 +34,9 @@ namespace BL.Services
                 EndDate = dto.EndDate,
                 ErrorRecipients = dto.ErrorRecipients,
                 InsertDate = dto.InsertDate,
-                StartDate = dto.StartDate
+                StartDate = dto.StartDate,
+                FileStatusId = dto.FileStatusId, // חובה שיהיה
+
             };
         }
 
@@ -56,7 +58,9 @@ namespace BL.Services
                 EndDate = bl.EndDate,
                 ErrorRecipients = bl.ErrorRecipients,
                 InsertDate = bl.InsertDate,
-                StartDate = bl.StartDate
+                StartDate = bl.StartDate,
+                FileStatusId = bl.FileStatusId, // חובה שיהיה
+
             };
         }
         private void ValidateImportDataSource(BlTabImportDataSource item)
