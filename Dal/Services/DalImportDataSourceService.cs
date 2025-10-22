@@ -113,11 +113,8 @@ namespace Dal.Services
                 "DECIMAL" => "DECIMAL(18,2)",
                 "DATE" => "DATE",
                 "DATETIME" => "DATETIME",
-                // ����� "���������" ������ -> ����� SQL
-                //"����" => "INT",
-                //"����" => "NVARCHAR(200)",
-                //"�����" => "DATE",
-                _ => "NVARCHAR(200)" // ����� ���� �����
+                
+                _ => "NVARCHAR(200)" 
             };
         }
         public List<ColumnDef> GetColumns(int id)
@@ -127,9 +124,8 @@ namespace Dal.Services
             conn.Open();
 
             var sql = @"
-        SELECT c.ColumnName, f.FormatColumnDesc, c.ColumnNameHebDescription
+        SELECT c.ColumnName
         FROM TAB_ImportDataSourceColumns c
-        INNER JOIN TAB_FormatColumn f ON c.FormatColumnId = f.FormatColumnId
         WHERE c.ImportDataSourceId = @Id
         ORDER BY c.OrderId";
 
@@ -139,9 +135,7 @@ namespace Dal.Services
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                var sqlType = MapToSqlType(reader.GetString(1));
-                var hebName = reader.IsDBNull(2) ? "" : reader.GetString(2);
-                list.Add(new ColumnDef(reader.GetString(0), sqlType, hebName));
+                list.Add(new ColumnDef(reader.GetString(0), "VARCHAR(MAX)"));
             }
 
             return list;

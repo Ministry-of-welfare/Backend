@@ -15,14 +15,14 @@ namespace BL.Api
 
         Task<int> CreateAndReturnId(BlTabImportDataSource item);
 
-        // === פונקציות ייחודיות ליצירת טבלה דינאמית ===
+        // === Dynamic table creation functions ===
         string GetTableName(int id);
         List<ColumnDef> GetColumns(int id);
         bool TableExists(string tableName);
         void ExecuteSql(string sql);
         void CreateDynamicTable(int importDataSourceId);
 
-        // פונקציית חיפוש למסך קליטות שבוצעו 
+        // Search function for completed imports screen
         Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
             DateTime? startDate,
             DateTime? endDate,
