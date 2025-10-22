@@ -121,11 +121,18 @@ namespace server.Controllers
         }
 
         //הוספה והחזרת id
+
         [HttpPost("CreateAndReturnId")]
         public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            var result= await _bl.TabImportDataSource.CreateAndReturnId(item);
-            return result;        
+            // ברירת מחדל לסטטוס
+            if (item.FileStatusId == null || item.FileStatusId == 0)
+            {
+                item.FileStatusId = 3; // בהקמה
+            }
+
+            var result = await _bl.TabImportDataSource.CreateAndReturnId(item);
+            return result;
         }
 
 
@@ -149,6 +156,29 @@ namespace server.Controllers
                 return BadRequest($"שגיאה: {ex.Message}\n{ex.StackTrace}");
             }
         }
+
+        [HttpPut("update-status/{id}")]
+        public async Task<IActionResult> UpdateStatusOnly(int id, [FromBody] int newStatusId)
+
+        {
+            var item = await _context.TabImportDataSources.FindAsync(id);
+            if (item == null)
+                return NotFound();
+
+            item.FileStatusId = newStatusId;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return Ok(new { message = "סטטוס עודכן בהצלחה" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "שגיאה בעת שמירת הסטטוס", details = ex.Message });
+            }
+        }
+
+
         //// פונקציית חיפוש למסך קליטות שבוצעו 
         [HttpGet("search")]
         public async Task<IActionResult> SearchImportDataSources(

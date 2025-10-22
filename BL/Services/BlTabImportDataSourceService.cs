@@ -34,7 +34,9 @@ namespace BL.Services
                 EndDate = dto.EndDate,
                 ErrorRecipients = dto.ErrorRecipients,
                 InsertDate = dto.InsertDate,
-                StartDate = dto.StartDate
+                StartDate = dto.StartDate,
+                FileStatusId = dto.FileStatusId, // ×—×•×‘×” ×©×™×”×™×”
+
             };
         }
 
@@ -56,7 +58,9 @@ namespace BL.Services
                 EndDate = bl.EndDate,
                 ErrorRecipients = bl.ErrorRecipients,
                 InsertDate = bl.InsertDate,
-                StartDate = bl.StartDate
+                StartDate = bl.StartDate,
+                FileStatusId = bl.FileStatusId, // ×—×•×‘×” ×©×™×”×™×”
+
             };
         }
 
@@ -184,12 +188,16 @@ namespace BL.Services
             var entity = await _dal.GetById(id);
             if (entity == null) return null!;
 
-            entity.EndDate = DateTime.Now;
-            await _dal.Update(entity);
 
-            return ToBl(entity);
+            entity.EndDate = DateTime.Now; // ìåâé÷ä òñ÷éú
+            entity.FileStatusId = 2; // îòáéø àú äøùåîä ìîöá 'ìà ôòéì'
+
+            await _dal.Update(entity);     // ùéîåù á-ICrud, ìà îçæéø òøê
+
+
+            return ToBl(entity);            // äçæøú BL model ì-Controller
+
         }
-
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
             DateTime? startDate,
             DateTime? endDate,
