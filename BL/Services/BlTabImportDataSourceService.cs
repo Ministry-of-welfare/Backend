@@ -4,8 +4,8 @@ using BL.Models;
 using Dal.Api;
 using Dal.Models;
 using Microsoft.EntityFrameworkCore;
-namespace BL.Services
 
+namespace BL.Services
 {
     public class BlTabImportDataSourceService : IBlTabImportDataSource
     {
@@ -16,7 +16,7 @@ namespace BL.Services
             _dal = dal;
         }
 
-        // ï¿½ï¿½ï¿½ï¿½ DAL -> BL
+        // Convert DAL -> BL
         public static BlTabImportDataSource ToBl(TabImportDataSource dto)
         {
             if (dto == null) throw new ArgumentNullException(nameof(dto));
@@ -35,12 +35,12 @@ namespace BL.Services
                 ErrorRecipients = dto.ErrorRecipients,
                 InsertDate = dto.InsertDate,
                 StartDate = dto.StartDate,
-                FileStatusId = dto.FileStatusId, // ×—×•×‘×” ×©×™×”×™×”
+                FileStatusId = dto.FileStatusId, // Ã—â€”Ã—â€¢Ã—â€˜Ã—â€ Ã—Â©Ã—â„¢Ã—â€Ã—â„¢Ã—â€
 
             };
         }
 
-        // ï¿½ï¿½ï¿½ï¿½ BL -> DAL
+        // Convert BL -> DAL
         public static TabImportDataSource ToDal(BlTabImportDataSource bl)
         {
             if (bl == null) throw new ArgumentNullException(nameof(bl));
@@ -59,17 +59,18 @@ namespace BL.Services
                 ErrorRecipients = bl.ErrorRecipients,
                 InsertDate = bl.InsertDate,
                 StartDate = bl.StartDate,
-                FileStatusId = bl.FileStatusId, // ×—×•×‘×” ×©×™×”×™×”
+                FileStatusId = bl.FileStatusId, // Ã—â€”Ã—â€¢Ã—â€˜Ã—â€ Ã—Â©Ã—â„¢Ã—â€Ã—â„¢Ã—â€
 
             };
         }
+
         private void ValidateImportDataSource(BlTabImportDataSource item)
         {
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            // Validate dates
             if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
-                throw new InvalidOperationException("ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.");
+                throw new InvalidOperationException("End date cannot be before start date.");
 
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ ï¿½ï¿½)
+            // Validate email addresses
             if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
@@ -80,11 +81,12 @@ namespace BL.Services
                 {
                     var trimmed = email.Trim();
                     if (!Regex.IsMatch(trimmed, emailPattern))
-                        throw new InvalidOperationException($"ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ '{trimmed}' ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.");
+                        throw new InvalidOperationException($"Invalid email address: '{trimmed}'.");
                 }
             }
         }
-        // === CRUD ï¿½ï¿½ï¿½ï¿½ ===
+
+        // === CRUD Operations ===
         public async Task<List<BlTabImportDataSource>> GetAll()
         {
             var data = await _dal.GetAll();
@@ -99,37 +101,24 @@ namespace BL.Services
 
         public async Task Create(BlTabImportDataSource item)
         {
-            ValidateImportDataSource(item); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+            ValidateImportDataSource(item);
             var dalEntity = ToDal(item);
             await _dal.Create(dalEntity);
-
         }
-
-        //public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
-        //{
-        //    var dalEntity = ToDal(item);
-        //    var updated = await _dal.Update(dalEntity);
-        //    return ToBl(updated);
-        //}
-      
 
         public async Task Delete(int id)
         {
             await _dal.Delete(id);
         }
-        /// <summary>
-        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ 
-        /// </summary>
-        /// <returns>importDataSourceId</returns>
+
         public async Task<int> CreateAndReturnId(BlTabImportDataSource item)
         {
             var dalEntity = ToDal(item);
-            var result= await _dal.CreateAndReturnId(dalEntity);
-            
+            var result = await _dal.CreateAndReturnId(dalEntity);
             return result;
-
         }
-        // === ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ===
+
+        // === Dynamic Table Operations ===
         public string GetTableName(int id) => _dal.GetTableName(id);
 
         public List<ColumnDef> GetColumns(int id) => _dal.GetColumns(id);
@@ -138,85 +127,86 @@ namespace BL.Services
 
         public void ExecuteSql(string sql) => _dal.ExecuteSql(sql);
 
-        /// <summary>
-        /// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-        /// </summary>
-       
         public void CreateDynamicTable(int importDataSourceId)
         {
             var tableName = GetTableName(importDataSourceId);
             if (string.IsNullOrWhiteSpace(tableName))
-                throw new Exception($"ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ImportDataSourceId {importDataSourceId}");
+                throw new Exception($"Table name not found for ImportDataSourceId {importDataSourceId}");
 
-            tableName = tableName + "_BULK"; // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+            var cleanTableName = tableName.Replace("BULK_", "", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("APP_", "", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("App_", "", StringComparison.OrdinalIgnoreCase)
+                                          .Replace("app_", "", StringComparison.OrdinalIgnoreCase);
+            tableName = "BULK_" + cleanTableName;
 
             if (TableExists(tableName))
-                throw new Exception($"ï¿½ï¿½ï¿½ï¿½ï¿½ {tableName} ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½");
+                throw new Exception($"Table {tableName} already exists");
 
             var columns = _dal.GetColumns(importDataSourceId);
             if (columns == null || !columns.Any())
-                throw new Exception("ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½");
+                throw new Exception("No columns found");
 
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½SQL ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+            var columnsDef = new List<string>
+            {
+                $"[{cleanTableName}Id] INT IDENTITY(1,1) PRIMARY KEY",
+                "[ImportControlId] INT"
+            };
 
-
-            var columnsDef = columns
-        .Where(c => !string.IsNullOrWhiteSpace(c.ColumnName) && !string.IsNullOrWhiteSpace(c.DataType))
-        .SelectMany(c => new[] {
-            $"[{c.ColumnName}] {c.DataType}",
-            !string.IsNullOrWhiteSpace(c.ColumnNameHeb) ? $"[{c.ColumnNameHeb}] {c.DataType}" : null
-        })
-        .Where(col => col != null)
-        .ToList();
+            columnsDef.AddRange(columns
+                .Where(c => !string.IsNullOrWhiteSpace(c.ColumnName))
+                .Select(c => $"[{c.ColumnName}] VARCHAR(MAX)"));
 
             if (columnsDef.Count == 0)
                 throw new InvalidOperationException("No valid columns found to create the table.");
 
             var sql = $@"
-            CREATE TABLE {tableName} (
-                {string.Join(",", columnsDef)}
+            CREATE TABLE [{tableName}] (
+                {string.Join(",\r\n                ", columnsDef)},
+                CONSTRAINT FK_{cleanTableName}_ImportControl FOREIGN KEY (ImportControlId) REFERENCES APP_ImportControl(ImportControlId)
             )";
 
             ExecuteSql(sql);
+            _dal.ExecuteSql($"UPDATE TAB_ImportDataSource SET StartDate = GETDATE() WHERE ImportDataSourceId = {importDataSourceId}");
         }
+
         public async Task<BlTabImportDataSource> Update(BlTabImportDataSource item)
         {
-            ValidateImportDataSource(item); // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½
+            ValidateImportDataSource(item);
             var entity = await _dal.GetById(item.ImportDataSourceId);
             if (entity == null) return null!;
 
             entity.EndDate = item.EndDate ?? DateTime.Now;
             entity.StartDate = item.StartDate;
             entity.ErrorRecipients = item.ErrorRecipients;
-            await _dal.Update(entity);     // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½-ICrud, ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+            await _dal.Update(entity);
 
             return ToBl(entity);
         }
 
         public async Task<BlTabImportDataSource> UpdateEndDate(int id)
         {
-
             var entity = await _dal.GetById(id);
             if (entity == null) return null!;
 
-            entity.EndDate = DateTime.Now; // ìåâé÷ä òñ÷éú
-            entity.FileStatusId = 2; // îòáéø àú äøùåîä ìîöá 'ìà ôòéì'
 
-            await _dal.Update(entity);     // ùéîåù á-ICrud, ìà îçæéø òøê
+            entity.EndDate = DateTime.Now; // Ã¬Ã¥Ã¢Ã©Ã·Ã¤ Ã²Ã±Ã·Ã©Ãº
+            entity.FileStatusId = 2; // Ã®Ã²Ã¡Ã©Ã¸ Ã Ãº Ã¤Ã¸Ã¹Ã¥Ã®Ã¤ Ã¬Ã®Ã¶Ã¡ 'Ã¬Ã  Ã´Ã²Ã©Ã¬'
+
+            await _dal.Update(entity);     // Ã¹Ã©Ã®Ã¥Ã¹ Ã¡-ICrud, Ã¬Ã  Ã®Ã§Ã¦Ã©Ã¸ Ã²Ã¸Ãª
 
 
-            return ToBl(entity);            // äçæøú BL model ì-Controller
+            return ToBl(entity);            // Ã¤Ã§Ã¦Ã¸Ãº BL model Ã¬-Controller
 
         }
         public async Task<IEnumerable<BlTabImportDataSourceForQuery>> SearchImportDataSourcesAsync(
-      DateTime? startDate,
-      DateTime? endDate,
-      int? systemId,
-      string systemName,
-      string importDataSourceDesc,
-      int? importStatusId,
-      string fileName,
-      bool showErrorsOnly)
+            DateTime? startDate,
+            DateTime? endDate,
+            int? systemId,
+            string systemName,
+            string importDataSourceDesc,
+            int? importStatusId,
+            string fileName,
+            bool showErrorsOnly)
         {
             var query = _dal.GetTabImportDataSourcesQuery();
 
@@ -230,7 +220,7 @@ namespace BL.Services
                 query = query.Where(x => x.SystemId.HasValue && x.SystemId.Value == systemId.Value);
 
             if (!string.IsNullOrEmpty(systemName))
-               query = query.Where(x => x.System.SystemName.Contains(systemName));
+                query = query.Where(x => x.System.SystemName.Contains(systemName));
 
             if (!string.IsNullOrEmpty(importDataSourceDesc))
                 query = query.Where(x => x.ImportDataSourceDesc.Contains(importDataSourceDesc));
@@ -246,8 +236,6 @@ namespace BL.Services
 
             var results = await query.ToListAsync();
 
-
-            // ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
             return results.Select(x => new BlTabImportDataSourceForQuery
             {
                 ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,
@@ -265,22 +253,14 @@ namespace BL.Services
             });
         }
 
-        // Adding implementations for the missing methods 'AdditionalMethod1' and 'AdditionalMethod2' to resolve the errors.
-
         public async Task AdditionalMethod1()
         {
-            // Implementation for AdditionalMethod1
-            // Add your logic here or leave it as a placeholder if no specific functionality is required yet.
             await Task.CompletedTask;
         }
 
         public async Task AdditionalMethod2()
         {
-            // Implementation for AdditionalMethod2
-            // Add your logic here or leave it as a placeholder if no specific functionality is required yet.
             await Task.CompletedTask;
         }
-
-
     }
 }
