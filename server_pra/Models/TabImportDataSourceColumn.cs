@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace server_pra.Models;
 
@@ -11,6 +13,8 @@ public partial class TabImportDataSourceColumn
     /// <summary>
     /// קוד עמודה
     /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int ImportDataSourceColumnsId { get; set; }
 
     /// <summary>
