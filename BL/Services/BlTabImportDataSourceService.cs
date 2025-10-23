@@ -237,7 +237,9 @@ namespace BL.Services
 
 
             // מיפוי התוצאות
-            return results.Select(x => new BlTabImportDataSourceForQuery
+          return  results
+                .Select(x => new BlTabImportDataSourceForQuery
+
             {
                 ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,
                 ImportDataSourceDesc = x.ImportDataSourceDesc ?? string.Empty,
@@ -251,7 +253,7 @@ namespace BL.Services
                 ImportStatusDesc = x.AppImportControls.FirstOrDefault()?.ImportStatus?.ImportStatusDesc ?? string.Empty,
                 UrlFileAfterProcess = x.UrlFileAfterProcess ?? string.Empty,
                 ErrorReportPath = x.AppImportControls.FirstOrDefault()?.ErrorReportPath ?? string.Empty
-            });
+            }).Where(query => query.ImportControlId != 0); // סינון רשומות שבהן ImportControlId שונה מ-0
         }
 
         // Adding implementations for the missing methods 'AdditionalMethod1' and 'AdditionalMethod2' to resolve the errors.
