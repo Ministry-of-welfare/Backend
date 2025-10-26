@@ -17,7 +17,7 @@ using System.Xml;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddDbContext<AppDbContext>(options =>
+builder.Services.AddDbContext<Dal.Models.AppDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlOptions => sqlOptions.EnableRetryOnFailure(
@@ -56,7 +56,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 
 builder.Services.AddScoped<IDal>(sp =>
 {
-    var context = sp.GetRequiredService<AppDbContext>();
+    var context = sp.GetRequiredService<Dal.Models.AppDbContext>();
     return new DalManager(context);
 });
 //builder.Services.AddScoped<IDal, DalManager>();  // המימוש שלך של ה־DAL

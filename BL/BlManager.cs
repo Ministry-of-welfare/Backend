@@ -17,7 +17,6 @@ namespace BL
         public IBlimportControl ImportControl { get; }
 
 
-        // ���� ����� �� �� �� ��� �� ����
         // public IBlTabImportDataSource TabImportDataSourceService { get; }
 
         public BlManager(IDal dal)
