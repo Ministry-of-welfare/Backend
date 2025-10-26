@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using server_pra.Models;
 using System;
 using System.Xml;
 
@@ -74,9 +75,9 @@ builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
 builder.Services.AddScoped<IBlTabImportDataSource, BlTabImportDataSourceService>();
 builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
+builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 
 builder.Services.AddScoped<DalFileStatusService>();
-
 
 builder.Services.AddCors(options =>
 {
