@@ -11,23 +11,17 @@ namespace Dal.Services
 {
     public class DalDashboardService : IdalDashboard
     {
-        private readonly AppDbContext _context;
+        //private readonly AppDbContext _context;
         private readonly AppDbContext _db;
 
-        public DalDashboardService(AppDbContext context)
         public DalDashboardService(AppDbContext db)
         {
-            _context = context;
             _db = db;
         }
 
         // Group by ImportStatusId and return count of rows per status (include Description if exists)
-        public async Task<List<StatusCountDto>> GetStatusCountsAsync()
-        // Get top errors with filters: status, data source, system, start date, end date
-        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null,
-            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
-        {
-            var q = _context.AppImportControls
+        public async Task<List<StatusCountDto>> GetStatusCountsAsync() {
+            var q = _db.AppImportControls
                             .Include(ic => ic.ImportStatus)
                             .GroupBy(ic => ic.ImportStatusId)
                             .Select(g => new StatusCountDto(
@@ -35,13 +29,20 @@ namespace Dal.Services
                                 g.Select(x => x.ImportStatus != null ? x.ImportStatus.ImportStatusDesc : null).FirstOrDefault() ?? string.Empty,
                                 g.Count()
                             ));
+            return await q.ToListAsync();
+
+        }
+        // Get top errors with filters: status, data source, system, start date, end date
+        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            
             var query = _db.AppImportProblems
                 .Include(p => p.ImportControl)
                 .ThenInclude(c => c.ImportDataSource)
                 .Include(p => p.ImportError)
                 .Where(p => p.ImportControl != null);
 
-            return await q.ToListAsync();
             // Apply filters
             if (statusId.HasValue)
                 query = query.Where(p => p.ImportControl.ImportStatusId == statusId.Value);
