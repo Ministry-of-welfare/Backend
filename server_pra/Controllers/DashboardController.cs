@@ -70,11 +70,16 @@ namespace server_pra.Controllers
         /// GET: api/Dashboard/statusCounts
         /// </summary>
         [HttpGet("statusCounts")]
-        public async Task<IActionResult> GetStatusCounts()
+        public async Task<IActionResult> GetStatusCounts(
+            [FromQuery] int? statusId = null,
+            [FromQuery] int? importDataSourceId = null,
+            [FromQuery] int? systemId = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
         {
             try
             {
-                var result = await _blDashboardService.GetStatusCountsAsync();
+                var result = await _blDashboardService.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -1,9 +1,8 @@
-﻿
-using Dal.Api;
+﻿using Dal.Api;
 using Dal.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Generic;
+using System.Collections.Generic;   
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -11,7 +10,6 @@ namespace Dal.Services
 {
     public class DalDashboardService : IdalDashboard
     {
-        //private readonly AppDbContext _context;
         private readonly AppDbContext _db;
 
         public DalDashboardService(AppDbContext db)
@@ -20,23 +18,45 @@ namespace Dal.Services
         }
 
         // Group by ImportStatusId and return count of rows per status (include Description if exists)
-        public async Task<List<StatusCountDto>> GetStatusCountsAsync() {
-            var q = _db.AppImportControls
-                            .Include(ic => ic.ImportStatus)
-                            .GroupBy(ic => ic.ImportStatusId)
-                            .Select(g => new StatusCountDto(
-                                g.Key,
-                                g.Select(x => x.ImportStatus != null ? x.ImportStatus.ImportStatusDesc : null).FirstOrDefault() ?? string.Empty,
-                                g.Count()
-                            ));
-            return await q.ToListAsync();
+        public async Task<List<StatusCountDto>> GetStatusCountsAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var query = _db.AppImportControls
+                           .Include(ic => ic.ImportStatus)
+                           .Include(ic => ic.ImportDataSource)
+                           .AsQueryable();
 
+            // apply filters if provided
+            if (statusId.HasValue)
+                query = query.Where(ic => ic.ImportStatusId == statusId.Value);
+
+            if (importDataSourceId.HasValue)
+                query = query.Where(ic => ic.ImportDataSourceId == importDataSourceId.Value);
+
+            if (systemId.HasValue)
+                query = query.Where(ic => ic.ImportDataSource != null && ic.ImportDataSource.SystemId == systemId.Value);
+
+            if (startDate.HasValue)
+                query = query.Where(ic => ic.ImportStartDate >= startDate.Value);
+
+            if (endDate.HasValue)
+                query = query.Where(ic => ic.ImportStartDate <= endDate.Value);
+
+            var q = query
+                        .GroupBy(ic => ic.ImportStatusId)
+                        .Select(g => new StatusCountDto(
+                            g.Key,
+                            g.Select(x => x.ImportStatus != null ? x.ImportStatus.ImportStatusDesc : null).FirstOrDefault() ?? string.Empty,
+                            g.Count()
+                        ));
+
+            return await q.ToListAsync();
         }
+
         // Get top errors with filters: status, data source, system, start date, end date
         public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            
             var query = _db.AppImportProblems
                 .Include(p => p.ImportControl)
                 .ThenInclude(c => c.ImportDataSource)
@@ -81,7 +101,7 @@ namespace Dal.Services
 
             return topErrors;
         }
-      
+
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
@@ -93,36 +113,23 @@ namespace Dal.Services
         /// <returns>A list of filtered APP_ImportControl records.</returns>
         public async Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
-            // Start building the query
             var query = _db.AppImportControls.AsQueryable();
 
-            // Apply filters dynamically based on provided parameters
             if (importStatusId.HasValue)
-            {
                 query = query.Where(x => x.ImportStatusId == importStatusId.Value);
-            }
 
             if (importDataSourceId.HasValue)
-            {
                 query = query.Where(x => x.ImportDataSourceId == importDataSourceId.Value);
-            }
 
             if (systemId.HasValue)
-            {
-                query = query.Where(x => x.ImportDataSource.SystemId == systemId.Value);
-            }
+                query = query.Where(x => x.ImportDataSource != null && x.ImportDataSource.SystemId == systemId.Value);
 
             if (importFromDate.HasValue)
-            {
                 query = query.Where(x => x.ImportStartDate >= importFromDate.Value);
-            }
 
             if (importToDate.HasValue)
-            {
                 query = query.Where(x => x.ImportStartDate <= importToDate.Value);
-            }
 
-            // Execute the query and return the results
             return await query.ToListAsync();
         }
     }

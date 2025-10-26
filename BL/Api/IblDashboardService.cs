@@ -13,7 +13,8 @@ namespace BL.Api
 {
     public interface IblDashboardService
     {
-        Task<BlDashboardStatus> GetStatusCountsAsync();
+        Task<BlDashboardStatus> GetStatusCountsAsync(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
