@@ -36,6 +36,8 @@ namespace server_pra.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
         /// <summary>
         /// Endpoint to retrieve filtered data and calculate data volume.
         /// </summary>
