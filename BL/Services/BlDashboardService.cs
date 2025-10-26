@@ -1,4 +1,5 @@
-﻿using BL.Api;
+
+using BL.Api;
 using Dal.Api;
 using Dal.Models;
 using System;
@@ -18,6 +19,11 @@ namespace BL.Services
             _dalDashboard = dalDashboard;
         }
 
+        // Get top errors with filters: status, data source, system, start date, end date
+        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            return await _dalDashboard.GetTopErrors(statusId, importDataSourceId, systemId, startDate, endDate);
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
