@@ -236,7 +236,9 @@ namespace BL.Services
 
             var results = await query.ToListAsync();
 
+
             return results.Select(x => new BlTabImportDataSourceForQuery
+
             {
                 ImportControlId = x.AppImportControls.FirstOrDefault()?.ImportControlId ?? 0,
                 ImportDataSourceDesc = x.ImportDataSourceDesc ?? string.Empty,
@@ -250,7 +252,7 @@ namespace BL.Services
                 ImportStatusDesc = x.AppImportControls.FirstOrDefault()?.ImportStatus?.ImportStatusDesc ?? string.Empty,
                 UrlFileAfterProcess = x.UrlFileAfterProcess ?? string.Empty,
                 ErrorReportPath = x.AppImportControls.FirstOrDefault()?.ErrorReportPath ?? string.Empty
-            });
+            }).Where(query => query.ImportControlId != 0); 
         }
 
         public async Task AdditionalMethod1()
