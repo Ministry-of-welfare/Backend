@@ -38,15 +38,10 @@ namespace server_pra.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         /// <summary>
         /// Endpoint to retrieve filtered data and calculate data volume.
         /// </summary>
-        /// <param name="importStatusId">Filter by Import Status ID (optional).</param>
-        /// <param name="importDataSourceId">Filter by Import Data Source ID (optional).</param>
-        /// <param name="systemId">Filter by System ID (optional).</param>
-        /// <param name="importFromDate">Filter by Import Start Date (optional).</param>
-        /// <param name="importToDate">Filter by Import End Date (optional).</param>
-        /// <returns>Filtered data and calculated data volume.</returns>
         [HttpGet("GetDashboardData")]
         public async Task<IActionResult> GetDashboardData(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
@@ -66,17 +61,26 @@ namespace server_pra.Controllers
                 });
             }
             catch (Exception ex)
-        //    return Ok(result);
-        //}
-        [HttpGet("statusCounts")]
-        public async Task<IActionResult> GetStatusCounts()
             {
-                // Handle exceptions and return error response
-                return StatusCode(500, new { Message = "An error occurred while processing the request.", Error = ex.Message });
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
-            var result = await _blDashboardService.GetStatusCountsAsync();
-            return Ok(result);
         }
 
+        /// <summary>
+        /// GET: api/Dashboard/statusCounts
+        /// </summary>
+        [HttpGet("statusCounts")]
+        public async Task<IActionResult> GetStatusCounts()
+        {
+            try
+            {
+                var result = await _blDashboardService.GetStatusCountsAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Message = "An error occurred while processing the request.", Error = ex.Message });
+            }
+        }
     }
 }
