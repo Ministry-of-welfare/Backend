@@ -18,7 +18,7 @@ namespace BL.Models
         public string? ErrorRecipients { get; set; } // נמענים לשגיאות
         public DateTime InsertDate { get; set; } // תאריך יצירה
         public DateTime? StartDate { get; set; } // תאריך התחלה
-        public int? FileStatusId { get; set; }
+        //public int? FileStatusId { get; set; }
     }
 
     /// <summary>
