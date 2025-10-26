@@ -19,7 +19,7 @@ namespace Dal.Services
         }
 
         // Get top errors with filters: status, data source, system, start date, end date
-        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
+        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             var query = _db.AppImportProblems
@@ -33,21 +33,22 @@ namespace Dal.Services
                 query = query.Where(p => p.ImportControl.ImportStatusId == statusId.Value);
             else
                 query = query.Where(p => p.ImportControl.ImportStatusId == 3); // Default: failed imports
-            
+
             if (importDataSourceId.HasValue)
                 query = query.Where(p => p.ImportControl.ImportDataSourceId == importDataSourceId.Value);
-            
+
             if (systemId.HasValue)
                 query = query.Where(p => p.ImportControl.ImportDataSource.SystemId == systemId.Value);
-            
+
             if (startDate.HasValue)
                 query = query.Where(p => p.ImportControl.ImportStartDate >= startDate.Value);
-            
+
             if (endDate.HasValue)
                 query = query.Where(p => p.ImportControl.ImportStartDate <= endDate.Value);
 
             var topErrors = await query
-                .GroupBy(p => new { 
+                .GroupBy(p => new
+                {
                     p.ImportErrorId,
                     ErrorDescription = p.ImportError != null ? p.ImportError.ImportErrorDesc : p.ErrorDetail
                 })
@@ -64,14 +65,8 @@ namespace Dal.Services
                 .ToListAsync();
 
             return topErrors;
-        private readonly AppDbContext _context;
-
-        // Constructor to inject the database context
-        public DalDashboardService(AppDbContext context)
-        {
-            _context = context;
         }
-
+      
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
@@ -84,7 +79,7 @@ namespace Dal.Services
         public async Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
             // Start building the query
-            var query = _context.AppImportControls.AsQueryable();
+            var query = _db.AppImportControls.AsQueryable();
 
             // Apply filters dynamically based on provided parameters
             if (importStatusId.HasValue)
