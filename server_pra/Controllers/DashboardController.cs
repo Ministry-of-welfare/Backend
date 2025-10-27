@@ -57,14 +57,14 @@ namespace server_pra.Controllers
                 var (totalRows, dataVolumeInGB) = _blDashboardService.CalculateDataVolume(filteredData);
 
                 // חישוב רשומות כפולות
-                var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
+               // var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
 
                 // החזרת תוצאה
                 return Ok(new
                 {
                     TotalRows = totalRows,
                     DataVolumeInGB = dataVolumeInGB,
-                    DuplicateRecords = duplicateCount
+                //    DuplicateRecords = duplicateCount
                 });
             }
             catch (Exception ex)

@@ -33,7 +33,7 @@ namespace BL.Api
         Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate);
 
         // Matches BL implementation: returns numeric GB value
-        (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData);
+        (int totalRows, string dataVolumeFormatted) CalculateDataVolume(List<AppImportControl> filteredData);
 
         /// <summary>
         /// Counts duplicate records based on FileName, ImportFromDate, and TotalRows.
