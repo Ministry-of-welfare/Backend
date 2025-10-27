@@ -36,11 +36,12 @@ namespace Dal.Services
             if (systemId.HasValue)
                 query = query.Where(ic => ic.ImportDataSource != null && ic.ImportDataSource.SystemId == systemId.Value);
 
+            // Use ImportFromDate for import-date filtering (caller expects "קליטות" date)
             if (startDate.HasValue)
-                query = query.Where(ic => ic.ImportStartDate >= startDate.Value);
+                query = query.Where(ic => ic.ImportFromDate >= startDate.Value);
 
             if (endDate.HasValue)
-                query = query.Where(ic => ic.ImportStartDate <= endDate.Value);
+                query = query.Where(ic => ic.ImportFromDate <= endDate.Value);
 
             var q = query
                         .GroupBy(ic => ic.ImportStatusId)
@@ -75,11 +76,12 @@ namespace Dal.Services
             if (systemId.HasValue)
                 query = query.Where(p => p.ImportControl.ImportDataSource.SystemId == systemId.Value);
 
+            // Use ImportFromDate for import-date filtering
             if (startDate.HasValue)
-                query = query.Where(p => p.ImportControl.ImportStartDate >= startDate.Value);
+                query = query.Where(p => p.ImportControl.ImportFromDate >= startDate.Value);
 
             if (endDate.HasValue)
-                query = query.Where(p => p.ImportControl.ImportStartDate <= endDate.Value);
+                query = query.Where(p => p.ImportControl.ImportFromDate <= endDate.Value);
 
             var topErrors = await query
                 .GroupBy(p => new
@@ -108,8 +110,8 @@ namespace Dal.Services
         /// <param name="importStatusId">Filter by Import Status ID (optional).</param>
         /// <param name="importDataSourceId">Filter by Import Data Source ID (optional).</param>
         /// <param name="systemId">Filter by System ID (optional).</param>
-        /// <param name="importFromDate">Filter by Import Start Date (optional).</param>
-        /// <param name="importToDate">Filter by Import End Date (optional).</param>
+        /// <param name="importFromDate">Filter by Import From Date (optional).</param>
+        /// <param name="importToDate">Filter by Import To Date (optional).</param>
         /// <returns>A list of filtered APP_ImportControl records.</returns>
         public async Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
@@ -124,11 +126,12 @@ namespace Dal.Services
             if (systemId.HasValue)
                 query = query.Where(x => x.ImportDataSource != null && x.ImportDataSource.SystemId == systemId.Value);
 
+            // Use ImportFromDate for filtering "קליטות" (the date that determines which import the record belongs to)
             if (importFromDate.HasValue)
-                query = query.Where(x => x.ImportStartDate >= importFromDate.Value);
+                query = query.Where(x => x.ImportFromDate >= importFromDate.Value);
 
             if (importToDate.HasValue)
-                query = query.Where(x => x.ImportStartDate <= importToDate.Value);
+                query = query.Where(x => x.ImportFromDate <= importToDate.Value);
 
             return await query.ToListAsync();
         }

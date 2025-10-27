@@ -1,5 +1,4 @@
-﻿
-using BL.Api;
+﻿using BL.Api;
 using BL.Models;
 using Dal.Api;
 using Dal.Models;
@@ -102,22 +101,24 @@ namespace BL.Services
             return (totalRows, dataVolumeInGB);
         }
 
-        // Updated: count imports (if no dates provided -> don't restrict by date)
+        // Updated: count imports — default to today's imports when caller provides no date range.
         public async Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            // If caller didn't pass a date range, ask DAL for all matching records (don't default to Today)
+            // If caller didn't pass a date range, count only today's imports (ImportFromDate).
             if (!startDate.HasValue && !endDate.HasValue)
             {
-                var allData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, null, null);
-                return allData?.Count ?? 0;
+                var from = DateTime.Today;
+                var to = DateTime.Today.AddDays(1).AddTicks(-1);
+                var todayData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, from, to);
+                return todayData?.Count ?? 0;
             }
 
-            // If caller passed a partial range, fill sensible defaults
-            DateTime from = startDate ?? DateTime.MinValue;
-            DateTime to = endDate ?? DateTime.MaxValue;
+            // If caller passed a partial range, fill sensible defaults (use provided dates as ImportFromDate filters)
+            DateTime fromDate = startDate ?? DateTime.MinValue;
+            DateTime toDate = endDate ?? DateTime.MaxValue;
 
-            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, from, to);
+            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, fromDate, toDate);
             return data?.Count ?? 0;
         }
 
@@ -151,6 +152,15 @@ namespace BL.Services
             if (!durations.Any()) return 0.0;
 
             return Math.Round(durations.Average(), 1);
+        }
+
+        // Returns imports whose ImportFromDate is today, querying DAL with a day range to avoid timezone/time-of-day issues.
+        public async Task<List<AppImportControl>> GetTodaysImportDataAsync(int? importStatusId = null, int? importDataSourceId = null, int? systemId = null)
+        {
+            var from = DateTime.Today;
+            var to = DateTime.Today.AddDays(1).AddTicks(-1); // include whole day
+            var todayList = await _dalDashboard.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, from, to);
+            return todayList ?? new List<AppImportControl>();
         }
     }
 }
