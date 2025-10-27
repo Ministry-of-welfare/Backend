@@ -41,6 +41,16 @@ namespace BL.Services
 
             return new BlDashboardStatus(waiting, inProgress, success, error, other);
         }
+        public int CountDuplicateRecords(List<AppImportControl> records)
+        {
+            return records
+                .GroupBy(r => $"{r.FileName?.Trim().ToLower()}|{r.ImportFromDate:yyyy-MM-dd}|{r.TotalRows}")
+                .Where(g => g.Count() > 1)
+                .Sum(g => g.Count() - 1);
+        }
+
+
+
 
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.

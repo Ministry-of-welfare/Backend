@@ -54,11 +54,15 @@ namespace server_pra.Controllers
                 // Calculate data volume
                 var (totalRows, dataVolumeInGB) = _blDashboardService.CalculateDataVolume(filteredData);
 
+                // Count duplicate records
+                var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
+
                 // Return the result
                 return Ok(new
                 {
                     TotalRows = totalRows,
-                    DataVolumeInGB = dataVolumeInGB
+                    DataVolumeInGB = dataVolumeInGB,
+                    DuplicateRecords = duplicateCount
                 });
             }
             catch (Exception ex)
@@ -66,6 +70,7 @@ namespace server_pra.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpGet("data-quality-simple")]
         public async Task<IActionResult> GetDataQualityKpisSimple(
     [FromQuery] int? importDataSourceId = null,
@@ -111,6 +116,7 @@ namespace server_pra.Controllers
                 });
             }
         }
+       
 
         /// <summary>
         /// GET: api/Dashboard/statusCounts
