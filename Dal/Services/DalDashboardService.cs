@@ -132,5 +132,28 @@ namespace Dal.Services
 
             return await query.ToListAsync();
         }
+
+        public async Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var query = _db.AppImportControls.AsQueryable();
+
+            if (statusId.HasValue)
+                query = query.Where(c => c.ImportStatusId == statusId.Value);
+            if (importDataSourceId.HasValue)
+                query = query.Where(c => c.ImportDataSourceId == importDataSourceId.Value);
+            if (startDate.HasValue)
+                query = query.Where(c => c.ImportStartDate >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(c => c.ImportStartDate <= endDate.Value);
+
+            var data = await query.Where(c => c.ImportFinishDate.HasValue).ToListAsync();
+            if (!data.Any()) return 0.0;
+
+            var durations = data.Select(x => (x.ImportFinishDate.Value - x.ImportStartDate).TotalMinutes)
+                .Where(d => d >= 0);
+
+            return durations.Any() ? Math.Round(durations.Average(), 1) : 0.0;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using BL.Services;
+using BL.Services;
 using BL.Models;
 
 using Dal.Api;
@@ -17,6 +17,9 @@ namespace BL.Api
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+        
+        Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
@@ -44,5 +47,11 @@ namespace BL.Api
         /// <param name="records">The list of records to check for duplicates.</param>
         /// <returns>The count of duplicate records.</returns>
         int CountDuplicateRecords(List<AppImportControl> records);
+        
+        Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+        
+        Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
     }
 }
