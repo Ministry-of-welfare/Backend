@@ -18,7 +18,7 @@ namespace BL.Api
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
-        
+      
         Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         /// <summary>
@@ -41,23 +41,18 @@ namespace BL.Api
         /// <param name="records">The list of records to check for duplicates.</param>
         /// <returns>The count of duplicate records.</returns>
         int CountDuplicateRecords(List<AppImportControl> records);
-<<<<<<< HEAD
+
         
         Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         
-        Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
-=======
+        
 
-        // New metric methods required by Controller / BL
-        Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null, 
-            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
 
+      
         Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
 
-        Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
->>>>>>> f457a3a1003a7d87191f534da3922c8d603d4e08
-            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
     }
 }
