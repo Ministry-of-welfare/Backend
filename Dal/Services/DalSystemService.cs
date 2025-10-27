@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dal.Api;
 using Dal.Models;
@@ -47,5 +49,30 @@ namespace Dal.Services
                 await _context.SaveChangesAsync();
             }
         }
+        //לדשבורד ביצועים לפי מערכת
+        public async Task<IEnumerable<SystemPerformanceRawData>> GetSystemPerformanceDataAsync()
+        {
+            var result = await _context.Systems
+                .GroupJoin(
+                    _context.AppImportControls,
+                    system => system.SystemId,
+                    control => control.ImportDataSource.SystemId,
+                    (system, controls) => new { system, controls }
+                )
+                .SelectMany(
+                    x => x.controls.DefaultIfEmpty(),
+                    (x, control) => new SystemPerformanceRawData
+                    {
+                        SystemId = x.system.SystemId,
+                        SystemName = x.system.SystemName,
+                        ImportControlId = control != null ? control.ImportControlId : 0,
+                        ImportStatusId = control != null ? control.ImportStatusId : 0
+                    }
+                )
+                .ToListAsync();
+
+            return result;
+        }
+
     }
 }
