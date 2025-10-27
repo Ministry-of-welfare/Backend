@@ -24,6 +24,7 @@ namespace BL.Services
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
             return await _dalDashboard.GetTopErrors(statusId, importDataSourceId, systemId, startDate, endDate);
+            }
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
