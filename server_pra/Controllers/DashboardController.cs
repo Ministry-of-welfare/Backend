@@ -50,21 +50,21 @@ namespace server_pra.Controllers
         {
             try
             {
-                // Retrieve filtered data
+                // שליפת נתונים מסוננים
                 var filteredData = await _blDashboardService.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, importFromDate, importToDate);
 
-                // Calculate data volume
+                // חישוב נפח ושורות
                 var (totalRows, dataVolumeInGB) = _blDashboardService.CalculateDataVolume(filteredData);
 
-                // Count duplicate records
-              //  var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
+                // חישוב רשומות כפולות
+                var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
 
-                // Return the result
+                // החזרת תוצאה
                 return Ok(new
                 {
                     TotalRows = totalRows,
                     DataVolumeInGB = dataVolumeInGB,
-                  //  DuplicateRecords = duplicateCount
+                    DuplicateRecords = duplicateCount
                 });
             }
             catch (Exception ex)
@@ -72,7 +72,6 @@ namespace server_pra.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
 
 
 
