@@ -10,5 +10,7 @@ namespace Dal.Api
         Task Create(Dal.Models.System entity);
         Task Update(Dal.Models.System entity);
         Task Delete(int id);
+        Task<IEnumerable<SystemPerformanceRawData>> GetSystemPerformanceDataAsync();
+
     }
 }

@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
 using BL.Api;
 using BL.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Server.Controllers
 {
@@ -68,5 +70,27 @@ namespace Server.Controllers
             await _blSystem.Delete(id);
             return NoContent();
         }
+
+        [HttpGet("system-performance")]
+        public async Task<ActionResult<IEnumerable<SystemPerformanceDto>>> GetSystemPerformanceAsync()
+        {
+            try
+            {
+                var performanceData = await _blSystem.GetSystemPerformanceAsync();
+
+                if (performanceData == null || !performanceData.Any())
+                {
+                    return NotFound("No data found.");
+                }
+
+                return Ok(performanceData);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
+
+
     }
 }
