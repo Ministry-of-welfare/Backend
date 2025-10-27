@@ -21,7 +21,7 @@ namespace Dal.Models
         public string ErrorReportPath { get; set; }
         public string EmailSento { get; set; }
 
-        // Single collection property, initialized correctly
+        // Navigation properties
         public virtual ICollection<AppImportProblem> AppImportProblems { get; set; } = new List<AppImportProblem>();
 
         public virtual TabImportDataSource ImportDataSource { get; set; }

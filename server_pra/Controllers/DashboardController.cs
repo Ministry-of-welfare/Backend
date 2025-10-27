@@ -4,8 +4,9 @@ using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using System.Linq; 
+
 
 namespace server_pra.Controllers
 {
@@ -71,10 +72,13 @@ namespace server_pra.Controllers
             }
         }
 
+
+
+
         [HttpGet("data-quality-simple")]
         public async Task<IActionResult> GetDataQualityKpisSimple(
-    [FromQuery] int? importDataSourceId = null,
-    [FromQuery] int? systemId = null)
+            [FromQuery] int? importDataSourceId = null,
+            [FromQuery] int? systemId = null)
         {
             try
             {
@@ -137,6 +141,66 @@ namespace server_pra.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { Message = "An error occurred while processing the request.", Error = ex.Message });
+            }
+        }
+
+        // GET: api/Dashboard/avg-processing-time
+        [HttpGet("avg-processing-time")]
+        public async Task<IActionResult> GetAverageProcessingTime(
+            [FromQuery] int? statusId = null,
+            [FromQuery] int? importDataSourceId = null,
+            [FromQuery] int? systemId = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                var avg = await _blDashboardService.GetAverageProcessingTimeMinutesAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                return Ok(new { AverageMinutes = avg });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET: api/Dashboard/success-rate
+        [HttpGet("success-rate")]
+        public async Task<IActionResult> GetSuccessRate(
+            [FromQuery] int? statusId = null,
+            [FromQuery] int? importDataSourceId = null,
+            [FromQuery] int? systemId = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                var rate = await _blDashboardService.GetSuccessRateAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                return Ok(new { SuccessRatePercent = rate });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        // GET: api/Dashboard/imports-count
+        [HttpGet("imports-count")]
+        public async Task<IActionResult> GetImportsCount(
+            [FromQuery] int? statusId = null,
+            [FromQuery] int? importDataSourceId = null,
+            [FromQuery] int? systemId = null,
+            [FromQuery] DateTime? startDate = null,
+            [FromQuery] DateTime? endDate = null)
+        {
+            try
+            {
+                var count = await _blDashboardService.GetImportsCountAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                return Ok(new { ImportsCount = count });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
     }

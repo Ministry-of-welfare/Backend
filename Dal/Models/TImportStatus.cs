@@ -18,5 +18,6 @@ public partial class TImportStatus
     /// </summary>
     public string ImportStatusDesc { get; set; }
 
+    // Navigation collection initialized
     public virtual ICollection<AppImportControl> AppImportControls { get; set; } = new List<AppImportControl>();
 }

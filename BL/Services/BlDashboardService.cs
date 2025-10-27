@@ -36,16 +36,19 @@ namespace BL.Services
         {
             var groups = await _dalDashboard.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate) ?? new List<StatusCountDto>();
 
-            var waiting = groups.Where(x => string.Equals(x.ImportStatusDesc, "pending", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "ממתין לקליטה").Sum(x => x.Count);
-            var inProgress = groups.Where(x => string.Equals(x.ImportStatusDesc, "in-progress", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "בתהליך קליטה").Sum(x => x.Count);
-            var success = groups.Where(x => string.Equals(x.ImportStatusDesc, "success", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה").Sum(x => x.Count);
-            var error = groups.Where(x => string.Equals(x.ImportStatusDesc, "error", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בכשלון").Sum(x => x.Count);
-            var total = groups.Sum(x => x.Count);
+            // Use ImportStatusId (stable) instead of description text matching
+            var waiting = groups.Where(g => g.ImportStatusId == 0).Sum(g => g.Count);      // ממתין
+            var inProgress = groups.Where(g => g.ImportStatusId == 1).Sum(g => g.Count);   // בתהליך
+            var success = groups.Where(g => g.ImportStatusId == 2).Sum(g => g.Count);      // הצלחה
+            var error = groups.Where(g => g.ImportStatusId == 3).Sum(g => g.Count);        // כשלון
+
+            var total = groups.Sum(g => g.Count);
             var other = total - (waiting + inProgress + success + error);
             if (other < 0) other = 0;
 
             return new BlDashboardStatus(waiting, inProgress, success, error, other);
         }
+
         public int CountDuplicateRecords(List<AppImportControl> records)
         {
             return records
@@ -53,9 +56,6 @@ namespace BL.Services
                 .Where(g => g.Count() > 1)
                 .Sum(g => g.Count() - 1);
         }
-
-
-
 
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
@@ -131,6 +131,57 @@ namespace BL.Services
             Console.WriteLine($"DataVolumeFormatted: {dataVolumeFormatted}");
 
             return (totalRows, dataVolumeFormatted);
+        }
+
+        // Updated: count imports (if no dates provided -> don't restrict by date)
+        public async Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            // If caller didn't pass a date range, ask DAL for all matching records (don't default to Today)
+            if (!startDate.HasValue && !endDate.HasValue)
+            {
+                var allData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, null, null);
+                return allData?.Count ?? 0;
+            }
+
+            // If caller passed a partial range, fill sensible defaults
+            DateTime from = startDate ?? DateTime.MinValue;
+            DateTime to = endDate ?? DateTime.MaxValue;
+
+            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, from, to);
+            return data?.Count ?? 0;
+        }
+
+        // Updated: success rate - count success by status id (2) — more reliable than string matching
+        public async Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var groups = await _dalDashboard.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate) ?? new List<StatusCountDto>();
+            var total = groups.Sum(x => x.Count);
+            if (total == 0) return 0.0;
+
+            // Count success by status id (2) — more reliable than string matching
+            var success = groups.Where(g => g.ImportStatusId == 2).Sum(g => g.Count);
+
+            double percent = (double)success * 100.0 / total;
+            return Math.Round(percent, 1);
+        }
+
+        // Average processing time (unchanged)
+        public async Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+            if (data == null || !data.Any()) return 0.0;
+
+            var durations = data
+                .Where(x => x.ImportFinishDate.HasValue)
+                .Select(x => (x.ImportFinishDate.Value - x.ImportStartDate).TotalMinutes)
+                .Where(d => d >= 0);
+
+            if (!durations.Any()) return 0.0;
+
+            return Math.Round(durations.Average(), 1);
         }
     }
 }

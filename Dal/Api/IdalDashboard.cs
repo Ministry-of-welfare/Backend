@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 namespace Dal.Api
 {
-    // DTO: ���� �����, ����� �����, ����� ������ (count)
     public record StatusCountDto(int ImportStatusId, string ImportStatusDesc, int Count);
 
     public interface IdalDashboard
