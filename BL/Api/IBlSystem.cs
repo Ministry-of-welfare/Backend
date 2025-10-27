@@ -9,5 +9,7 @@ namespace BL.Api
         Task<BlTSystem> Create(BlTSystem item);
         Task<BlTSystem> Update(BlTSystem item);
         Task Delete(int id);
+        Task<IEnumerable<SystemPerformanceDto>> GetSystemPerformanceAsync();
+
     }
 }
