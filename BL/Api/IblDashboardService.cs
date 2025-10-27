@@ -13,7 +13,8 @@ namespace BL.Api
 {
     public interface IblDashboardService
     {
-        Task<BlDashboardStatus> GetStatusCountsAsync();
+        Task<BlDashboardStatus> GetStatusCountsAsync(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
@@ -32,7 +33,16 @@ namespace BL.Api
         /// Calculates the total number of rows and the data volume as a formatted string (GB or MB).
         /// </summary>
         /// <param name="filteredData">The filtered APP_ImportControl records.</param>
+
         /// <returns>A tuple containing the total rows and the formatted data volume.</returns>
         (int totalRows, string dataVolumeFormatted) CalculateDataVolume(List<AppImportControl> filteredData);
+
+
+        /// <summary>
+        /// Counts duplicate records based on FileName, ImportFromDate, and TotalRows.
+        /// </summary>
+        /// <param name="records">The list of records to check for duplicates.</param>
+        /// <returns>The count of duplicate records.</returns>
+        int CountDuplicateRecords(List<AppImportControl> records);
     }
 }
