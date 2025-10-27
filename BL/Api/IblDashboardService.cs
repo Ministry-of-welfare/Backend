@@ -1,14 +1,20 @@
+﻿using BL.Services;
+using BL.Models;
 
 using Dal.Api;
 using Dal.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BL.Api
 {
     public interface IblDashboardService
     {
+        Task<BlDashboardStatus> GetStatusCountsAsync(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
@@ -29,5 +35,7 @@ namespace BL.Api
         /// <param name="filteredData">The filtered APP_ImportControl records.</param>
         /// <returns>A tuple containing the total rows and the data volume in GB.</returns>
         (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData);
+public int CountDuplicateRecords(List<AppImportControl> records);
+
     }
 }

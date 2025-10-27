@@ -68,5 +68,28 @@ namespace BL.Services
         {
             await _dal.Delete(id);
         }
+        //לדשבורד לביצועים לפי מערכת
+        public async Task<IEnumerable<SystemPerformanceDto>> GetSystemPerformanceAsync()
+        {
+            // שליפת הנתונים מה-DAL
+            var data = await _dal.GetSystemPerformanceDataAsync();
+
+            // חישוב הביצועים לפי מערכת
+            var performanceData = data
+                .GroupBy(x => new { x.SystemId, x.SystemName })
+                .Select(group => new SystemPerformanceDto
+                {
+                    SystemId = group.Key.SystemId,
+                    SystemName = group.Key.SystemName,
+                    TotalFiles = group.Count(x => x.ImportControlId != 0), // מספר הקבצים שהועלו
+                    SuccessRate = group.Count(x => x.ImportControlId != 0) > 0
+                        ? group.Count(x => x.ImportStatusId == 2) * 100.0 / group.Count(x => x.ImportControlId != 0)
+                        : 0 // אחוזי הצלחה
+                })
+                .ToList();
+
+            return performanceData;
+        }
+
     }
 }
