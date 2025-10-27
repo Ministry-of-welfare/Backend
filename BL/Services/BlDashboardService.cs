@@ -31,16 +31,19 @@ namespace BL.Services
         {
             var groups = await _dalDashboard.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate) ?? new List<StatusCountDto>();
 
-            var waiting = groups.Where(x => string.Equals(x.ImportStatusDesc, "pending", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "ממתין לקליטה").Sum(x => x.Count);
-            var inProgress = groups.Where(x => string.Equals(x.ImportStatusDesc, "in-progress", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "בתהליך קליטה").Sum(x => x.Count);
-            var success = groups.Where(x => string.Equals(x.ImportStatusDesc, "success", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה").Sum(x => x.Count);
-            var error = groups.Where(x => string.Equals(x.ImportStatusDesc, "error", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בכשלון").Sum(x => x.Count);
-            var total = groups.Sum(x => x.Count);
+            // Use ImportStatusId (stable) instead of description text matching
+            var waiting = groups.Where(g => g.ImportStatusId == 0).Sum(g => g.Count);      // ממתין
+            var inProgress = groups.Where(g => g.ImportStatusId == 1).Sum(g => g.Count);   // בתהליך
+            var success = groups.Where(g => g.ImportStatusId == 2).Sum(g => g.Count);      // הצלחה
+            var error = groups.Where(g => g.ImportStatusId == 3).Sum(g => g.Count);        // כשלון
+
+            var total = groups.Sum(g => g.Count);
             var other = total - (waiting + inProgress + success + error);
             if (other < 0) other = 0;
 
             return new BlDashboardStatus(waiting, inProgress, success, error, other);
         }
+
         public int CountDuplicateRecords(List<AppImportControl> records)
         {
             return records
@@ -48,9 +51,6 @@ namespace BL.Services
                 .Where(g => g.Count() > 1)
                 .Sum(g => g.Count() - 1);
         }
-
-
-
 
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
@@ -62,7 +62,6 @@ namespace BL.Services
 
         /// <summary>
         /// Calculates the total number of rows and the data volume in GB for the filtered records.
-        /// This implementation is synchronous as defined by the interface; it blocks briefly to fetch status groups.
         /// </summary>
         public (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData)
         {
@@ -82,19 +81,26 @@ namespace BL.Services
             return (totalRows, dataVolumeInGB);
         }
 
-        // New: count imports (optionally filtered by same params)
+        // Updated: count imports (if no dates provided -> don't restrict by date)
         public async Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
-            // default to today range if no dates provided
-            DateTime from = startDate ?? DateTime.Today;
-            DateTime to = endDate ?? DateTime.Today.AddDays(1).AddTicks(-1);
+            // If caller didn't pass a date range, ask DAL for all matching records (don't default to Today)
+            if (!startDate.HasValue && !endDate.HasValue)
+            {
+                var allData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, null, null);
+                return allData?.Count ?? 0;
+            }
+
+            // If caller passed a partial range, fill sensible defaults
+            DateTime from = startDate ?? DateTime.MinValue;
+            DateTime to = endDate ?? DateTime.MaxValue;
 
             var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, from, to);
             return data?.Count ?? 0;
         }
 
-        // New: success rate percentage for given filters
+        // Updated: success rate - count success by status id (2) — more reliable than string matching
         public async Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
@@ -102,15 +108,14 @@ namespace BL.Services
             var total = groups.Sum(x => x.Count);
             if (total == 0) return 0.0;
 
-            var success = groups.Where(x => string.Equals(x.ImportStatusDesc, "success", StringComparison.OrdinalIgnoreCase)
-                                            || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה")
-                                .Sum(x => x.Count);
+            // Count success by status id (2) — more reliable than string matching
+            var success = groups.Where(g => g.ImportStatusId == 2).Sum(g => g.Count);
 
             double percent = (double)success * 100.0 / total;
             return Math.Round(percent, 1);
         }
 
-        // New: ממוצע זמן עיבוד בדקות
+        // Average processing time (unchanged)
         public async Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
         {
