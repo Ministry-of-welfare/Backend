@@ -71,5 +71,50 @@ namespace BL.Services
 
             return (totalRows, dataVolumeInGB);
         }
+
+        // New: count imports (optionally filtered by same params)
+        public async Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            // default to today range if no dates provided
+            DateTime from = startDate ?? DateTime.Today;
+            DateTime to = endDate ?? DateTime.Today.AddDays(1).AddTicks(-1);
+
+            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, from, to);
+            return data?.Count ?? 0;
+        }
+
+        // New: success rate percentage for given filters
+        public async Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var groups = await _dalDashboard.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate) ?? new List<StatusCountDto>();
+            var total = groups.Sum(x => x.Count);
+            if (total == 0) return 0.0;
+
+            var success = groups.Where(x => string.Equals(x.ImportStatusDesc, "success", StringComparison.OrdinalIgnoreCase)
+                                            || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה")
+                                .Sum(x => x.Count);
+
+            double percent = (double)success * 100.0 / total;
+            return Math.Round(percent, 1);
+        }
+
+        // New: ממוצע זמן עיבוד בדקות
+        public async Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var data = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+            if (data == null || !data.Any()) return 0.0;
+
+            var durations = data
+                .Where(x => x.ImportFinishDate.HasValue)
+                .Select(x => (x.ImportFinishDate.Value - x.ImportStartDate).TotalMinutes)
+                .Where(d => d >= 0);
+
+            if (!durations.Any()) return 0.0;
+
+            return Math.Round(durations.Average(), 1);
+        }
     }
 }

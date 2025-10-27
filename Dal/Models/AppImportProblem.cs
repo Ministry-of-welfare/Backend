@@ -13,6 +13,7 @@ namespace Dal.Models
         public int? ImportErrorId { get; set; }
         public string ErrorDetail { get; set; }
 
+        // Navigation properties
         public virtual AppImportControl ImportControl { get; set; }
         public virtual TabImportError ImportError { get; set; }
     }

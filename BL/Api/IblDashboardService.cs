@@ -35,5 +35,15 @@ namespace BL.Api
         /// <param name="filteredData">The filtered APP_ImportControl records.</param>
         /// <returns>A tuple containing the total rows and the data volume in GB.</returns>
         (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData);
+
+        // New metric methods (required by Controller)
+        Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
     }
 }

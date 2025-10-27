@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
-
 namespace Dal.Models
 {
     public partial class TabImportDataSource
@@ -21,6 +19,7 @@ namespace Dal.Models
         public DateTime InsertDate { get; set; }
         public DateTime? StartDate { get; set; }
 
+        // Navigation properties (collections initialized)
         public virtual System System { get; set; }
         public virtual TDataSourceType DataSourceType { get; set; }
         public virtual TFileStatus FileStatus { get; set; }
