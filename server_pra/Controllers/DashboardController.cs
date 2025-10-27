@@ -44,7 +44,7 @@ namespace server_pra.Controllers
         /// <summary>
         /// Endpoint to retrieve filtered data and calculate data volume.
         /// </summary>
-        [HttpGet("GetDashboardData")]
+        [HttpGet("DataVolume")]
         public async Task<IActionResult> GetDashboardData(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
             try
@@ -56,14 +56,14 @@ namespace server_pra.Controllers
                 var (totalRows, dataVolumeInGB) = _blDashboardService.CalculateDataVolume(filteredData);
 
                 // Count duplicate records
-                var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
+              //  var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
 
                 // Return the result
                 return Ok(new
                 {
                     TotalRows = totalRows,
                     DataVolumeInGB = dataVolumeInGB,
-                    DuplicateRecords = duplicateCount
+                  //  DuplicateRecords = duplicateCount
                 });
             }
             catch (Exception ex)
