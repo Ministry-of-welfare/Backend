@@ -1,5 +1,4 @@
-﻿
-using BL.Api;
+﻿using BL.Api;
 using BL.Models;
 using Dal.Api;
 using Dal.Models;
@@ -7,7 +6,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace BL.Services
 {
@@ -22,20 +20,31 @@ namespace BL.Services
         }
 
         // Get top errors with filters: status, data source, system, start date, end date
-        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
+        public async Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
-        public async Task<BlDashboardStatus> GetStatusCountsAsync()
         {
             return await _dalDashboard.GetTopErrors(statusId, importDataSourceId, systemId, startDate, endDate);
+        }
+
+        public async Task<BlDashboardStatus> GetStatusCountsAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            var groups = await _dalDashboard.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate) ?? new List<StatusCountDto>();
+
+            var waiting = groups.Where(x => string.Equals(x.ImportStatusDesc, "pending", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "ממתין לקליטה").Sum(x => x.Count);
+            var inProgress = groups.Where(x => string.Equals(x.ImportStatusDesc, "in-progress", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "בתהליך קליטה").Sum(x => x.Count);
+            var success = groups.Where(x => string.Equals(x.ImportStatusDesc, "success", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה").Sum(x => x.Count);
+            var error = groups.Where(x => string.Equals(x.ImportStatusDesc, "error", StringComparison.OrdinalIgnoreCase) || x.ImportStatusDesc == "קליטה הסתיימה בכשלון").Sum(x => x.Count);
+            var total = groups.Sum(x => x.Count);
+            var other = total - (waiting + inProgress + success + error);
+            if (other < 0) other = 0;
+
+            return new BlDashboardStatus(waiting, inProgress, success, error, other);
+        }
+
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
-        /// <param name="importStatusId">Filter by Import Status ID (optional).</param>
-        /// <param name="importDataSourceId">Filter by Import Data Source ID (optional).</param>
-        /// <param name="systemId">Filter by System ID (optional).</param>
-        /// <param name="importFromDate">Filter by Import Start Date (optional).</param>
-        /// <param name="importToDate">Filter by Import End Date (optional).</param>
-        /// <returns>A list of filtered APP_ImportControl records.</returns>
         public async Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
             return await _dalDashboard.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, importFromDate, importToDate);
@@ -43,19 +52,14 @@ namespace BL.Services
 
         /// <summary>
         /// Calculates the total number of rows and the data volume in GB for the filtered records.
+        /// This implementation is synchronous as defined by the interface; it blocks briefly to fetch status groups.
         /// </summary>
-        /// <param name="filteredData">The filtered APP_ImportControl records.</param>
-        /// <returns>A tuple containing the total rows and the data volume in GB.</returns>
         public (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData)
         {
-            int totalRows = filteredData.Sum(x => x.TotalRows ?? 0);
-            var groups = await _dal.GetStatusCountsAsync() ?? new List<StatusCountDto>();
+            if (filteredData == null) return (0, 0.0);
 
-            var waiting = groups.Where(x => x.ImportStatusDesc == "pending" || x.ImportStatusDesc == "ממתין לקליטה").Sum(x => x.Count);
-            var inProgress = groups.Where(x => x.ImportStatusDesc == "in-progress" || x.ImportStatusDesc == "בתהליך קליטה").Sum(x => x.Count);
-            var success = groups.Where(x => x.ImportStatusDesc == "success" || x.ImportStatusDesc == "קליטה הסתיימה בהצלחה").Sum(x => x.Count);
-            var error = groups.Where(x => x.ImportStatusDesc == "error" || x.ImportStatusDesc == "קליטה הסתיימה בכשלון").Sum(x => x.Count);
-            // Example calculation for data volume based on field sizes
+            int totalRows = filteredData.Sum(x => x.TotalRows ?? 0);
+
             long totalBytes = 0;
             foreach (var record in filteredData)
             {
@@ -64,12 +68,8 @@ namespace BL.Services
 
             // Convert bytes to GB
             double dataVolumeInGB = totalBytes / Math.Pow(1024, 3);
-            var total = groups.Sum(x => x.Count);
-            var other = total - (waiting + inProgress + success + error);
-            if (other < 0) other = 0;
 
             return (totalRows, dataVolumeInGB);
-            return new BlDashboardStatus(waiting, inProgress, success, error, other);
         }
     }
 }
