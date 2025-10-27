@@ -61,10 +61,11 @@ namespace server.Controllers
         [HttpPut("update{id}")]
         public async Task<IActionResult> Update(int id, BlTabImportDataSource ds)
         {
-            if (id != ds.DataSourceTypeId)
+            if (id != ds.ImportDataSourceId)
             {
-                return BadRequest();
+                return BadRequest(new { message = "ID mismatch between URL and body." });
             }
+
             // בדיקת תקינות תאריכים
             if (ds.StartDate != null && ds.EndDate != null)
             {
