@@ -30,12 +30,19 @@ namespace BL.Api
         Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate);
 
         /// <summary>
-        /// Calculates the total number of rows and the data volume in GB for the filtered records.
+        /// Calculates the total number of rows and the data volume as a formatted string (GB or MB).
         /// </summary>
         /// <param name="filteredData">The filtered APP_ImportControl records.</param>
-        /// <returns>A tuple containing the total rows and the data volume in GB.</returns>
-        (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData);
-public int CountDuplicateRecords(List<AppImportControl> records);
 
+        /// <returns>A tuple containing the total rows and the formatted data volume.</returns>
+        (int totalRows, string dataVolumeFormatted) CalculateDataVolume(List<AppImportControl> filteredData);
+
+
+        /// <summary>
+        /// Counts duplicate records based on FileName, ImportFromDate, and TotalRows.
+        /// </summary>
+        /// <param name="records">The list of records to check for duplicates.</param>
+        /// <returns>The count of duplicate records.</returns>
+        int CountDuplicateRecords(List<AppImportControl> records);
     }
 }
