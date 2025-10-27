@@ -42,7 +42,7 @@ namespace server_pra.Controllers
         /// <summary>
         /// Endpoint to retrieve filtered data and calculate data volume.
         /// </summary>
-        [HttpGet("GetDashboardData")]
+        [HttpGet("DataVolume")]
         public async Task<IActionResult> GetDashboardData(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate)
         {
             try
