@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using BL.Api;
+﻿using BL.Api;
 using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace server_pra.Controllers
 {
@@ -38,10 +39,9 @@ namespace server_pra.Controllers
         [HttpPost]
         public async Task<ActionResult<TabImportDataSourceColumn>> Create([FromBody] TabImportDataSourceColumn item)
         {
-            _context.TabImportDataSourceColumns.Add(item);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceId }, item);
+            var blItem = BL.Services.BlTabImportDataSourceColumnService.ToBl(item);
+            await _bl.TabImportDataSourceColumn.Create(blItem);
+            return CreatedAtAction(nameof(GetById), new { id = item.ImportDataSourceColumnsId }, item);
         }
 
         [HttpDelete("{id}")]

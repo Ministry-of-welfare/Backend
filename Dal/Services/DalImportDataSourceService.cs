@@ -25,7 +25,7 @@ namespace Dal.Services
             return _db.TabImportDataSources
                 .Include(x => x.AppImportControls)
                 .ThenInclude(control => control.ImportStatus)
-                .Include(x => x.System) // итйръ дотшлъ
+                .Include(x => x.System) // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
                 .Include(x => x.TabImportErrors);
         }
 
@@ -86,7 +86,7 @@ namespace Dal.Services
 
 
         /// <summary>
-        /// десфъ ибмд бцешд гйраойъ
+        /// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         //
         /// </summary>
 
@@ -104,22 +104,6 @@ namespace Dal.Services
 
 
 
-        //public List<string> GetColumns(int id)
-        //{
-        //    var list = new List<string>();
-        //    using var conn = new SqlConnection(_connectionString);
-        //    conn.Open();
-
-        //    var sql = "SELECT ColumnName FROM TAB_ImportDataSourceColumns WHERE ImportDataSourceId = @Id";
-        //    using var cmd = new SqlCommand(sql, conn);
-        //    cmd.Parameters.AddWithValue("@Id", id);
-
-        //    using var reader = cmd.ExecuteReader();
-        //    while (reader.Read())
-        //        list.Add(reader.GetString(0));
-
-        //    return list;
-        //}
         private string MapToSqlType(string formatColumnDesc)
         {
             return formatColumnDesc switch
@@ -129,11 +113,8 @@ namespace Dal.Services
                 "DECIMAL" => "DECIMAL(18,2)",
                 "DATE" => "DATE",
                 "DATETIME" => "DATETIME",
-                // тшлйн "йгйгеъййн" одоощч -> ийфес SQL
-                "осфш" => "INT",
-                "ичси" => "NVARCHAR(200)",
-                "ъашйк" => "DATE",
-                _ => "NVARCHAR(200)" // бшйшъ озгм биезд
+                
+                _ => "NVARCHAR(200)" 
             };
         }
         public List<ColumnDef> GetColumns(int id)
@@ -143,9 +124,8 @@ namespace Dal.Services
             conn.Open();
 
             var sql = @"
-        SELECT c.ColumnName, f.FormatColumnDesc
+        SELECT c.ColumnName
         FROM TAB_ImportDataSourceColumns c
-        INNER JOIN TAB_FormatColumn f ON c.FormatColumnId = f.FormatColumnId
         WHERE c.ImportDataSourceId = @Id
         ORDER BY c.OrderId";
 
@@ -155,8 +135,7 @@ namespace Dal.Services
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                var sqlType = MapToSqlType(reader.GetString(1));
-                list.Add(new ColumnDef(reader.GetString(0), sqlType));
+                list.Add(new ColumnDef(reader.GetString(0), "VARCHAR(MAX)"));
             }
 
             return list;
@@ -209,7 +188,7 @@ namespace Dal.Services
             cmd.ExecuteNonQuery();
         }
 
-        // ферчцййъ зйфещ моск чмйиеъ щбецте 
+        // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
 
         public async Task<IEnumerable<TabImportDataSource>> SearchImportDataSourcesAsync(
       DateTime? startDate,
@@ -221,25 +200,25 @@ namespace Dal.Services
       string fileName,
       bool showErrorsOnly)
         {
-            // дъзмъ щаймъд тм бсйс DbSet
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ DbSet
             var query = _db.TabImportDataSources
-                .Include(x => x.DataSourceType) // ибмъ севй очеш чмйид
-                .Include(x => x.TabImportErrors) // ибмъ щвйаеъ чмйид
+                .Include(x => x.DataSourceType) // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+                .Include(x => x.TabImportErrors) // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
                 .AsQueryable();
 
-            // сйреп мфй ъашйк дъзмд
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (startDate.HasValue)
                 query = query.Where(x => x.StartDate.HasValue && x.StartDate.Value >= startDate.Value);
 
-            // сйреп мфй ъашйк сйен
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
             if (endDate.HasValue)
                 query = query.Where(x => x.EndDate.HasValue && x.EndDate.Value <= endDate.Value);
 
-            // сйреп мфй ождд отшлъ
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (systemId.HasValue)
                 query = query.Where(x => x.SystemId.HasValue && x.SystemId.Value == systemId.Value);
 
-            // сйреп мфй щн отшлъ (ибмъ System)
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ System)
             if (!string.IsNullOrEmpty(systemName))
             {
                 query = query.Join(
@@ -252,11 +231,11 @@ namespace Dal.Services
                 .Select(joined => joined.dataSource);
             }
 
-            // сйреп мфй ъйаеш очеш чмйид
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (!string.IsNullOrEmpty(importDataSourceDesc))
                 query = query.Where(x => !string.IsNullOrEmpty(x.ImportDataSourceDesc) && x.ImportDataSourceDesc.Contains(importDataSourceDesc));
 
-            // сйреп мфй сииес чмйид (ибмъ TImportStatus)
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ TImportStatus)
             if (importStatusId.HasValue)
             {
                 query = query.Join(
@@ -269,15 +248,15 @@ namespace Dal.Services
                 .Select(joined => joined.dataSource);
             }
 
-            // сйреп мфй щн чебх
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
             if (!string.IsNullOrEmpty(fileName))
                 query = query.Where(x => !string.IsNullOrEmpty(x.UrlFile) && x.UrlFile.Contains(fileName));
 
-            // сйреп мфй щешеъ фвеоеъ
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             if (showErrorsOnly)
                 query = query.Where(x => x.TabImportErrors.Any(error => error.ImportErrorId > 0));
 
-            // дзжшъ дъецаеъ
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
             return await query.ToListAsync();
         }
         public async Task<AppImportControl?> GetImportControlByDataSourceId(int importDataSourceId)

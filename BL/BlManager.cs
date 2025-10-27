@@ -12,12 +12,12 @@ namespace BL
         public IBlSystem System { get; }
         public IBlImportStatus ImportStatus { get; }
         public IBlTabImportDataSource TabImportDataSource { get; }
-
+        public IblTabImportDataSourceColumn TabImportDataSourceColumn { get; }
         public IBlFileStatus FileStatus { get; }
         public IBlimportControl ImportControl { get; }
 
 
-        // афщш мозеч аъ жд ан айп бе цешк
+        // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ
         // public IBlTabImportDataSource TabImportDataSourceService { get; }
 
         public BlManager(IDal dal)
@@ -27,9 +27,10 @@ namespace BL
             System = new BlSystemService(dal.System);
             ImportStatus = new BlImportStatusService(dal.ImportStatus);
             TabImportDataSource = new BlTabImportDataSourceService(dal.TabImportDataSource);
+            TabImportDataSourceColumn = new BlTabImportDataSourceColumnService(dal.ImportDataSourceColumn);
             FileStatus = new BlFileStatusService(dal.Tfilestatus);
             ImportControl = new BlImportControlService(dal.ImportControl);
-            // TabImportDataSourceService = TabImportDataSource; // ан аъд тгййп цшйк аеъе
+            // TabImportDataSourceService = TabImportDataSource; // пїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
         }
     }
 }

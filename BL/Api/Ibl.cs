@@ -7,6 +7,7 @@ namespace BL.Api
         IBlSystem System { get; }
         IBlImportStatus ImportStatus { get; }
         IBlTabImportDataSource TabImportDataSource { get; } 
+        IblTabImportDataSourceColumn TabImportDataSourceColumn { get; }
         IBlFileStatus FileStatus { get; }
         IBlimportControl ImportControl { get; }
 
