@@ -75,18 +75,64 @@ namespace server_pra.Controllers
 
 
 
+
+        //[HttpGet("data-quality-simple")]
+        //public async Task<IActionResult> GetDataQualityKpisSimple(
+        //    [FromQuery] int? importDataSourceId = null,
+        //    [FromQuery] int? systemId = null)
+        //{
+        //    try
+        //    {
+        //        // מביא את כל הרשומות עם או בלי פילטרים
+        //        var records = await _blDashboardService.GetFilteredImportDataAsync(
+        //            null, importDataSourceId, systemId, null, null);
+
+        //        // חישוב נתוני איכות נתונים לפי ImportStatusId וגם לפי ImportControlId
+        //        var result = records
+        //            .GroupBy(r => new { r.ImportStatusId, r.ImportControlId })
+        //            .Select(g =>
+        //            {
+        //                var total = g.Sum(r => r.TotalRows ?? 0);
+        //                var invalid = g.Sum(r => r.RowsInvalid ?? 0);
+        //                var validPercent = total > 0 ? ((double)(total - invalid) / total) * 100 : 0;
+
+        //                return new
+        //                {
+        //                    ImportStatusId = g.Key.ImportStatusId, // פשוט הורד את ה-??
+        //                    ImportControlId = g.Key.ImportControlId,
+        //                    TotalRows = total,
+        //                    RowsInvalid = invalid,
+        //                    ValidRowsPercentage = Math.Round(validPercent, 2)
+        //                };
+        //            })
+
+        //            .OrderBy(r => r.ImportStatusId)
+        //            .ThenBy(r => r.ImportControlId)
+        //            .ToList();
+
+        //        return Ok(result);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return StatusCode(500, new
+        //        {
+        //            Message = "Failed to retrieve data quality KPIs.",
+        //            Error = ex.Message
+        //        });
+        //    }
+        //}
         [HttpGet("data-quality-simple")]
         public async Task<IActionResult> GetDataQualityKpisSimple(
-            [FromQuery] int? importDataSourceId = null,
-            [FromQuery] int? systemId = null)
+     [FromQuery] int? importDataSourceId = null,
+     [FromQuery] int? systemId = null,
+     [FromQuery] DateTime? startDate = null,
+     [FromQuery] DateTime? endDate = null)
         {
             try
             {
-                // מביא את כל הרשומות עם או בלי פילטרים
                 var records = await _blDashboardService.GetFilteredImportDataAsync(
-                    null, importDataSourceId, systemId, null, null);
+                    null, importDataSourceId, systemId, startDate, endDate);
 
-                // חישוב נתוני איכות נתונים לפי ImportStatusId וגם לפי ImportControlId
                 var result = records
                     .GroupBy(r => new { r.ImportStatusId, r.ImportControlId })
                     .Select(g =>
@@ -97,14 +143,13 @@ namespace server_pra.Controllers
 
                         return new
                         {
-                            ImportStatusId = g.Key.ImportStatusId, // פשוט הורד את ה-??
+                            ImportStatusId = g.Key.ImportStatusId,
                             ImportControlId = g.Key.ImportControlId,
                             TotalRows = total,
                             RowsInvalid = invalid,
                             ValidRowsPercentage = Math.Round(validPercent, 2)
                         };
                     })
-
                     .OrderBy(r => r.ImportStatusId)
                     .ThenBy(r => r.ImportControlId)
                     .ToList();
@@ -113,14 +158,11 @@ namespace server_pra.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    Message = "Failed to retrieve data quality KPIs.",
-                    Error = ex.Message
-                });
+                return StatusCode(500, new { Message = "שגיאה באחזור איכות נתונים", Error = ex.Message });
             }
         }
-       
+
+
 
         /// <summary>
         /// GET: api/Dashboard/statusCounts

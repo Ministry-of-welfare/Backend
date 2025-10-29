@@ -45,11 +45,13 @@ namespace BL.Api
         
         Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
-        
-        
+
+      Task<object> GetDataQualityAsync(int? statusId = null, int? importDataSourceId = null,
+    int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
 
 
-      
+
+
         Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
 
