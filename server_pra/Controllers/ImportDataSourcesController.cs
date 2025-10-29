@@ -3,7 +3,7 @@
 using BL.Api;
 using BL.Models;
 using BL.Services;
-using Dal.Models; // меега щжд аеъе namespace щм AppDbContext ещм дОEntities
+using Dal.Models; // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅ namespace пїЅпїЅ AppDbContext пїЅпїЅпїЅ пїЅпїЅEntities
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_pra.Models;
@@ -22,19 +22,31 @@ namespace server.Controllers
     public class ImportDataSourcesController : ControllerBase
     {
         private readonly AppDbContext _context;
-
         private readonly IBl _bl;
+        private readonly ILoggerService _logger;
 
-        public ImportDataSourcesController(AppDbContext context, IBl bl)
+        public ImportDataSourcesController(AppDbContext context, IBl bl, ILoggerService logger)
         {
             _bl = bl;
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<TabImportDataSource>>> GetAll()
         {
-            return await _context.TabImportDataSources.ToListAsync();
+            try
+            {
+                await _logger.LogAsync("Getting all ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
+                var result = await _context.TabImportDataSources.ToListAsync();
+                await _logger.LogAsync($"Retrieved {result.Count} ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await _logger.LogAsync("Error getting ImportDataSources", "ERROR", exception: ex.ToString(), logId: Guid.NewGuid().ToString());
+                throw;
+            }
         }
 
         [HttpGet("{id}")]
@@ -52,11 +64,11 @@ namespace server.Controllers
         [HttpPut("updateJustEndDate/{id}")]
         public async Task<IActionResult> UpdateEndDate(int id)
         {
-            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); // BL озжйш BL model
+            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); // BL пїЅпїЅпїЅпїЅпїЅ BL model
             if (updated == null)
                 return NotFound();
 
-            return Ok(new { message = "теглп бдцмзд" });
+            return Ok(new { message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
         }
         [HttpPut("update{id}")]
         public async Task<IActionResult> Update(int id, BlTabImportDataSource ds)
@@ -66,12 +78,11 @@ namespace server.Controllers
                 return BadRequest(new { message = "ID mismatch between URL and body." });
             }
 
-            // бгйчъ ъчйреъ ъашйлйн
             if (ds.StartDate != null && ds.EndDate != null)
             {
                 if (ds.EndDate < ds.StartDate)
                 {
-                    return BadRequest(new { message = "ъашйк дсйен ма йлем мдйеъ мфрй ъашйк ддъзмд." });
+                    return BadRequest(new { message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ." });
                 }
             }
             await _bl.TabImportDataSource.Update(ds);
@@ -95,13 +106,13 @@ namespace server.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
         {
-            // бгйчъ ъашйк сйен мтеоъ дъзмд
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
             if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
             {
-                return BadRequest(new { message = "ъашйк дсйен ма йлем мдйеъ мфрй ъашйк ддъзмд." });
+                return BadRequest(new { message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ." });
             }
 
-            // бгйчъ ъчйреъ лъебеъ оййм
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
             if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
@@ -113,23 +124,23 @@ namespace server.Controllers
                     var trimmed = email.Trim();
                     if (!Regex.IsMatch(trimmed, emailPattern))
                     {
-                        return BadRequest(new { message = $"лъебъ доййм '{trimmed}' айрд ъчйрд." });
+                        return BadRequest(new { message = $"пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ '{trimmed}' пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ." });
                     }
                 }
             }
-            await _bl.TabImportDataSource.Create(item);          // айп дзжшъ тшк
-            return Ok(new { message = "рецш бдцмзд" });       // рйъп мщреъ дегтд мфй дцешк
+            await _bl.TabImportDataSource.Create(item);          // пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+            return Ok(new { message = "пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });       // пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
         }
 
-        //десфд едзжшъ id
+        //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ id
 
         [HttpPost("CreateAndReturnId")]
         public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            // бшйшъ озгм мсииес
+            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
             if (item.FileStatusId == null || item.FileStatusId == 0)
             {
-                item.FileStatusId = 3; // бдчод
+                item.FileStatusId = 3; // пїЅпїЅпїЅпїЅпїЅ
             }
 
             var result = await _bl.TabImportDataSource.CreateAndReturnId(item);
@@ -137,7 +148,7 @@ namespace server.Controllers
         }
 
 
-        //йцйшъ ибмд гйраойъ
+        //пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
         [HttpPost("{id}/create-table")]
         public IActionResult CreateDynamicTable(int id)
         {
@@ -150,11 +161,11 @@ namespace server.Controllers
 
 
                                 _bl.TabImportDataSource.CreateDynamicTable(id);
-                return Ok($"ибмд рецшд бдцмзд тбеш ImportDataSourceId {id}");
+                return Ok($"пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ ImportDataSourceId {id}");
             }
             catch (Exception ex)
             {
-                return BadRequest($"щвйад: {ex.Message}\n{ex.StackTrace}");
+                return BadRequest($"пїЅпїЅпїЅпїЅпїЅ: {ex.Message}\n{ex.StackTrace}");
             }
         }
 
@@ -171,16 +182,16 @@ namespace server.Controllers
             try
             {
                 await _context.SaveChangesAsync();
-                return Ok(new { message = "сииес теглп бдцмзд" });
+                return Ok(new { message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ" });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { message = "щвйад бтъ щойшъ дсииес", details = ex.Message });
+                return BadRequest(new { message = "пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ", details = ex.Message });
             }
         }
 
 
-        //// ферчцййъ зйфещ моск чмйиеъ щбецте 
+        //// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ 
         [HttpGet("search")]
         public async Task<IActionResult> SearchImportDataSources(
             [FromQuery] DateTime? startDate,
