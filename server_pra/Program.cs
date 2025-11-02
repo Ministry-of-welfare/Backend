@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using server_pra.Models;
+using server_pra.Services;
 using System;
 using System.Xml;
 
@@ -77,7 +78,10 @@ builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
-
+// Register the concrete service so you can resolve it for manual testing,
+// while still registering it as a hosted service.
+builder.Services.AddSingleton<FileCheckerBackgroundService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerBackgroundService>());
 
 builder.Services.AddScoped<DalFileStatusService>();
 
