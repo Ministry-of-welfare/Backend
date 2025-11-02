@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using server_pra.Models;
+using server_pra.Services;
 using System;
 using System.Xml;
 
@@ -78,6 +79,8 @@ builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
 builder.Services.AddScoped<ILoggerService, LoggerService>();
+builder.Services.AddScoped<IDalImportControl, DalImportControlService>();
+builder.Services.AddHostedService<UpdateImportStatusService>();
 
 
 builder.Services.AddScoped<DalFileStatusService>();
