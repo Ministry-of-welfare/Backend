@@ -180,5 +180,43 @@ namespace BL.Services
             var todayList = await _dalDashboard.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, from, to);
             return todayList ?? new List<AppImportControl>();
         }
+        /// <summary>
+        /// מחשבת מדדי איכות נתונים (שיעור הצלחה, כמות שגויים, כפילויות וכו') לפי סננים.
+        /// </summary>
+        public async Task<object> GetDataQualityAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            // שליפה מה־DAL לפי הסננים הקיימים
+            var filteredData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+
+            if (filteredData == null || filteredData.Count == 0)
+            {
+                return new
+                {
+                    TotalRows = 0,
+                    RowsInvalid = 0,
+                    TotalValid = 0,
+                    SuccessRate = 0,
+                    DuplicateRecords = 0
+                };
+            }
+
+            // חישובי איכות נתונים
+            int totalRows = filteredData.Sum(x => x.TotalRows ?? 0);
+            int rowsInvalid = filteredData.Sum(x => x.RowsInvalid ?? 0);
+            int totalValid = totalRows - rowsInvalid;
+            int duplicateRecords = CountDuplicateRecords(filteredData);
+            int successRate = totalRows == 0 ? 0 : (int)Math.Round((double)totalValid / totalRows * 100);
+
+            return new
+            {
+                TotalRows = totalRows,
+                RowsInvalid = rowsInvalid,
+                TotalValid = totalValid,
+                SuccessRate = successRate,
+                DuplicateRecords = duplicateRecords
+            };
+        }
+
     }
 }
