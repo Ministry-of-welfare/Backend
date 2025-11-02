@@ -16,7 +16,7 @@ namespace Dal.Models
         public int? TotalRowsAffected { get; set; }
         public int? RowsInvalid { get; set; }
         public int ImportStatusId { get; set; }
-        public string UrlFileAfterProcess { get; set; }
+        public string? UrlFileAfterProcess { get; set; }
         public string FileName { get; set; }
         public string ErrorReportPath { get; set; }
         public string EmailSento { get; set; }
