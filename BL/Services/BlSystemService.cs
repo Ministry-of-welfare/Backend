@@ -83,8 +83,8 @@ namespace BL.Services
                     SystemName = group.Key.SystemName,
                     TotalFiles = group.Count(x => x.ImportControlId != 0), // מספר הקבצים שהועלו
                     SuccessRate = group.Count(x => x.ImportControlId != 0) > 0
-                        ? group.Count(x => x.ImportStatusId == 2) * 100.0 / group.Count(x => x.ImportControlId != 0)
-                        : 0 // אחוזי הצלחה
+? Math.Round(group.Count(x => x.ImportStatusId == 2) * 100.0 / group.Count(x => x.ImportControlId != 0), 2)
+: 0 // אחוזי הצלחה
                 })
                 .ToList();
 

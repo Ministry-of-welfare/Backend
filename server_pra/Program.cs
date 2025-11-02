@@ -77,6 +77,7 @@ builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
+builder.Services.AddScoped<ILoggerService, LoggerService>();
 
 
 builder.Services.AddScoped<DalFileStatusService>();
