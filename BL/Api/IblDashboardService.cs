@@ -1,4 +1,4 @@
-﻿using BL.Services;
+using BL.Services;
 using BL.Models;
 
 using Dal.Api;
@@ -18,6 +18,9 @@ namespace BL.Api
         // Get top errors with filters: status, data source, system, start date, end date
         Task<List<TopErrorDto>> GetTopErrors(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+      
+        Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
@@ -30,7 +33,7 @@ namespace BL.Api
         Task<List<AppImportControl>> GetFilteredImportDataAsync(int? importStatusId, int? importDataSourceId, int? systemId, DateTime? importFromDate, DateTime? importToDate);
 
         // Matches BL implementation: returns numeric GB value
-        (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData);
+        (int totalRows, string dataVolumeFormatted) CalculateDataVolume(List<AppImportControl> filteredData);
 
         /// <summary>
         /// Counts duplicate records based on FileName, ImportFromDate, and TotalRows.
@@ -39,14 +42,19 @@ namespace BL.Api
         /// <returns>The count of duplicate records.</returns>
         int CountDuplicateRecords(List<AppImportControl> records);
 
-        // New metric methods required by Controller / BL
-        Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null, 
+        
+        Task<int> GetImportsCountAsync(int? statusId = null, int? importDataSourceId = null,
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
+      Task<object> GetDataQualityAsync(int? statusId = null, int? importDataSourceId = null,
+    int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
+
+
 
         Task<double> GetSuccessRateAsync(int? statusId = null, int? importDataSourceId = null, 
             int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
 
-        Task<double> GetAverageProcessingTimeMinutesAsync(int? statusId = null, int? importDataSourceId = null, 
-            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null);
+
     }
 }

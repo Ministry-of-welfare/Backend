@@ -52,6 +52,7 @@ namespace BL.Services
                 .Sum(g => g.Count() - 1);
         }
 
+
         /// <summary>
         /// Retrieves filtered data from the APP_ImportControl table based on the provided parameters.
         /// </summary>
@@ -64,41 +65,58 @@ namespace BL.Services
         /// Calculates the total number of rows and the data volume in GB for the filtered records.
         /// Returns (int totalRows, double dataVolumeInGB) to match the interface.
         /// </summary>
-        public (int totalRows, double dataVolumeInGB) CalculateDataVolume(List<AppImportControl> filteredData)
+        public (int totalRows, string dataVolumeFormatted) CalculateDataVolume(List<AppImportControl> filteredData)
         {
-            if (filteredData == null) return (0, 0.0);
+            int totalRows = filteredData.Sum(x => x.TotalRows ?? 0);
 
-            // Sum total rows using long to avoid overflow, then clamp to int.MaxValue
-            long totalRowsLong = filteredData.Sum(x => (long)(x.TotalRows ?? 0));
-            int totalRows = totalRowsLong > int.MaxValue ? int.MaxValue : (int)totalRowsLong;
+            Console.WriteLine($"TotalRows: {totalRows}");
 
-            // Calculate total bytes safely using ulong and checked arithmetic
-            ulong totalBytes = 0UL;
+            ulong totalBytes = 0;
             foreach (var record in filteredData)
             {
-                long rows = record.TotalRows ?? 0;
-                if (rows <= 0) continue;
+                int rows = record.TotalRows ?? 0;
+                Console.WriteLine($"Processing record with TotalRows: {rows}");
 
-                // bytes per row estimate
-                ulong bytesPerRow = (ulong)(4 + 8 + 255);
-
+                // Ensure no overflow occurs during calculation
                 try
                 {
-                    checked
-                    {
-                        totalBytes += (ulong)rows * bytesPerRow;
-                    }
+                    totalBytes += checked((ulong)rows * (4 + 8 + 255)); // INT (4 bytes) + DATETIME (8 bytes) + VARCHAR(255)
                 }
                 catch (OverflowException)
                 {
+                    Console.WriteLine("Overflow occurred during totalBytes calculation.");
                     totalBytes = ulong.MaxValue;
                     break;
                 }
             }
 
+            Console.WriteLine($"TotalBytes calculated: {totalBytes}");
+
             double dataVolumeInGB = (double)totalBytes / Math.Pow(1024, 3);
 
-            return (totalRows, dataVolumeInGB);
+            Console.WriteLine($"DataVolumeInGB calculated: {dataVolumeInGB}");
+
+            string dataVolumeFormatted;
+            if (dataVolumeInGB >= 1)
+            {
+                // Round up to one decimal place
+                dataVolumeInGB = Math.Ceiling(dataVolumeInGB * 10) / 10;
+                dataVolumeFormatted = $"{dataVolumeInGB:F1} GB";
+            }
+            else
+            {
+                double dataVolumeInMB = (double)totalBytes / Math.Pow(1024, 2);
+
+                Console.WriteLine($"DataVolumeInMB calculated: {dataVolumeInMB}");
+
+                // Round up to one decimal place
+                dataVolumeInMB = Math.Ceiling(dataVolumeInMB * 10) / 10;
+                dataVolumeFormatted = $"{dataVolumeInMB:F1} MB";
+            }
+
+            Console.WriteLine($"DataVolumeFormatted: {dataVolumeFormatted}");
+
+            return (totalRows, dataVolumeFormatted);
         }
 
         // Updated: count imports — default to today's imports when caller provides no date range.
@@ -162,5 +180,43 @@ namespace BL.Services
             var todayList = await _dalDashboard.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, from, to);
             return todayList ?? new List<AppImportControl>();
         }
+        /// <summary>
+        /// מחשבת מדדי איכות נתונים (שיעור הצלחה, כמות שגויים, כפילויות וכו') לפי סננים.
+        /// </summary>
+        public async Task<object> GetDataQualityAsync(int? statusId = null, int? importDataSourceId = null,
+            int? systemId = null, DateTime? startDate = null, DateTime? endDate = null)
+        {
+            // שליפה מה־DAL לפי הסננים הקיימים
+            var filteredData = await _dalDashboard.GetFilteredImportDataAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+
+            if (filteredData == null || filteredData.Count == 0)
+            {
+                return new
+                {
+                    TotalRows = 0,
+                    RowsInvalid = 0,
+                    TotalValid = 0,
+                    SuccessRate = 0,
+                    DuplicateRecords = 0
+                };
+            }
+
+            // חישובי איכות נתונים
+            int totalRows = filteredData.Sum(x => x.TotalRows ?? 0);
+            int rowsInvalid = filteredData.Sum(x => x.RowsInvalid ?? 0);
+            int totalValid = totalRows - rowsInvalid;
+            int duplicateRecords = CountDuplicateRecords(filteredData);
+            int successRate = totalRows == 0 ? 0 : (int)Math.Round((double)totalValid / totalRows * 100);
+
+            return new
+            {
+                TotalRows = totalRows,
+                RowsInvalid = rowsInvalid,
+                TotalValid = totalValid,
+                SuccessRate = successRate,
+                DuplicateRecords = duplicateRecords
+            };
+        }
+
     }
 }

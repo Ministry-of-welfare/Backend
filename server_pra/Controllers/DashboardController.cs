@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq; 
+using BL.Models;
 
 
 namespace server_pra.Controllers
@@ -49,21 +50,21 @@ namespace server_pra.Controllers
         {
             try
             {
-                // Retrieve filtered data
+                // שליפת נתונים מסוננים
                 var filteredData = await _blDashboardService.GetFilteredImportDataAsync(importStatusId, importDataSourceId, systemId, importFromDate, importToDate);
 
-                // Calculate data volume
+                // חישוב נפח ושורות
                 var (totalRows, dataVolumeInGB) = _blDashboardService.CalculateDataVolume(filteredData);
 
-                // Count duplicate records
-              //  var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
+                // חישוב רשומות כפולות
+               // var duplicateCount = _blDashboardService.CountDuplicateRecords(filteredData);
 
-                // Return the result
+                // החזרת תוצאה
                 return Ok(new
                 {
                     TotalRows = totalRows,
                     DataVolumeInGB = dataVolumeInGB,
-                  //  DuplicateRecords = duplicateCount
+                //    DuplicateRecords = duplicateCount
                 });
             }
             catch (Exception ex)
@@ -77,16 +78,17 @@ namespace server_pra.Controllers
 
         [HttpGet("data-quality-simple")]
         public async Task<IActionResult> GetDataQualityKpisSimple(
-            [FromQuery] int? importDataSourceId = null,
-            [FromQuery] int? systemId = null)
+        [FromQuery] int? importStatusId = null,
+        [FromQuery] int? importDataSourceId = null,
+        [FromQuery] int? systemId = null,
+        [FromQuery] DateTime? startDate = null,
+        [FromQuery] DateTime? endDate = null)
         {
             try
             {
-                // מביא את כל הרשומות עם או בלי פילטרים
                 var records = await _blDashboardService.GetFilteredImportDataAsync(
-                    null, importDataSourceId, systemId, null, null);
+                    importStatusId, importDataSourceId, systemId, startDate, endDate);
 
-                // חישוב נתוני איכות נתונים לפי ImportStatusId וגם לפי ImportControlId
                 var result = records
                     .GroupBy(r => new { r.ImportStatusId, r.ImportControlId })
                     .Select(g =>
@@ -97,14 +99,13 @@ namespace server_pra.Controllers
 
                         return new
                         {
-                            ImportStatusId = g.Key.ImportStatusId, // פשוט הורד את ה-??
+                            ImportStatusId = g.Key.ImportStatusId,
                             ImportControlId = g.Key.ImportControlId,
                             TotalRows = total,
                             RowsInvalid = invalid,
                             ValidRowsPercentage = Math.Round(validPercent, 2)
                         };
                     })
-
                     .OrderBy(r => r.ImportStatusId)
                     .ThenBy(r => r.ImportControlId)
                     .ToList();
@@ -113,14 +114,11 @@ namespace server_pra.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new
-                {
-                    Message = "Failed to retrieve data quality KPIs.",
-                    Error = ex.Message
-                });
+                return StatusCode(500, new { Message = "שגיאה באחזור איכות נתונים", Error = ex.Message });
             }
         }
-       
+
+
 
         /// <summary>
         /// GET: api/Dashboard/statusCounts
