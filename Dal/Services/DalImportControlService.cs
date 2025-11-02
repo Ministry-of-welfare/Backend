@@ -51,6 +51,33 @@ namespace Dal.Services
                 await _context.SaveChangesAsync();
             }
         }
+        public async Task UpdateImportStatusAsync(int importId, int rowsInvalid, int totalRowsAffected, string status)
+        {
+            var entity = await _context.AppImportControls.FindAsync(importId);
+            if (entity == null)
+                throw new Exception($"AppImportControl not found with ID {importId}");
+
+            // שליפה דינמית של מזהה הסטטוס מתוך TImportStatus
+            var statusEntity = await _context.TImportStatuses
+                .FirstOrDefaultAsync(s => s.ImportStatusDesc == status);
+
+            if (statusEntity == null)
+                throw new Exception($"Import status '{status}' not found in TImportStatuses");
+
+            entity.RowsInvalid = rowsInvalid;
+            entity.TotalRowsAffected = totalRowsAffected;
+            entity.ImportStatusId = statusEntity.ImportStatusId;
+
+            await _context.SaveChangesAsync();
+        }
+        public async Task<int> CountImportProblems(int importControlId)
+        {
+            return await _context.AppImportProblems
+                .CountAsync(p => p.ImportControlId == importControlId);
+        }
+
+
+
 
 
     }

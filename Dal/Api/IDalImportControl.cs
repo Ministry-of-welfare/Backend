@@ -10,6 +10,8 @@ namespace Dal.Api
     public interface IDalImportControl:ICrud<AppImportControl>
     {
         Task<Dal.Models.AppImportControl> GetByIdAsync(int id);
+        Task UpdateImportStatusAsync(int importId, int rowsInvalid, int totalRowsAffected, string status);
+        Task<int> CountImportProblems(int importControlId);
 
     }
 }
