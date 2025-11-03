@@ -20,29 +20,43 @@ namespace server_pra.Services
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                using var scope = _scopeFactory.CreateScope();
-                var dalImportControl = scope.ServiceProvider.GetRequiredService<IDalImportControl>();
+                Console.WriteLine($"[LOG] סבב התחיל ב: {DateTime.Now}");
 
-                var runs = await dalImportControl.GetAll();
-
-                foreach (var run in runs)
+                try
                 {
-                    if (run.ImportFinishDate == null)
+                    using var scope = _scopeFactory.CreateScope();
+                    var dalImportControl = scope.ServiceProvider.GetRequiredService<IDalImportControl>();
+
+                    var runs = await dalImportControl.GetAll();
+
+                    foreach (var run in runs)
                     {
-                        int totalRows = run.TotalRows ?? 0;
-                        int rowsInvalid = await dalImportControl.CountImportProblems(run.ImportControlId);
+                        if (run.ImportFinishDate == null)
+                        {
+                            int totalRows = run.TotalRows ?? 0;
+                            int rowsInvalid = await dalImportControl.CountImportProblems(run.ImportControlId);
 
-                        int totalRowsAffected = totalRows - rowsInvalid;
-                        string status = rowsInvalid > 0 ? "Failed" : "Success";
+                            int totalRowsAffected = totalRows - rowsInvalid;
+                            string status = rowsInvalid > 0 ? "Failed" : "Success";
 
-                        await dalImportControl.UpdateImportStatusAsync(run.ImportControlId, rowsInvalid, totalRowsAffected, status);
+                            await dalImportControl.UpdateImportStatusAsync(run.ImportControlId, rowsInvalid, totalRowsAffected, status);
 
-                        Console.WriteLine($"[LOG] ריצה {run.ImportControlId} עודכנה לסטטוס {status}");
+                            Console.WriteLine($"[LOG] ריצה {run.ImportControlId} עודכנה לסטטוס {status}");
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[LOG] שגיאה בלולאה: {ex}");
+                }
 
-                await Task.Delay(TimeSpan.FromMinutes(5), stoppingToken);
+                Console.WriteLine($"[LOG] סבב הסתיים ב: {DateTime.Now}");
+
+                // לזמן בדיקה – המתן קצר יותר:
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
             }
         }
+
+
     }
 }
