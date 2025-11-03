@@ -1,3 +1,6 @@
+using System;
+using System.Net;
+using System.Net.Mail;
 using BL;
 using BL.Api;
 using BL.Services;
@@ -10,19 +13,28 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using server_pra.Models;
 using server_pra.Services;
-using Serilog;
+
 using System;
-using System.Xml;
+using System.Net;
+using System.Net.Mail;
+
+
+
+Console.WriteLine("🟢 Starting server build...");
 
 var builder = WebApplication.CreateBuilder(args);
 
+Console.WriteLine("✅ WebApplicationBuilder created");
+
 // Configure Serilog - only for controllers
+Console.WriteLine("⚙️ Configuring Serilog...");
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Fatal() // Block everything by default
-    .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information) // Only controllers
-    .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal) // Block FileChecker
+    .MinimumLevel.Fatal()
+    .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
+    .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
         tableName: "SerilogLogs",
@@ -30,60 +42,66 @@ Log.Logger = new LoggerConfiguration()
     .CreateLogger();
 
 builder.Host.UseSerilog();
+Console.WriteLine("✅ Serilog configured");
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+Console.WriteLine($"🔌 Loaded connection string: {connectionString}");
 
-builder.Services.AddDbContext<Dal.Models.AppDbContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection"),
+        connectionString,
         sqlOptions => sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 5,              // כמה פעמים לנסות מחדש
-            maxRetryDelay: TimeSpan.FromSeconds(10), // הפסקה מקסימלית בין ניסיונות
-            errorNumbersToAdd: null        // אפשר להשאיר null כדי לכסות שגיאות נפוצות
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
         )
     )
 );
 
-// שירותים נוספים
+// שירותים כלליים
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// הגדרות CORS
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAngular", policy =>
     {
-        policy.WithOrigins("http://localhost:4200") // כתובת הלקוח
+        policy.WithOrigins("http://localhost:4200")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
-});
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll",
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
-// Add the missing connectionString variable initialization at the top of the file.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
+    options.AddPolicy("AllowLocalhost", policy =>
+    {
+        policy.WithOrigins("http://localhost:54515", "http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+// רישום שירותים - DAL ו-BL
 builder.Services.AddScoped<IDal>(sp =>
 {
-    var context = sp.GetRequiredService<Dal.Models.AppDbContext>();
+    var context = sp.GetRequiredService<AppDbContext>();
     return new DalManager(context);
 });
-//builder.Services.AddScoped<IDal, DalManager>();  // המימוש שלך של ה־DAL
-builder.Services.AddScoped<IBl, BlManager>();  // המימוש שלך של ה־BL
+builder.Services.AddScoped<IBl, BlManager>();
 builder.Services.AddScoped<IDalSystem, DalSystemService>();
 builder.Services.AddScoped<IDalImportStatus, DalImportStatusService>();
 builder.Services.AddScoped<IDalImportDataSource, DalImportDataSourceService>();
 builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
 builder.Services.AddScoped<IDalFileStatus, DalFileStatusService>();
 builder.Services.AddScoped<IDalImportControl, DalImportControlService>();
-
-
+builder.Services.AddScoped<IDalImportProblem, DalImportProblemService>();
 builder.Services.AddScoped<IBlImportStatus, BlImportStatusService>();
 builder.Services.AddScoped<IBlSystem, BlSystemService>();
 builder.Services.AddScoped<IBlDataSourceType, BlDataSourceTypeService>();
@@ -92,56 +110,69 @@ builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
-// Register the concrete service so you can resolve it for manual testing,
-// while still registering it as a hosted service.
+builder.Services.AddScoped<DalFileStatusService>();
+builder.Services.AddScoped<ErrorReportService>();
+
+// Hosted services
 builder.Services.AddSingleton<FileCheckerBackgroundService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerBackgroundService>());
+builder.Services.AddHostedService<UpdateImportStatusService>();
 
-builder.Services.AddScoped<DalFileStatusService>();
+// שירותי עזר נוספים
+builder.Services.AddSingleton<ILoggerService, LoggerService>();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        policy => policy
-            .WithOrigins("http://localhost:54515")
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowLocalhost",
-        policy => policy
-            .WithOrigins("http://localhost:4200")
-            .AllowAnyHeader()
-            .AllowAnyMethod());
-});
-//builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
-
+// Build
 var app = builder.Build();
+Console.WriteLine("✅ WebApplication built");
 
-
-
-
-
-
+// הגדרות סביבה והרצה
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-// סוואגר
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 app.UseCors("AllowAngular");
-
-// ודאי שאת משתמשת במדיניות הנכונה
-app.UseCors("AllowAngular");
-
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
+
+Console.WriteLine("🚀 Running the server...");
+
+
+Console.WriteLine("🚀 Testing the email...");
+try
+        {
+            string fromAddress = "rachel87549@gmail.com"; // כתובת הג'ימייל שלך
+            string appPassword = "ngtswaoklfefyrlv"; // בלי רווחים
+            string toAddress = "racheli5426@gmail.com"; // כתובת הנמען
+            string subject = "בדיקת שליחת מייל";
+            string body = "שלום! זהו מייל בדיקה שנשלח דרך קוד C#.";
+
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587, // TLS
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress, appPassword)
+            };
+
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body
+            })
+            {
+                smtp.Send(message);
+            }
+
+            Console.WriteLine("המייל נשלח בהצלחה!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("שגיאה בשליחה: " + ex.Message);
+        }
+    
 app.Run();
