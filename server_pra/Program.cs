@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 ﻿    using BL;
+=======
+using BL;
+>>>>>>> origin/main
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -12,10 +16,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using server_pra.Models;
 using server_pra.Services;
+using Serilog;
 using System;
 using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog - only for controllers
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Fatal() // Block everything by default
+    .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information) // Only controllers
+    .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal) // Block FileChecker
+    .WriteTo.MSSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
+        tableName: "SerilogLogs",
+        autoCreateSqlTable: true)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 
 builder.Services.AddDbContext<Dal.Models.AppDbContext>(options =>

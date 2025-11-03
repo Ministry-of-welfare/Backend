@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Dal.Models; 
+using Dal.Models;
 
 namespace server_pra.Services
 {
@@ -50,7 +50,7 @@ namespace server_pra.Services
 
                     foreach (var s in sources)
                     {
-                        var raw = (!string.IsNullOrWhiteSpace(s.UrlFileAfterProcess) ? s.UrlFileAfterProcess : s.UrlFile) ?? string.Empty;
+                        var raw = (!string.IsNullOrWhiteSpace(s.UrlFile) ? s.UrlFile : s.UrlFileAfterProcess) ?? string.Empty;
                         var path = raw.Trim();
 
                         // If path is relative, resolve against content root
@@ -135,7 +135,7 @@ namespace server_pra.Services
             var newRun = new AppImportControl
             {
                 ImportDataSourceId = source.ImportDataSourceId,
-                ImportStatusId = 1, 
+                ImportStatusId = 1,
                 ImportStartDate = DateTime.UtcNow,
                 ImportFromDate = importFrom,
                 FileName = fileName,
