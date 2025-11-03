@@ -78,10 +78,10 @@ builder.Services.AddScoped<IBlFileStatus, BlFileStatusService>();
 builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
-builder.Services.AddScoped<ILoggerService, LoggerService>();
-builder.Services.AddScoped<IDalImportControl, DalImportControlService>();
-builder.Services.AddHostedService<UpdateImportStatusService>();
-
+// Register the concrete service so you can resolve it for manual testing,
+// while still registering it as a hosted service.
+builder.Services.AddSingleton<FileCheckerBackgroundService>();
+builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerBackgroundService>());
 
 builder.Services.AddScoped<DalFileStatusService>();
 
