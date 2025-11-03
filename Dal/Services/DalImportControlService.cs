@@ -57,16 +57,23 @@ namespace Dal.Services
             if (entity == null)
                 throw new Exception($"AppImportControl not found with ID {importId}");
 
-            // שליפה דינמית של מזהה הסטטוס מתוך TImportStatus
+            Console.WriteLine($"Attempting to update import status for Import ID: {importId}, Status: {status}");
+
             var statusEntity = await _context.TImportStatuses
                 .FirstOrDefaultAsync(s => s.ImportStatusDesc == status);
 
             if (statusEntity == null)
-                throw new Exception($"Import status '{status}' not found in TImportStatuses");
+            {
+                Console.WriteLine($"Warning: Status '{status}' not found in TImportStatuses. Skipping status update.");
+            }
+            else
+            {
+                Console.WriteLine($"Found status '{status}' with ID: {statusEntity.ImportStatusId}");
+                entity.ImportStatusId = statusEntity.ImportStatusId;
+            }
 
             entity.RowsInvalid = rowsInvalid;
             entity.TotalRowsAffected = totalRowsAffected;
-            entity.ImportStatusId = statusEntity.ImportStatusId;
 
             await _context.SaveChangesAsync();
         }

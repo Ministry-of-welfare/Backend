@@ -7,6 +7,8 @@ using ClosedXML.Excel; // For Excel generation
 using Microsoft.Extensions.Logging;
 using Dal.Api; // Data Access Layer
 using server_pra.Models; // Import for AppImportProblem
+using System.Net.Mail; // For email sending
+using System.Text.Json; // For reading email settings
 
 namespace server_pra.Services
 {
@@ -15,6 +17,7 @@ namespace server_pra.Services
         private readonly IDalImportControl _dalImportControl;
         private readonly IDalImportProblem _dalImportProblem;
         private readonly ILogger<ErrorReportService> _logger;
+        private readonly string _emailSettingsPath = "Config/EmailSettings.json";
 
         public ErrorReportService(IDalImportControl dalImportControl, IDalImportProblem dalImportProblem, ILogger<ErrorReportService> logger)
         {
@@ -125,9 +128,52 @@ namespace server_pra.Services
 
         private async Task SendErrorReportEmailAsync(string recipients, string filePath)
         {
-            // Implement email sending logic here
-            // Use System.Net.Mail or MailKit to send the email
-            _logger.LogInformation("Sending error report email to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            try
+            {
+                _logger.LogInformation("Preparing to send email to recipients: {Recipients}", recipients);
+
+                // Load email settings
+                var emailSettings = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(_emailSettingsPath));
+
+                _logger.LogInformation("Loaded email settings: {EmailSettings}", emailSettings);
+                _logger.LogInformation("SMTP Server: {SmtpServer}, Port: {Port}, SenderEmail: {SenderEmail}", emailSettings["SmtpServer"], emailSettings["Port"], emailSettings["SenderEmail"]);
+                _logger.LogInformation("Recipients: {Recipients}", recipients);
+                _logger.LogInformation("FilePath: {FilePath}", filePath);
+
+                var smtpClient = new SmtpClient(emailSettings["SmtpServer"])
+                {
+                    Port = int.Parse(emailSettings["Port"]),
+                    Credentials = new System.Net.NetworkCredential(emailSettings["SenderEmail"], emailSettings["SenderPassword"]),
+                    EnableSsl = true,
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress(emailSettings["SenderEmail"]),
+                    Subject = "Error Report",
+                    Body = "Please find the attached error report.",
+                    IsBodyHtml = true,
+                };
+
+                foreach (var recipient in recipients.Split(','))
+                {
+                    var trimmedRecipient = recipient.Trim();
+                    _logger.LogInformation("Adding recipient: {Recipient}", trimmedRecipient);
+                    mailMessage.To.Add(trimmedRecipient);
+                }
+
+                mailMessage.Attachments.Add(new Attachment(filePath));
+
+                _logger.LogInformation("Attempting to send email with attachment: {FilePath}", filePath);
+
+                await smtpClient.SendMailAsync(mailMessage);
+
+                _logger.LogInformation("Email sent successfully to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            }
         }
     }
 }
