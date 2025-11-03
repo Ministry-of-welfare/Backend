@@ -12,10 +12,24 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using server_pra.Models;
 using server_pra.Services;
+using Serilog;
 using System;
 using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Serilog
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.MSSqlServer(
+        connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
+        sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+        {
+            TableName = "Logs",
+            AutoCreateSqlTable = false
+        })
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 
 builder.Services.AddDbContext<Dal.Models.AppDbContext>(options =>
