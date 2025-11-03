@@ -1,3 +1,6 @@
+using System;
+using System.Net;
+using System.Net.Mail;
 using BL;
 using BL.Api;
 using BL.Services;
@@ -10,10 +13,15 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Serilog;
 using server_pra.Models;
 using server_pra.Services;
-using Serilog;
+
 using System;
+using System.Net;
+using System.Net.Mail;
+
+
 
 Console.WriteLine("🟢 Starting server build...");
 
@@ -130,4 +138,41 @@ app.UseAuthorization();
 app.MapControllers();
 
 Console.WriteLine("🚀 Running the server...");
+
+
+Console.WriteLine("🚀 Testing the email...");
+try
+        {
+            string fromAddress = "rachel87549@gmail.com"; // כתובת הג'ימייל שלך
+            string appPassword = "ngtswaoklfefyrlv"; // בלי רווחים
+            string toAddress = "racheli5426@gmail.com"; // כתובת הנמען
+            string subject = "בדיקת שליחת מייל";
+            string body = "שלום! זהו מייל בדיקה שנשלח דרך קוד C#.";
+
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587, // TLS
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress, appPassword)
+            };
+
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body
+            })
+            {
+                smtp.Send(message);
+            }
+
+            Console.WriteLine("המייל נשלח בהצלחה!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("שגיאה בשליחה: " + ex.Message);
+        }
+    
 app.Run();

@@ -135,6 +135,11 @@ namespace server_pra.Services
                 // Load email settings
                 var emailSettings = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(_emailSettingsPath));
 
+                _logger.LogInformation("Loaded email settings: {EmailSettings}", emailSettings);
+                _logger.LogInformation("SMTP Server: {SmtpServer}, Port: {Port}, SenderEmail: {SenderEmail}", emailSettings["SmtpServer"], emailSettings["Port"], emailSettings["SenderEmail"]);
+                _logger.LogInformation("Recipients: {Recipients}", recipients);
+                _logger.LogInformation("FilePath: {FilePath}", filePath);
+
                 var smtpClient = new SmtpClient(emailSettings["SmtpServer"])
                 {
                     Port = int.Parse(emailSettings["Port"]),
