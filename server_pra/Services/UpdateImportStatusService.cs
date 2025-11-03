@@ -42,6 +42,10 @@ namespace server_pra.Services
                             await dalImportControl.UpdateImportStatusAsync(run.ImportControlId, rowsInvalid, totalRowsAffected, status);
 
                             Console.WriteLine($"[LOG] ריצה {run.ImportControlId} עודכנה לסטטוס {status}");
+                            run.ImportFinishDate = DateTime.Now;
+                            await dalImportControl.Update(run);
+                            Console.WriteLine($"[LOG] ריצה {run.ImportControlId} סומנה כסגורה ({run.ImportFinishDate})");
+
                         }
                     }
                 }
