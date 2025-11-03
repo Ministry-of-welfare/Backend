@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿    using BL;
-=======
 using BL;
->>>>>>> origin/main
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -27,6 +23,7 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Fatal() // Block everything by default
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information) // Only controllers
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal) // Block FileChecker
+    .WriteTo.Console() // Add console logging
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
         tableName: "SerilogLogs",

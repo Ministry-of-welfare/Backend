@@ -7,6 +7,7 @@ using ClosedXML.Excel; // For Excel generation
 using Microsoft.Extensions.Logging;
 using Dal.Api; // Data Access Layer
 using server_pra.Models; // Import for AppImportProblem
+using System.Net.Mail; // For email sending
 
 namespace server_pra.Services
 {
@@ -125,9 +126,44 @@ namespace server_pra.Services
 
         private async Task SendErrorReportEmailAsync(string recipients, string filePath)
         {
-            // Implement email sending logic here
-            // Use System.Net.Mail or MailKit to send the email
-            _logger.LogInformation("Sending error report email to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            try
+            {
+                _logger.LogInformation("Preparing to send email to recipients: {Recipients}", recipients);
+
+                var smtpClient = new SmtpClient("smtp.gmail.com")
+                {
+                    Port = 587,
+                    Credentials = new System.Net.NetworkCredential("rachel87549@gmail.com", "rbrin@313"),
+                    EnableSsl = true,
+                };
+
+                var mailMessage = new MailMessage
+                {
+                    From = new MailAddress("rachel87549@gmail.com"),
+                    Subject = "Error Report",
+                    Body = "Please find the attached error report.",
+                    IsBodyHtml = true,
+                };
+
+                foreach (var recipient in recipients.Split(','))
+                {
+                    var trimmedRecipient = recipient.Trim();
+                    _logger.LogInformation("Adding recipient: {Recipient}", trimmedRecipient);
+                    mailMessage.To.Add(trimmedRecipient);
+                }
+
+                mailMessage.Attachments.Add(new Attachment(filePath));
+
+                _logger.LogInformation("Attempting to send email with attachment: {FilePath}", filePath);
+
+                await smtpClient.SendMailAsync(mailMessage);
+
+                _logger.LogInformation("Email sent successfully to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send email to {Recipients} with attachment {FilePath}.", recipients, filePath);
+            }
         }
     }
 }
