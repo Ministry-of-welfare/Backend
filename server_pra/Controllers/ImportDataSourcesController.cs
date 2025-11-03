@@ -37,12 +37,14 @@ namespace server.Controllers
             try
             {
                 var result = await _context.TabImportDataSources.ToListAsync();
-                Log.Information("Retrieved {Count} ImportDataSources", result.Count);
+                Log.ForContext("UserName", User?.Identity?.Name ?? "Anonymous")
+                   .Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
             }
             catch (Exception ex)
             {
-                Log.Error(ex, "Error getting ImportDataSources");
+                Log.ForContext("UserName", User?.Identity?.Name ?? "Anonymous")
+                   .Error(ex, "Error getting ImportDataSources");
                 throw;
             }
         }

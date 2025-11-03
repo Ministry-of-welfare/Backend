@@ -1,8 +1,6 @@
-<<<<<<< HEAD
+
 ﻿    using BL;
-=======
-using BL;
->>>>>>> origin/main
+
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -18,19 +16,31 @@ using server_pra.Models;
 using server_pra.Services;
 using Serilog;
 using System;
+using System.Collections.Generic;
+using System.Data;
 using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Serilog - only for controllers
+var columnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions();
+columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
+{
+    new Serilog.Sinks.MSSqlServer.SqlColumn("UserName", System.Data.SqlDbType.NVarChar, dataLength: 255)
+};
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Fatal() // Block everything by default
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information) // Only controllers
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal) // Block FileChecker
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
-        tableName: "SerilogLogs",
-        autoCreateSqlTable: true)
+        sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+        {
+            TableName = "SerilogLogs",
+            AutoCreateSqlTable = true
+        },
+        columnOptions: columnOptions)
     .CreateLogger();
 
 builder.Host.UseSerilog();
