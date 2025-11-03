@@ -1,4 +1,4 @@
-﻿using BL;
+using BL;
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -18,15 +18,15 @@ using System.Xml;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configure Serilog
+// Configure Serilog - only for controllers
 Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Fatal() // Block everything by default
+    .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information) // Only controllers
+    .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal) // Block FileChecker
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
-        sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
-        {
-            TableName = "Logs",
-            AutoCreateSqlTable = false
-        })
+        tableName: "SerilogLogs",
+        autoCreateSqlTable: true)
     .CreateLogger();
 
 builder.Host.UseSerilog();

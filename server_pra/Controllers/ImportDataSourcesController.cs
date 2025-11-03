@@ -36,7 +36,6 @@ namespace server.Controllers
         {
             try
             {
-                Log.Information("Getting all ImportDataSources");
                 var result = await _context.TabImportDataSources.ToListAsync();
                 Log.Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
