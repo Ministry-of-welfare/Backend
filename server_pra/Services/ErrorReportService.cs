@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Dal.Api; // Data Access Layer
 using server_pra.Models; // Import for AppImportProblem
 using System.Net.Mail; // For email sending
+using System.Text.Json; // For reading email settings
 
 namespace server_pra.Services
 {
@@ -16,6 +17,7 @@ namespace server_pra.Services
         private readonly IDalImportControl _dalImportControl;
         private readonly IDalImportProblem _dalImportProblem;
         private readonly ILogger<ErrorReportService> _logger;
+        private readonly string _emailSettingsPath = "Config/EmailSettings.json";
 
         public ErrorReportService(IDalImportControl dalImportControl, IDalImportProblem dalImportProblem, ILogger<ErrorReportService> logger)
         {
@@ -130,16 +132,19 @@ namespace server_pra.Services
             {
                 _logger.LogInformation("Preparing to send email to recipients: {Recipients}", recipients);
 
-                var smtpClient = new SmtpClient("smtp.gmail.com")
+                // Load email settings
+                var emailSettings = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(_emailSettingsPath));
+
+                var smtpClient = new SmtpClient(emailSettings["SmtpServer"])
                 {
-                    Port = 587,
-                    Credentials = new System.Net.NetworkCredential("rachel87549@gmail.com", "rbrin@313"),
+                    Port = int.Parse(emailSettings["Port"]),
+                    Credentials = new System.Net.NetworkCredential(emailSettings["SenderEmail"], emailSettings["SenderPassword"]),
                     EnableSsl = true,
                 };
 
                 var mailMessage = new MailMessage
                 {
-                    From = new MailAddress("rachel87549@gmail.com"),
+                    From = new MailAddress(emailSettings["SenderEmail"]),
                     Subject = "Error Report",
                     Body = "Please find the attached error report.",
                     IsBodyHtml = true,
