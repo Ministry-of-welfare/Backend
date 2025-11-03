@@ -7,6 +7,7 @@ using Dal.Models; // ����� ��� ���� namespace �� App
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_pra.Models;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -23,13 +24,11 @@ namespace server.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IBl _bl;
-        private readonly ILoggerService _logger;
 
-        public ImportDataSourcesController(AppDbContext context, IBl bl, ILoggerService logger)
+        public ImportDataSourcesController(AppDbContext context, IBl bl)
         {
             _bl = bl;
             _context = context;
-            _logger = logger;
         }
 
         [HttpGet]
@@ -37,14 +36,13 @@ namespace server.Controllers
         {
             try
             {
-                await _logger.LogAsync("Getting all ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
                 var result = await _context.TabImportDataSources.ToListAsync();
-                await _logger.LogAsync($"Retrieved {result.Count} ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
+                Log.Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
             }
             catch (Exception ex)
             {
-                await _logger.LogAsync("Error getting ImportDataSources", "ERROR", exception: ex.ToString(), logId: Guid.NewGuid().ToString());
+                Log.Error(ex, "Error getting ImportDataSources");
                 throw;
             }
         }
