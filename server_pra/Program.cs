@@ -1,4 +1,4 @@
-﻿using BL;
+﻿    using BL;
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -68,6 +68,7 @@ builder.Services.AddScoped<IDalImportDataSource, DalImportDataSourceService>();
 builder.Services.AddScoped<IDalDataSourceType, DalDataSourceTypeService>();
 builder.Services.AddScoped<IDalFileStatus, DalFileStatusService>();
 builder.Services.AddScoped<IDalImportControl, DalImportControlService>();
+builder.Services.AddScoped<IDalImportProblem, DalImportProblemService>();
 
 
 builder.Services.AddScoped<IBlImportStatus, BlImportStatusService>();
@@ -102,6 +103,9 @@ builder.Services.AddCors(options =>
             .AllowAnyMethod());
 });
 //builder.Services.AddScoped<IBl>(sp => new BlManager(sp.GetRequiredService<IDal>()));
+
+builder.Services.AddSingleton<ILoggerService, LoggerService>();
+builder.Services.AddScoped<ErrorReportService>();
 
 var app = builder.Build();
 
