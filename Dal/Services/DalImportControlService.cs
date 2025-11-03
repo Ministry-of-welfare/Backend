@@ -75,10 +75,19 @@ namespace Dal.Services
             return await _context.AppImportProblems
                 .CountAsync(p => p.ImportControlId == importControlId);
         }
+        public async Task UpdateErrorReportPathAsync(int importControlId, string filePath)
+        {
+            var entity = await _context.AppImportControls.FindAsync(importControlId);
+            if (entity == null)
+                throw new Exception($"AppImportControl not found with ID {importControlId}");
 
-
-
-
+            entity.ErrorReportPath = filePath;
+            await _context.SaveChangesAsync();
+        }
+        public async Task<TabImportDataSource> GetImportDataSourceByIdAsync(int importDataSourceId)
+        {
+            return await _context.TabImportDataSources.FindAsync(importDataSourceId);
+        }
 
     }
 }
