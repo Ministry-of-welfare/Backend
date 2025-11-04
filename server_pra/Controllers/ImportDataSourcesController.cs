@@ -7,7 +7,9 @@ using Dal.Models; // ����� ��� ���� namespace �� App
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_pra.Models;
+using server_pra.Services;
 using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -24,11 +26,13 @@ namespace server.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IBl _bl;
+        private readonly Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> _logger;
 
-        public ImportDataSourcesController(AppDbContext context, IBl bl)
+        public ImportDataSourcesController(AppDbContext context, IBl bl, Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> logger)
         {
             _bl = bl;
             _context = context;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -209,7 +213,27 @@ namespace server.Controllers
             return Ok(results);
         }
 
+        [HttpPost("load-bulk-data")]
+        public async Task<IActionResult> LoadBulkData([FromBody] LoadBulkDataRequest request)
+        {
+            try
+            {
+                var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+                var bulkLogger = loggerFactory.CreateLogger<LoadBulkTable>();
+                var loadBulkService = new LoadBulkTable(_context, bulkLogger);
+                await loadBulkService.LoadBulkData(request.ImportDataSourceId, request.ImportControlId);
+                return Ok(new { message = "Data loaded successfully", importDataSourceId = request.ImportDataSourceId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error loading data", error = ex.Message });
+            }
+        }
 
-
+        public class LoadBulkDataRequest
+        {
+            public int ImportDataSourceId { get; set; }
+            public int ImportControlId { get; set; }
+        }
     }
 }
