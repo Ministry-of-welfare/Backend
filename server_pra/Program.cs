@@ -1,7 +1,9 @@
+
 using System;
 using System.Net;
 using System.Net.Mail;
 using BL;
+
 using BL.Api;
 using BL.Services;
 using Dal;
@@ -17,28 +19,45 @@ using Serilog;
 using server_pra.Models;
 using server_pra.Services;
 
-using System;
-using System.Net;
-using System.Net.Mail;
+
+
+using System.Collections.Generic;
+using System.Data;
+using System.Xml;
+
+
 
 
 
 Console.WriteLine("🟢 Starting server build...");
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine("✅ WebApplicationBuilder created");
 
-// Configure Serilog - only for controllers
+
+var columnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions();
+columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
+{
+    new Serilog.Sinks.MSSqlServer.SqlColumn("UserName", System.Data.SqlDbType.NVarChar, dataLength: 255)
+};
+
+
 Console.WriteLine("⚙️ Configuring Serilog...");
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Fatal()
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
-        tableName: "SerilogLogs",
-        autoCreateSqlTable: true)
+        sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
+        {
+            TableName = "SerilogLogs",
+            AutoCreateSqlTable = true
+        },
+        columnOptions: columnOptions)
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -112,6 +131,7 @@ builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
 builder.Services.AddScoped<DalFileStatusService>();
 builder.Services.AddScoped<ErrorReportService>();
+builder.Services.AddScoped<LoadBulkTable>();
 
 // Hosted services
 builder.Services.AddSingleton<FileCheckerBackgroundService>();
