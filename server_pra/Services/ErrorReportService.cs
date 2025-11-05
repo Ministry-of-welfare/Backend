@@ -67,8 +67,11 @@ namespace server_pra.Services
                     return;
                 }
 
+                // Fetch column descriptions
+                var columnDescriptions = await _dalImportControl.GetColumnDescriptionsAsync(importControl.ImportDataSourceId);
+
                 // Generate Excel file
-                string filePath = GenerateExcelReport(importControl.FileName, importDataSource.UrlFileAfterProcess, mappedErrors);
+                string filePath = GenerateExcelReport(importControl.FileName, importDataSource.UrlFileAfterProcess, mappedErrors, columnDescriptions);
 
                 // Update ErrorReportPath in ImportControl
                 await _dalImportControl.UpdateErrorReportPathAsync(importControlId, filePath);
@@ -90,7 +93,7 @@ namespace server_pra.Services
             }
         }
 
-        private string GenerateExcelReport(string fileName, string outputDirectory, IEnumerable<AppImportProblem> errors)
+        private string GenerateExcelReport(string fileName, string outputDirectory, IEnumerable<AppImportProblem> errors, Dictionary<string, string> columnDescriptions)
         {
             Directory.CreateDirectory(outputDirectory);
 
@@ -101,11 +104,11 @@ namespace server_pra.Services
                 var worksheet = workbook.Worksheets.Add("Errors");
 
                 // Add headers
-                worksheet.Cell(1, 1).Value = "File Name";
-                worksheet.Cell(1, 2).Value = "Error Row";
-                worksheet.Cell(1, 3).Value = "Error Column";
-                worksheet.Cell(1, 4).Value = "Error Value";
-                worksheet.Cell(1, 5).Value = "Error Detail";
+                worksheet.Cell(1, 1).Value = "שם קובץ";
+                worksheet.Cell(1, 2).Value = "מספר שורה";
+                worksheet.Cell(1, 3).Value = "עמודת שגיאה";
+                worksheet.Cell(1, 4).Value = "הערך השגוי";
+                worksheet.Cell(1, 5).Value = "תיאור עמודה";
 
                 // Add data
                 int row = 2;
@@ -113,7 +116,7 @@ namespace server_pra.Services
                 {
                     worksheet.Cell(row, 1).Value = fileName;
                     worksheet.Cell(row, 2).Value = error.ErrorRow;
-                    worksheet.Cell(row, 3).Value = error.ErrorColumn;
+                    worksheet.Cell(row, 3).Value = columnDescriptions.ContainsKey(error.ErrorColumn) ? columnDescriptions[error.ErrorColumn] : "תיאור לא נמצא";
                     worksheet.Cell(row, 4).Value = error.ErrorValue;
                     worksheet.Cell(row, 5).Value = error.ErrorDetail;
                     row++;

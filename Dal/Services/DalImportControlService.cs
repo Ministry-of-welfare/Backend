@@ -95,6 +95,12 @@ namespace Dal.Services
         {
             return await _context.TabImportDataSources.FindAsync(importDataSourceId);
         }
+        public async Task<Dictionary<string, string>> GetColumnDescriptionsAsync(int importDataSourceId)
+        {
+            return await _context.TabColumnHebDescriptions
+                .Where(c => c.ImportDataSourceId == importDataSourceId)
+                .ToDictionaryAsync(c => c.ColumnName, c => c.ColumnDescription);
+        }
 
     }
 }
