@@ -39,7 +39,8 @@ namespace server_pra.Services
                     using var scope = _services.CreateScope();
                     var db = scope.ServiceProvider.GetRequiredService<Dal.Models.AppDbContext>();
 
-                    // Pull only active sources: FileStatusId == 1 AND (EndDate IS NULL OR EndDate > now)
+                    // משוך מקורות פעילים בלבד: FileStatusId == 1 && (EndDate == null || EndDate > now)
+                    // וכן לקוחות עם נתיב קובץ או נתיב לאחר עיבוד
                     var sources = await db.TabImportDataSources
                         .Where(x =>
                             x.FileStatusId == 1 &&
@@ -53,13 +54,13 @@ namespace server_pra.Services
                         var raw = (!string.IsNullOrWhiteSpace(s.UrlFile) ? s.UrlFile : s.UrlFileAfterProcess) ?? string.Empty;
                         var path = raw.Trim();
 
-                        // If path is relative, resolve against content root
+                        // אם הנתיב יחסית — פתח ביחס ל־ContentRoot (או לתיקיית עבודה נוכחית)
                         if (!Path.IsPathRooted(path) && !path.StartsWith(@"\\"))
                         {
                             path = Path.Combine(_env.ContentRootPath ?? Directory.GetCurrentDirectory(), path);
                         }
 
-                        // quick validation: minimum chars + rooted or UNC
+                        // בדיקה מהירה: אורך מינימלי + נתיב מוחלט או UNC
                         if (path.Length < 3)
                         {
                             _logger.LogWarning("Malformed path for ImportDataSourceId {Id}: {Raw}", s.ImportDataSourceId, raw);
@@ -68,19 +69,27 @@ namespace server_pra.Services
 
                         try
                         {
-                            // If path is a directory: enumerate files
+                            // אם הנתיב הוא תיקייה — עבור על כל הקבצים שבה
                             if (Directory.Exists(path))
                             {
                                 var files = Directory.GetFiles(path);
                                 foreach (var filePath in files)
                                 {
-                                    await EnsureImportControlForFileAsync(db, s, filePath, stoppingToken);
+                                    var result = await EnsureImportControlForFileAsync(db, s, filePath, stoppingToken);
+                                    if (result.importControlId.HasValue)
+                                    {
+                                        _logger.LogInformation("Created AppImportControl ImportDataSourceId={Id} ImportControlId={ControlId}: {File}", result.importDataSourceId, result.importControlId.Value, filePath);
+                                    }
                                 }
                             }
-                            // If path is a file: process single file
+                            // אם הנתיב הוא קובץ — עבד קובץ יחיד
                             else if (File.Exists(path))
                             {
-                                await EnsureImportControlForFileAsync(db, s, path, stoppingToken);
+                                var result = await EnsureImportControlForFileAsync(db, s, path, stoppingToken);
+                                if (result.importControlId.HasValue)
+                                {
+                                    _logger.LogInformation("Created AppImportControl ImportDataSourceId={Id} ImportControlId={ControlId}: {File}", result.importDataSourceId, result.importControlId.Value, path);
+                                }
                             }
                             else
                             {
@@ -93,7 +102,7 @@ namespace server_pra.Services
                         }
                     }
 
-                    // persist created runs in a single SaveChanges call
+                    // שמור את השינויים שנותרו (אם יש) — חלק מהשורות כבר נשמרו ב־EnsureImportControlForFileAsync
                     await db.SaveChangesAsync(stoppingToken);
                 }
                 catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -114,22 +123,25 @@ namespace server_pra.Services
             _logger.LogInformation("FileCheckerBackgroundService stopped.");
         }
 
-        // Create AppImportControl only if not already present for this ImportDataSourceId + FileName
-        private async Task EnsureImportControlForFileAsync(Dal.Models.AppDbContext db, TabImportDataSource source, string filePath, CancellationToken ct)
+        /// <summary>
+        /// צור AppImportControl רק אם לא קיים עבור אותו ImportDataSourceId + FileName.
+        /// מחזיר את ה־ImportDataSourceId ואת ה־ImportControlId (מאוחסן) אם נוצר; אחרת ImportControlId = null.
+        /// </summary>
+        private async Task<(int importDataSourceId, int? importControlId)> EnsureImportControlForFileAsync(Dal.Models.AppDbContext db, TabImportDataSource source, string filePath, CancellationToken ct)
         {
             var fileName = Path.GetFileName(filePath) ?? filePath;
 
-            // dedupe check: any existing record for same source+filename
+            // בדיקת כפילויות: האם יש כבר רשומה עם אותו מקור + שם קובץ
             var exists = await db.AppImportControls
                 .AnyAsync(ac => ac.ImportDataSourceId == source.ImportDataSourceId && ac.FileName == fileName, ct);
 
             if (exists)
             {
                 _logger.LogDebug("File already handled (ImportDataSourceId={Id}): {File}", source.ImportDataSourceId, fileName);
-                return;
+                return (source.ImportDataSourceId, null);
             }
 
-            // determine ImportFromDate candidate (use file last write date local or UTC as business requires)
+            // קבע תאריך מקור לקליטה (מהתאריך שינוי אחרון של הקובץ ב־UTC)
             DateTime importFrom = File.GetLastWriteTimeUtc(filePath);
 
             var newRun = new AppImportControl
@@ -144,7 +156,13 @@ namespace server_pra.Services
             };
 
             db.AppImportControls.Add(newRun);
-            _logger.LogInformation("Created AppImportControl for ImportDataSourceId {Id}: {File}", source.ImportDataSourceId, fileName);
+
+            // שמור מיד כדי לקבל את ה־ImportControlId שנוצר (נדרש כדי להחזירו מהמתודה)
+            await db.SaveChangesAsync(ct);
+
+            _logger.LogInformation("Created AppImportControl for ImportDataSourceId {Id}: {File} (ImportControlId={ControlId})", source.ImportDataSourceId, fileName, newRun.ImportControlId);
+
+            return (source.ImportDataSourceId, newRun.ImportControlId);
         }
     }
 }
