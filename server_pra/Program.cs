@@ -47,7 +47,7 @@ columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
 Console.WriteLine("⚙️ Configuring Serilog...");
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Fatal()
+    .MinimumLevel.Information()
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
     .WriteTo.MSSqlServer(

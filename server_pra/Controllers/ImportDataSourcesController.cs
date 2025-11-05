@@ -41,13 +41,14 @@ namespace server.Controllers
             try
             {
                 var result = await _context.TabImportDataSources.ToListAsync();
-                Log.ForContext("UserName", User?.Identity?.Name ?? "Anonymous")
+                var userName = GetUserName();
+                Log.ForContext("UserName", userName)
                    .Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
             }
             catch (Exception ex)
             {
-                Log.ForContext("UserName", User?.Identity?.Name ?? "Anonymous")
+                Log.ForContext("UserName", GetUserName())
                    .Error(ex, "Error getting ImportDataSources");
                 throw;
             }
@@ -56,10 +57,26 @@ namespace server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TabImportDataSource>> GetById(int id)
         {
-            var entity = await _context.TabImportDataSources.FindAsync(id);
-            if (entity == null)
-                return NotFound();
-            return entity;
+            try
+            {
+                var entity = await _context.TabImportDataSources.FindAsync(id);
+                var userName = GetUserName();
+                if (entity == null)
+                {
+                    Log.ForContext("UserName", userName)
+                       .Warning("ImportDataSource not found with ID: {Id}", id);
+                    return NotFound();
+                }
+                Log.ForContext("UserName", userName)
+                   .Information("Retrieved ImportDataSource with ID: {Id}", id);
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                Log.ForContext("UserName", GetUserName())
+                   .Error(ex, "Error getting ImportDataSource by ID: {Id}", id);
+                throw;
+            }
         }
 
 
@@ -68,7 +85,7 @@ namespace server.Controllers
         [HttpPut("updateJustEndDate/{id}")]
         public async Task<IActionResult> UpdateEndDate(int id)
         {
-            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); // BL ����� BL model
+            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); 
             if (updated == null)
                 return NotFound();
 
@@ -110,13 +127,12 @@ namespace server.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
         {
-            // ����� ����� ���� ����� �����
+           
             if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
             {
                 return BadRequest(new { message = "����� ����� �� ���� ����� ���� ����� ������." });
             }
 
-            // ����� ������ ������ ����
             if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
@@ -132,19 +148,19 @@ namespace server.Controllers
                     }
                 }
             }
-            await _bl.TabImportDataSource.Create(item);          // ��� ����� ���
-            return Ok(new { message = "���� ������" });       // ���� ����� ����� ��� �����
+            await _bl.TabImportDataSource.Create(item);         
+            return Ok(new { message = "���� ������" });      
         }
 
-        //����� ������ id
+    
 
         [HttpPost("CreateAndReturnId")]
         public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            // ����� ���� ������
+         
             if (item.FileStatusId == null || item.FileStatusId == 0)
             {
-                item.FileStatusId = 3; // �����
+                item.FileStatusId = 3;
             }
 
             var result = await _bl.TabImportDataSource.CreateAndReturnId(item);
@@ -152,7 +168,7 @@ namespace server.Controllers
         }
 
 
-        //����� ���� �������
+        
         [HttpPost("{id}/create-table")]
         public IActionResult CreateDynamicTable(int id)
         {
@@ -195,7 +211,7 @@ namespace server.Controllers
         }
 
 
-        //// �������� ����� ���� ������ ������ 
+     
         [HttpGet("search")]
         public async Task<IActionResult> SearchImportDataSources(
             [FromQuery] DateTime? startDate,
@@ -228,6 +244,27 @@ namespace server.Controllers
             {
                 return BadRequest(new { message = "Error loading data", error = ex.Message });
             }
+        }
+
+        private string GetUserName()
+        {
+            // נסה לקחת מ-Authentication
+            if (!string.IsNullOrEmpty(User?.Identity?.Name))
+                return User.Identity.Name;
+            
+            // נסה לקחת מ-Headers
+            if (Request.Headers.ContainsKey("X-User-Name"))
+                return Request.Headers["X-User-Name"].ToString();
+            
+            if (Request.Headers.ContainsKey("User-Name"))
+                return Request.Headers["User-Name"].ToString();
+            
+            // קח IP Address
+            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+            if (!string.IsNullOrEmpty(ipAddress))
+                return $"IP:{ipAddress}";
+            
+            return "Anonymous";
         }
 
         public class LoadBulkDataRequest
