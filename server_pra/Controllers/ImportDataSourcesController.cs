@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AppDbContext = Dal.Models.AppDbContext;
 using TabImportDataSource = Dal.Models.TabImportDataSource;
+using System.Linq;
 
 
 namespace server.Controllers
@@ -27,12 +28,15 @@ namespace server.Controllers
         private readonly AppDbContext _context;
         private readonly IBl _bl;
         private readonly Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> _logger;
+        private readonly FileCheckerService _fileChecker;
 
-        public ImportDataSourcesController(AppDbContext context, IBl bl, Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> logger)
+        public ImportDataSourcesController(AppDbContext context, IBl bl, Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> logger, FileCheckerService fileChecker)
         {
             _bl = bl;
             _context = context;
             _logger = logger;
+            _fileChecker = fileChecker;
+
         }
 
         [HttpGet]
@@ -212,6 +216,22 @@ namespace server.Controllers
 
             return Ok(results);
         }
+        // נקודת קצה שמריצה ידנית את בודק הקבצים ומחזירה את ה‑IDs שנוצרו
+        [HttpPost("run-file-checker")]
+        public async Task<IActionResult> RunFileChecker()
+        {
+            try
+            {
+                var created = await _fileChecker.RunOnceAsync();
+                var response = created.Select(x => new { ImportDataSourceId = x.ImportDataSourceId, ImportControlId = x.ImportControlId }).ToList();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "שגיאה בהרצת בודק הקבצים");
+                return BadRequest(new { message = "שגיאה בהרצת בודק הקבצים", details = ex.Message });
+            }
+        }
 
         [HttpPost("load-bulk-data")]
         public async Task<IActionResult> LoadBulkData([FromBody] LoadBulkDataRequest request)
@@ -235,5 +255,13 @@ namespace server.Controllers
             public int ImportDataSourceId { get; set; }
             public int ImportControlId { get; set; }
         }
+
+
+
+
+
+
+
     }
+
 }
