@@ -1,15 +1,12 @@
 
-using System;
-using System.Net;
-using System.Net.Mail;
 using BL;
-
 using BL.Api;
 using BL.Services;
 using Dal;
 using Dal.Api;
 using Dal.Models;
 using Dal.Services;
+using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -18,11 +15,11 @@ using Microsoft.Extensions.Hosting;
 using Serilog;
 using server_pra.Models;
 using server_pra.Services;
-
-
-
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net;
+using System.Net.Mail;
 using System.Xml;
 
 
@@ -47,7 +44,7 @@ columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
 Console.WriteLine("⚙️ Configuring Serilog...");
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Fatal()
+    .MinimumLevel.Information()
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
     .WriteTo.MSSqlServer(
@@ -134,8 +131,10 @@ builder.Services.AddScoped<ErrorReportService>();
 builder.Services.AddScoped<LoadBulkTable>();
 
 // Hosted services
-builder.Services.AddSingleton<FileCheckerBackgroundService>();
-builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerBackgroundService>());
+//builder.Services.AddSingleton<FileCheckerBackgroundService>();
+
+builder.Services.AddScoped<FileCheckerService>();
+//builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerService>());
 builder.Services.AddHostedService<UpdateImportStatusService>();
 
 // שירותי עזר נוספים
