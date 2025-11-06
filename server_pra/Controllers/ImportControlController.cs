@@ -85,6 +85,7 @@ namespace server_pra.Controllers
             {
                 return BadRequest(new { message = "Validation failed.", details = ex.Message });
             }
+        }
 
 
         }
@@ -95,5 +96,6 @@ namespace server_pra.Controllers
             return Ok($"Error report generated and sent for ImportControlId {id}");
 
         }
+
     }
 }

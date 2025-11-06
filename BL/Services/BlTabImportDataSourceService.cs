@@ -35,7 +35,7 @@ namespace BL.Services
                 ErrorRecipients = dto.ErrorRecipients,
                 InsertDate = dto.InsertDate,
                 StartDate = dto.StartDate,
-                FileStatusId = dto.FileStatusId, // ×—×•×‘×” ×©×™×”×™×”
+                FileStatusId = dto.FileStatusId, 
 
             };
         }
