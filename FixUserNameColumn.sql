@@ -1,0 +1,6 @@
+USE Logs;
+GO
+
+ALTER TABLE dbo.SerilogLogs 
+ADD UserName NVARCHAR(255) NULL;
+GO
