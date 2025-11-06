@@ -76,7 +76,7 @@ namespace server_pra.Services
                 .Select(x => x.TableName)
                 .FirstAsync();
 
-            var sql = $"SELECT * FROM [{tableName}_BULK]"; var connection = _dbContext.Database.GetDbConnection();
+            var sql = $"SELECT * FROM [BULK_{tableName}]"; var connection = _dbContext.Database.GetDbConnection();
 
             await connection.OpenAsync();
             var command = connection.CreateCommand();

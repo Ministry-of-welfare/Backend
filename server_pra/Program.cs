@@ -121,12 +121,10 @@ builder.Services.AddScoped<IBlimportControl, BlImportControlService>();
 builder.Services.AddScoped<IblDashboardService, BlDashboardService>();
 builder.Services.AddScoped<IdalDashboard, DalDashboardService>();
 builder.Services.AddScoped<DalFileStatusService>();
-
 builder.Services.AddScoped<ValidationService>();
-
 builder.Services.AddScoped<ErrorReportService>();
 builder.Services.AddScoped<LoadBulkTable>();
-
+builder.Services.AddScoped<mainImportSevice>();
 
 // Hosted services
 //builder.Services.AddSingleton<FileCheckerBackgroundService>();
