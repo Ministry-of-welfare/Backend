@@ -84,6 +84,7 @@ builder.Services.AddSingleton<FileCheckerBackgroundService>();
 builder.Services.AddHostedService(provider => provider.GetRequiredService<FileCheckerBackgroundService>());
 
 builder.Services.AddScoped<DalFileStatusService>();
+builder.Services.AddScoped<ValidationService>();
 
 builder.Services.AddCors(options =>
 {

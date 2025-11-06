@@ -1,6 +1,8 @@
 ﻿using BL.Api;
 using BL.Models;
 using Microsoft.AspNetCore.Mvc;
+using server_pra.Services;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -11,20 +13,18 @@ namespace server_pra.Controllers
     [Route("api/[controller]")]
     public class ImportControlController : ControllerBase
     {
-
-
         private readonly IBlimportControl _blImportControl;
+        private readonly ValidationService _validationService;
 
-        public ImportControlController(IBlimportControl blImportControl)
+        public ImportControlController(IBlimportControl blImportControl, ValidationService validationService)
         {
             _blImportControl = blImportControl;
+            _validationService = validationService;
         }
 
-        
         [HttpGet]
         public async Task<ActionResult<IEnumerable<BlAppImportControl>>> GetImportControls()
         {
-
             return Ok(await _blImportControl.GetAll());
         }
 
@@ -41,7 +41,6 @@ namespace server_pra.Controllers
 
             return Ok(importontrol);
         }
-
 
         [HttpPost]
         public async Task<ActionResult<BlAppImportControl>> PostImportControl(BlAppImportControl importControl)
@@ -71,6 +70,20 @@ namespace server_pra.Controllers
         {
             await _blImportControl.Delete(id);
             return NoContent();
+        }
+
+        [HttpPost("{importControlId}/validate")]
+        public async Task<IActionResult> ValidateImportControl(int importControlId)
+        {
+            try
+            {
+                await _validationService.ValidateAsync(importControlId);
+                return Ok(new { message = "Validation completed successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Validation failed.", details = ex.Message });
+            }
         }
     }
 }

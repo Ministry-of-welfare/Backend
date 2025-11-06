@@ -23,7 +23,7 @@ namespace Dal.Models
         public virtual System System { get; set; }
         public virtual TDataSourceType DataSourceType { get; set; }
         public virtual TFileStatus FileStatus { get; set; }
-
+        public virtual ICollection<TabValidationRule> TabValidationRules { get; set; } = new HashSet<TabValidationRule>();
         public virtual ICollection<AppImportControl> AppImportControls { get; set; } = new List<AppImportControl>();
         public virtual ICollection<TabColumnHebDescription> TabColumnHebDescriptions { get; set; } = new List<TabColumnHebDescription>();
         public virtual ICollection<TabImportDataSourceColumn> TabImportDataSourceColumns { get; set; } = new List<TabImportDataSourceColumn>();
