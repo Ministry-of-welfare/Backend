@@ -86,6 +86,8 @@ namespace server_pra.Controllers
                 return BadRequest(new { message = "Validation failed.", details = ex.Message });
             }
 
+
+        }
         [HttpPost("{id}/generate-error-report")]
         public async Task<IActionResult> GenerateErrorReport(int id, [FromServices] ErrorReportService errorReportService)
         {
