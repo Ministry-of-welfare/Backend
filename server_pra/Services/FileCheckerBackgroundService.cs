@@ -18,12 +18,14 @@ namespace server_pra.Services
         private readonly AppDbContext _db;
         private readonly IHostEnvironment _env;
         private readonly ILogger<FileCheckerService> _logger;
+        private readonly mainImportSevice _mainImportService;
 
-        public FileCheckerService(AppDbContext db, IHostEnvironment env, ILogger<FileCheckerService> logger)
+        public FileCheckerService(AppDbContext db, IHostEnvironment env, ILogger<FileCheckerService> logger, mainImportSevice mainImportService)
         {
             _db = db;
             _env = env;
             _logger = logger;
+            _mainImportService = mainImportService;
         }
 
         public async Task<List<(int ImportDataSourceId, int? ImportControlId)>> RunOnceAsync(CancellationToken ct = default)
@@ -113,6 +115,9 @@ namespace server_pra.Services
 
             _logger.LogInformation("Created AppImportControl for ImportDataSourceId {Id}: {File} (ImportControlId={ControlId})",
                 source.ImportDataSourceId, fileName, newRun.ImportControlId);
+
+            // זימון תהליך הייבוא
+            await _mainImportService.RunAsync(newRun.ImportControlId ,ct);
 
             return (source.ImportDataSourceId, newRun.ImportControlId);
         }

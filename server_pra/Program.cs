@@ -34,27 +34,21 @@ var builder = WebApplication.CreateBuilder(args);
 Console.WriteLine("✅ WebApplicationBuilder created");
 
 
-var columnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions();
-columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
-{
-    new Serilog.Sinks.MSSqlServer.SqlColumn("UserName", System.Data.SqlDbType.NVarChar, dataLength: 255)
-};
-
-
 Console.WriteLine("⚙️ Configuring Serilog...");
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
         sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
         {
             TableName = "SerilogLogs",
-            AutoCreateSqlTable = true
-        },
-        columnOptions: columnOptions)
+            AutoCreateSqlTable = false
+        })
     .CreateLogger();
 
 builder.Host.UseSerilog();
