@@ -7,12 +7,16 @@ using Dal.Models; // ����� ��� ���� namespace �� App
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using server_pra.Models;
+using server_pra.Services;
+using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AppDbContext = Dal.Models.AppDbContext;
 using TabImportDataSource = Dal.Models.TabImportDataSource;
+using System.Linq;
 
 
 namespace server.Controllers
@@ -23,13 +27,16 @@ namespace server.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IBl _bl;
-        private readonly ILoggerService _logger;
+        private readonly Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> _logger;
+        private readonly FileCheckerService _fileChecker;
 
-        public ImportDataSourcesController(AppDbContext context, IBl bl, ILoggerService logger)
+        public ImportDataSourcesController(AppDbContext context, IBl bl, Microsoft.Extensions.Logging.ILogger<ImportDataSourcesController> logger, FileCheckerService fileChecker)
         {
             _bl = bl;
             _context = context;
             _logger = logger;
+            _fileChecker = fileChecker;
+
         }
 
         [HttpGet]
@@ -37,14 +44,16 @@ namespace server.Controllers
         {
             try
             {
-                await _logger.LogAsync("Getting all ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
                 var result = await _context.TabImportDataSources.ToListAsync();
-                await _logger.LogAsync($"Retrieved {result.Count} ImportDataSources", "INFO", logId: Guid.NewGuid().ToString());
+                var userName = GetUserName();
+                Log.ForContext("UserName", userName)
+                   .Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
             }
             catch (Exception ex)
             {
-                await _logger.LogAsync("Error getting ImportDataSources", "ERROR", exception: ex.ToString(), logId: Guid.NewGuid().ToString());
+                Log.ForContext("UserName", GetUserName())
+                   .Error(ex, "Error getting ImportDataSources");
                 throw;
             }
         }
@@ -52,10 +61,26 @@ namespace server.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<TabImportDataSource>> GetById(int id)
         {
-            var entity = await _context.TabImportDataSources.FindAsync(id);
-            if (entity == null)
-                return NotFound();
-            return entity;
+            try
+            {
+                var entity = await _context.TabImportDataSources.FindAsync(id);
+                var userName = GetUserName();
+                if (entity == null)
+                {
+                    Log.ForContext("UserName", userName)
+                       .Warning("ImportDataSource not found with ID: {Id}", id);
+                    return NotFound();
+                }
+                Log.ForContext("UserName", userName)
+                   .Information("Retrieved ImportDataSource with ID: {Id}", id);
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                Log.ForContext("UserName", GetUserName())
+                   .Error(ex, "Error getting ImportDataSource by ID: {Id}", id);
+                throw;
+            }
         }
 
 
@@ -64,7 +89,7 @@ namespace server.Controllers
         [HttpPut("updateJustEndDate/{id}")]
         public async Task<IActionResult> UpdateEndDate(int id)
         {
-            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); // BL ����� BL model
+            var updated = await _bl.TabImportDataSource.UpdateEndDate(id); 
             if (updated == null)
                 return NotFound();
 
@@ -106,13 +131,12 @@ namespace server.Controllers
         [HttpPost("create")]
         public async Task<IActionResult> Create([FromBody] BlTabImportDataSource item)
         {
-            // ����� ����� ���� ����� �����
+           
             if (item.StartDate != null && item.EndDate != null && item.EndDate < item.StartDate)
             {
                 return BadRequest(new { message = "����� ����� �� ���� ����� ���� ����� ������." });
             }
 
-            // ����� ������ ������ ����
             if (!string.IsNullOrWhiteSpace(item.ErrorRecipients))
             {
                 var emailPattern = @"^[A-Za-z0-9\u0590-\u05FF._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$";
@@ -128,19 +152,19 @@ namespace server.Controllers
                     }
                 }
             }
-            await _bl.TabImportDataSource.Create(item);          // ��� ����� ���
-            return Ok(new { message = "���� ������" });       // ���� ����� ����� ��� �����
+            await _bl.TabImportDataSource.Create(item);         
+            return Ok(new { message = "���� ������" });      
         }
 
-        //����� ������ id
+    
 
         [HttpPost("CreateAndReturnId")]
         public async Task<int> CreateAndReturnId([FromBody] BlTabImportDataSource item)
         {
-            // ����� ���� ������
+         
             if (item.FileStatusId == null || item.FileStatusId == 0)
             {
-                item.FileStatusId = 3; // �����
+                item.FileStatusId = 3;
             }
 
             var result = await _bl.TabImportDataSource.CreateAndReturnId(item);
@@ -148,7 +172,7 @@ namespace server.Controllers
         }
 
 
-        //����� ���� �������
+        
         [HttpPost("{id}/create-table")]
         public IActionResult CreateDynamicTable(int id)
         {
@@ -191,7 +215,7 @@ namespace server.Controllers
         }
 
 
-        //// �������� ����� ���� ������ ������ 
+     
         [HttpGet("search")]
         public async Task<IActionResult> SearchImportDataSources(
             [FromQuery] DateTime? startDate,
@@ -208,8 +232,73 @@ namespace server.Controllers
 
             return Ok(results);
         }
+        // נקודת קצה שמריצה ידנית את בודק הקבצים ומחזירה את ה‑IDs שנוצרו
+        [HttpPost("run-file-checker")]
+        public async Task<IActionResult> RunFileChecker()
+        {
+            try
+            {
+                var created = await _fileChecker.RunOnceAsync();
+                var response = created.Select(x => new { ImportDataSourceId = x.ImportDataSourceId, ImportControlId = x.ImportControlId }).ToList();
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "שגיאה בהרצת בודק הקבצים");
+                return BadRequest(new { message = "שגיאה בהרצת בודק הקבצים", details = ex.Message });
+            }
+        }
+
+        [HttpPost("load-bulk-data")]
+        public async Task<IActionResult> LoadBulkData([FromBody] LoadBulkDataRequest request)
+        {
+            try
+            {
+                var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+                var bulkLogger = loggerFactory.CreateLogger<LoadBulkTable>();
+                var loadBulkService = new LoadBulkTable(_context, bulkLogger);
+                await loadBulkService.LoadBulkData(request.ImportDataSourceId, request.ImportControlId);
+                return Ok(new { message = "Data loaded successfully", importDataSourceId = request.ImportDataSourceId });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = "Error loading data", error = ex.Message });
+            }
+        }
+
+        private string GetUserName()
+        {
+            // נסה לקחת מ-Authentication
+            if (!string.IsNullOrEmpty(User?.Identity?.Name))
+                return User.Identity.Name;
+            
+            // נסה לקחת מ-Headers
+            if (Request.Headers.ContainsKey("X-User-Name"))
+                return Request.Headers["X-User-Name"].ToString();
+            
+            if (Request.Headers.ContainsKey("User-Name"))
+                return Request.Headers["User-Name"].ToString();
+            
+            // קח IP Address
+            var ipAddress = Request.HttpContext.Connection.RemoteIpAddress?.ToString();
+            if (!string.IsNullOrEmpty(ipAddress))
+                return $"IP:{ipAddress}";
+            
+            return "Anonymous";
+        }
+
+        public class LoadBulkDataRequest
+        {
+            public int ImportDataSourceId { get; set; }
+            public int ImportControlId { get; set; }
+        }
+
+
+
+
 
 
 
     }
+
 }
