@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Dal.Models;
 
@@ -52,6 +50,9 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<TemplatePermission> TemplatePermissions { get; set; }
 
     public virtual DbSet<TemplateStatus> TemplateStatuses { get; set; }
+    public virtual DbSet<TabValidationRule> TabValidationRules { get; set; }
+    public virtual DbSet<TabValidationRuleCondition> TabValidationRuleConditions { get; set; }
+    public virtual DbSet<TabValidationRuleAssert> TabValidationRuleAsserts { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -603,6 +604,40 @@ public partial class AppDbContext : DbContext
                 .IsRequired()
                 .HasMaxLength(50)
                 .HasComment("שם סטטוס לתצוגה (טיוטה, פעיל, לא בשימוש)");
+        });
+        modelBuilder.Entity<TabValidationRule>(entity =>
+        {
+            entity.HasKey(e => e.ValidationRuleId);
+            entity.HasOne(e => e.ImportDataSource)
+                  .WithMany(d => d.TabValidationRules)
+                  .HasForeignKey(e => e.ImportDataSourceId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.ImportError)
+                  .WithMany()
+                  .HasForeignKey(e => e.ImportErrorId)
+                  .OnDelete(DeleteBehavior.NoAction);
+
+            entity.ToTable("Tab_ValidationRule");
+        });
+
+
+        modelBuilder.Entity<TabValidationRuleCondition>(entity =>
+        {
+            entity.HasKey(e => e.RuleConditionId);
+            entity.HasOne(e => e.ValidationRule)
+                  .WithMany(r => r.Conditions)
+                  .HasForeignKey(e => e.ValidationRuleId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<TabValidationRuleAssert>(entity =>
+        {
+            entity.HasKey(e => e.RuleAssertId);
+            entity.HasOne(e => e.ValidationRule)
+                  .WithMany(r => r.Asserts)
+                  .HasForeignKey(e => e.ValidationRuleId)
+                  .OnDelete(DeleteBehavior.Cascade);
         });
 
         OnModelCreatingPartial(modelBuilder);
