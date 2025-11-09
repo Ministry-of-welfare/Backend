@@ -25,7 +25,7 @@ namespace server_pra.Controllers
         // GET: api/Dashboard/top-errors
         [HttpGet("top-errors")]
         public async Task<ActionResult<List<TopErrorDto>>> GetTopErrors(
-            [FromQuery] int? statusId = null,
+            [FromQuery] int? importStatusId = null,
             [FromQuery] int? importDataSourceId = null,
             [FromQuery] int? systemId = null,
             [FromQuery] DateTime? startDate = null,
@@ -33,7 +33,7 @@ namespace server_pra.Controllers
         {
             try
             {
-                var topErrors = await _blDashboardService.GetTopErrors(statusId, importDataSourceId, systemId, startDate, endDate);
+                var topErrors = await _blDashboardService.GetTopErrors(importStatusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(topErrors);
             }
             catch (Exception ex)
@@ -125,7 +125,7 @@ namespace server_pra.Controllers
         /// </summary>
         [HttpGet("statusCounts")]
         public async Task<IActionResult> GetStatusCounts(
-            [FromQuery] int? statusId = null,
+            [FromQuery] int? importStatusId = null,
             [FromQuery] int? importDataSourceId = null,
             [FromQuery] int? systemId = null,
             [FromQuery] DateTime? startDate = null,
@@ -133,7 +133,7 @@ namespace server_pra.Controllers
         {
             try
             {
-                var result = await _blDashboardService.GetStatusCountsAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                var result = await _blDashboardService.GetStatusCountsAsync(importStatusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -145,7 +145,7 @@ namespace server_pra.Controllers
         // GET: api/Dashboard/avg-processing-time
         [HttpGet("avg-processing-time")]
         public async Task<IActionResult> GetAverageProcessingTime(
-            [FromQuery] int? statusId = null,
+        [FromQuery] int? importStatusId = null,
             [FromQuery] int? importDataSourceId = null,
             [FromQuery] int? systemId = null,
             [FromQuery] DateTime? startDate = null,
@@ -153,7 +153,7 @@ namespace server_pra.Controllers
         {
             try
             {
-                var avg = await _blDashboardService.GetAverageProcessingTimeMinutesAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                var avg = await _blDashboardService.GetAverageProcessingTimeMinutesAsync(importStatusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(new { AverageMinutes = avg });
             }
             catch (Exception ex)
@@ -165,7 +165,7 @@ namespace server_pra.Controllers
         // GET: api/Dashboard/success-rate
         [HttpGet("success-rate")]
         public async Task<IActionResult> GetSuccessRate(
-            [FromQuery] int? statusId = null,
+            [FromQuery] int? importStatusId = null,
             [FromQuery] int? importDataSourceId = null,
             [FromQuery] int? systemId = null,
             [FromQuery] DateTime? startDate = null,
@@ -173,7 +173,7 @@ namespace server_pra.Controllers
         {
             try
             {
-                var rate = await _blDashboardService.GetSuccessRateAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                var rate = await _blDashboardService.GetSuccessRateAsync(importStatusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(new { SuccessRatePercent = rate });
             }
             catch (Exception ex)
@@ -185,7 +185,7 @@ namespace server_pra.Controllers
         // GET: api/Dashboard/imports-count
         [HttpGet("imports-count")]
         public async Task<IActionResult> GetImportsCount(
-            [FromQuery] int? statusId = null,
+            [FromQuery] int? importStatusId = null,
             [FromQuery] int? importDataSourceId = null,
             [FromQuery] int? systemId = null,
             [FromQuery] DateTime? startDate = null,
@@ -193,7 +193,7 @@ namespace server_pra.Controllers
         {
             try
             {
-                var count = await _blDashboardService.GetImportsCountAsync(statusId, importDataSourceId, systemId, startDate, endDate);
+                var count = await _blDashboardService.GetImportsCountAsync(importStatusId, importDataSourceId, systemId, startDate, endDate);
                 return Ok(new { ImportsCount = count });
             }
             catch (Exception ex)
