@@ -45,8 +45,7 @@ namespace server.Controllers
             try
             {
                 var result = await _context.TabImportDataSources.ToListAsync();
-                var userName = GetUserName();
-                Log.ForContext("UserName", userName)
+                Log.ForContext("UserName", GetUserName())
                    .Information("Retrieved {Count} ImportDataSources", result.Count);
                 return result;
             }
@@ -64,15 +63,8 @@ namespace server.Controllers
             try
             {
                 var entity = await _context.TabImportDataSources.FindAsync(id);
-                var userName = GetUserName();
                 if (entity == null)
-                {
-                    Log.ForContext("UserName", userName)
-                       .Warning("ImportDataSource not found with ID: {Id}", id);
                     return NotFound();
-                }
-                Log.ForContext("UserName", userName)
-                   .Information("Retrieved ImportDataSource with ID: {Id}", id);
                 return entity;
             }
             catch (Exception ex)
@@ -124,7 +116,8 @@ namespace server.Controllers
 
             _context.TabImportDataSources.Remove(entity);
             await _context.SaveChangesAsync();
-
+            Log.ForContext("UserName", GetUserName())
+               .Information("Deleted ImportDataSource ID: {Id}", id);
             return NoContent();
         }
 
@@ -152,7 +145,9 @@ namespace server.Controllers
                     }
                 }
             }
-            await _bl.TabImportDataSource.Create(item);         
+            await _bl.TabImportDataSource.Create(item);
+            Log.ForContext("UserName", GetUserName())
+               .Information("Created ImportDataSource: {Description}", item.ImportDataSourceDesc);         
             return Ok(new { message = "���� ������" });      
         }
 

@@ -28,7 +28,7 @@ namespace server_pra.Models
             var sql = @"INSERT INTO Logs (Message, LogLevel, Exception, UserName, LogId, Date) 
                        VALUES (@Message, @LogLevel, @Exception, @UserName, @LogId, @Date)";
             
-            await connection.ExecuteAsync(sql, new { Message = message, LogLevel = logLevel, Exception = exception, UserName = userName, LogId = logId, Date = DateTime.Now });
+            //await connection.ExecuteAsync(sql, new { Message = message, LogLevel = logLevel, Exception = exception, UserName = userName, LogId = logId, Date = DateTime.Now });
         }
     }
 }
