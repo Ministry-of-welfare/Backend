@@ -88,7 +88,7 @@ namespace server_pra.Controllers
         }
 
 
-       
+
         [HttpPost("{id}/generate-error-report")]
         public async Task<IActionResult> GenerateErrorReport(int id, [FromServices] ErrorReportService errorReportService)
         {
@@ -99,4 +99,3 @@ namespace server_pra.Controllers
     }
 
 }
-    
