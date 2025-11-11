@@ -96,6 +96,7 @@ namespace server_pra.Controllers
             return Ok($"Error report generated and sent for ImportControlId {id}");
 
         }
+    }
 
-    }
-    }
+}
+    
