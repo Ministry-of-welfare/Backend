@@ -1,32 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace server_pra.Dal.Models.ScaffoldEntities;
-
-/// <summary>
-/// רשימת ההרשאות במערכת (כגון צפייה, עריכה, אישור)
-/// </summary>
-public partial class TabPermission
+namespace server_pra.Dal.Models.ScaffoldEntities
 {
-    /// <summary>
-    /// מזהה ייחודי להרשאה
-    /// </summary>
-    public int PermissionId { get; set; }
+    [Table("TAB_Permission", Schema = "auth")]
+    public partial class TabPermission
+    {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int PermissionId { get; set; }
 
-    /// <summary>
-    /// שם ההרשאה (כגון ViewFiles, ApproveImport)
-    /// </summary>
-    public string PermissionName { get; set; }
+        [Required]
+        [MaxLength(150)]
+        public string PermissionName { get; set; }
 
-    /// <summary>
-    /// תיאור קצר של ההרשאה
-    /// </summary>
-    public string PermissionDesc { get; set; }
+        [MaxLength(250)]
+        public string PermissionDesc { get; set; }
 
-    /// <summary>
-    /// שם המודול במערכת שבו ההרשאה רלוונטית
-    /// </summary>
-    public string ModuleName { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public string ModuleName { get; set; }
 
-    public virtual ICollection<TabRolePermission> TabRolePermissions { get; set; } = new List<TabRolePermission>();
+        public virtual ICollection<TabRolePermission> TabRolePermissions { get; set; } = new List<TabRolePermission>();
+    }
 }

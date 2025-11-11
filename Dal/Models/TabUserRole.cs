@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace server_pra.Dal.Models.ScaffoldEntities;
 
@@ -8,6 +9,7 @@ namespace server_pra.Dal.Models.ScaffoldEntities;
 /// </summary>
 public partial class TabUserRole
 {
+    [Key]
     /// <summary>
     /// מזהה ייחודי לשיוך
     /// </summary>
