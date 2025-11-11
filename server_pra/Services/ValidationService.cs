@@ -75,6 +75,7 @@ namespace server_pra.Services
                 .Where(x => x.ImportDataSourceId == importDataSourceId)
                 .Select(x => x.TableName)
                 .FirstAsync();
+            _logger.LogInformation("Loading bulk data from table name: {TableName}", tableName);
 
             var sql = $"SELECT * FROM [BULK_{tableName}]"; var connection = _dbContext.Database.GetDbConnection();
 
