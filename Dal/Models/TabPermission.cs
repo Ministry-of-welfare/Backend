@@ -1,31 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Dal.Models;
 
 /// <summary>
 /// רשימת ההרשאות במערכת (כגון צפייה, עריכה, אישור)
 /// </summary>
+[Table("TAB_Permission", Schema = "auth")]
 public partial class TabPermission
 {
-    /// <summary>
-    /// מזהה ייחודי להרשאה
-    /// </summary>
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int PermissionId { get; set; }
 
-    /// <summary>
-    /// שם ההרשאה (כגון ViewFiles, ApproveImport)
-    /// </summary>
+    [Required]
+    [MaxLength(150)]
     public string PermissionName { get; set; }
 
-    /// <summary>
-    /// תיאור קצר של ההרשאה
-    /// </summary>
+    [MaxLength(250)]
     public string PermissionDesc { get; set; }
 
-    /// <summary>
-    /// שם המודול במערכת שבו ההרשאה רלוונטית
-    /// </summary>
+    [Required]
+    [MaxLength(100)]
     public string ModuleName { get; set; }
 
     public virtual ICollection<TabRolePermission> TabRolePermissions { get; set; } = new List<TabRolePermission>();

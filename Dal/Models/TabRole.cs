@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Dal.Models;
 
@@ -8,6 +9,7 @@ namespace Dal.Models;
 /// </summary>
 public partial class TabRole
 {
+    [Key]
     /// <summary>
     /// מזהה תפקיד ייחודי
     /// </summary>
