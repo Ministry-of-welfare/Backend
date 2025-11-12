@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -17,7 +18,7 @@ namespace server_pra.Services
             _config = config;
         }
 
-        public string GenerateToken(string userId, string role, int validHours = 2)
+        public string GenerateToken(string userId, string role, List<string> permissions = null, int validHours = 2)
         {
             var jwtSection = _config.GetSection("Jwt");
             if (!jwtSection.Exists())
@@ -50,12 +51,20 @@ namespace server_pra.Services
             var key = new SymmetricSecurityKey(keyBytes);
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, userId ?? string.Empty),
                 new Claim(ClaimTypes.Role, role ?? string.Empty),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
+
+            if (permissions != null)
+            {
+                foreach (var permission in permissions)
+                {
+                    claims.Add(new Claim("permission", permission));
+                }
+            }
 
             var expires = DateTime.UtcNow.AddHours(validHours);
 

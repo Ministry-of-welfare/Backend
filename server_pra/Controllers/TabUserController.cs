@@ -1,7 +1,10 @@
 ﻿using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.EntityFrameworkCore;
+using server_pra.Services;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace server_pra.Controllers
 {
@@ -10,10 +13,12 @@ namespace server_pra.Controllers
     public class TabUserController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly JwtService _jwtService;
 
-        public TabUserController(AppDbContext context)
+        public TabUserController(AppDbContext context, JwtService jwtService)
         {
             _context = context;
+            _jwtService = jwtService;
         }
 
         [HttpPost]
@@ -61,5 +66,60 @@ namespace server_pra.Controllers
             _context.SaveChanges();
             return Ok();
         }
+
+        [HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.UserName))
+                return BadRequest(new { message = "שם משתמש נדרש" });
+
+            var user = await _context.TabUsers
+                .Include(u => u.TabUserRoles)
+                    .ThenInclude(ur => ur.Role)
+                        .ThenInclude(r => r.TabRolePermissions)
+                            .ThenInclude(rp => rp.Permission)
+                .FirstOrDefaultAsync(u => u.UserName == request.UserName && u.IsActive);
+
+            if (user == null)
+                return Unauthorized(new { message = "משתמש לא נמצא או לא פעיל" });
+
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            
+            var roles = user.TabUserRoles
+                .Where(ur => ur.FromDate == null || ur.FromDate <= today)
+                .Where(ur => ur.ToDate == null || ur.ToDate >= today)
+                .Select(ur => ur.Role.RoleName)
+                .ToList();
+
+            var permissions = user.TabUserRoles
+                .Where(ur => ur.FromDate == null || ur.FromDate <= today)
+                .Where(ur => ur.ToDate == null || ur.ToDate >= today)
+                .SelectMany(ur => ur.Role.TabRolePermissions)
+                .Select(rp => rp.Permission.PermissionName)
+                .Distinct()
+                .ToList();
+
+            var primaryRole = roles.FirstOrDefault() ?? "User";
+            var token = _jwtService.GenerateToken(user.UserId.ToString(), primaryRole, permissions);
+
+            return Ok(new
+            {
+                token,
+                user = new
+                {
+                    user.UserId,
+                    user.UserName,
+                    user.DisplayName,
+                    user.Email,
+                    roles,
+                    permissions
+                }
+            });
+        }
+    }
+
+    public class LoginRequest
+    {
+        public string UserName { get; set; }
     }
 }
