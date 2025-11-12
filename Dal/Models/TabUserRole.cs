@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace server_pra.Dal.Models.ScaffoldEntities;
+namespace Dal.Models;
 
 /// <summary>
 /// שיוך משתמשים לתפקידים (קשר N:N)

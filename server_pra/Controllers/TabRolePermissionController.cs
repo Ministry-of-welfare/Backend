@@ -1,7 +1,7 @@
 ﻿using Dal.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using server_pra.Dal.Models.ScaffoldEntities;
+
 using System.Linq;
 
 namespace server_pra.Controllers;

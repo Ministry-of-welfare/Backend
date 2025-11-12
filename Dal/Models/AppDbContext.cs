@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using server_pra.Dal.Models.ScaffoldEntities;
 
 namespace Dal.Models;
 
@@ -288,7 +287,109 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_UserRole_User");
         });
 
-        // other existing entity configurations follow...
+        // Configure remaining entities with primary keys
+        modelBuilder.Entity<Environment>(entity =>
+        {
+            entity.HasKey(e => e.EnvironmentId);
+            entity.ToTable("Environments");
+        });
+
+        modelBuilder.Entity<InstitutionsTableBulk>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.ToTable("InstitutionsTableBulk");
+        });
+
+        modelBuilder.Entity<Service>(entity =>
+        {
+            entity.HasKey(e => e.ServiceId);
+            entity.ToTable("Services");
+        });
+
+        modelBuilder.Entity<ServiceBucket>(entity =>
+        {
+            entity.HasKey(e => e.ServiceBucketId);
+            entity.ToTable("ServiceBuckets");
+        });
+
+        modelBuilder.Entity<System>(entity =>
+        {
+            entity.HasKey(e => e.SystemId);
+            entity.ToTable("Systems");
+        });
+
+        modelBuilder.Entity<TDataSourceType>(entity =>
+        {
+            entity.HasKey(e => e.DataSourceTypeId);
+            entity.ToTable("T_DataSourceType");
+        });
+
+        modelBuilder.Entity<TFileStatus>(entity =>
+        {
+            entity.HasKey(e => e.FileStatusId);
+            entity.ToTable("T_FileStatus");
+        });
+
+        modelBuilder.Entity<TImportStatus>(entity =>
+        {
+            entity.HasKey(e => e.ImportStatusId);
+            entity.ToTable("T_ImportStatus");
+        });
+
+        modelBuilder.Entity<TabColumnHebDescription>(entity =>
+        {
+            entity.HasKey(e => e.ColumnHebDescriptionId);
+            entity.ToTable("TAB_ColumnHebDescription");
+        });
+
+        modelBuilder.Entity<TabFormatColumn>(entity =>
+        {
+            entity.HasKey(e => e.FormatColumnId);
+            entity.ToTable("TAB_FormatColumn");
+        });
+
+        modelBuilder.Entity<TabImportDataSource>(entity =>
+        {
+            entity.HasKey(e => e.ImportDataSourceId);
+            entity.ToTable("TAB_ImportDataSource");
+        });
+
+        modelBuilder.Entity<TabImportDataSourceColumn>(entity =>
+        {
+            entity.HasKey(e => e.ImportDataSourceColumnsId);
+            entity.ToTable("TAB_ImportDataSourceColumn");
+        });
+
+        modelBuilder.Entity<TabImportError>(entity =>
+        {
+            entity.HasKey(e => e.ImportErrorId);
+            entity.ToTable("TAB_ImportError");
+        });
+
+        modelBuilder.Entity<Template>(entity =>
+        {
+            entity.HasKey(e => e.TemplateId);
+            entity.ToTable("Templates");
+        });
+
+        modelBuilder.Entity<TemplateAuditLog>(entity =>
+        {
+            entity.HasKey(e => e.LogId);
+            entity.ToTable("TemplateAuditLogs");
+        });
+
+        modelBuilder.Entity<TemplatePermission>(entity =>
+        {
+            entity.HasKey(e => e.PermissionId);
+            entity.ToTable("TemplatePermissions");
+        });
+
+        modelBuilder.Entity<TemplateStatus>(entity =>
+        {
+            entity.HasKey(e => e.TemplateStatusId);
+            entity.ToTable("TemplateStatuses");
+        });
+
         modelBuilder.Entity<TabValidationRule>(entity =>
         {
             entity.HasKey(e => e.ValidationRuleId);
