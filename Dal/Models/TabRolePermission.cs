@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace server_pra.Dal.Models.ScaffoldEntities;
+namespace Dal.Models;
 
 /// <summary>
 /// שיוך בין תפקידים להרשאות (קשר N:N)

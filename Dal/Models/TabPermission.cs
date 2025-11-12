@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace server_pra.Dal.Models.ScaffoldEntities;
+namespace Dal.Models;
 
 /// <summary>
 /// רשימת ההרשאות במערכת (כגון צפייה, עריכה, אישור)

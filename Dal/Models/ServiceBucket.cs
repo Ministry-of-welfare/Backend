@@ -9,6 +9,11 @@ namespace Dal.Models;
 public partial class ServiceBucket
 {
     /// <summary>
+    /// מזהה ייחודי לרשומה
+    /// </summary>
+    public int ServiceBucketId { get; set; }
+
+    /// <summary>
     /// מזהה שירות (קישור לטבלת Services)
     /// </summary>
     public int ServiceId { get; set; }
