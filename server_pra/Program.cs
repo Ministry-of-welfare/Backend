@@ -6,11 +6,15 @@ using Dal.Api;
 using Dal.Models;
 using Dal.Services;
 using DocumentFormat.OpenXml.Office2016.Drawing.ChartDrawing;
+// JWT usings
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 using server_pra.Models;
 using server_pra.Services;
@@ -19,14 +23,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Net;
 using System.Net.Mail;
-using System.Xml;
-
-
-// JWT usings
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml;
+using Microsoft.OpenApi.Models;
 
 Console.WriteLine("🟢 Starting server build...");
 
@@ -137,7 +137,36 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // שירותים כלליים
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "server_pra API", Version = "v1" });
+
+    // define Bearer auth scheme
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter: \"Bearer {token}\"",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+
+    // require Bearer for all endpoints in the UI (you can remove if you want manual per-endpoint)
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, server_pra.Authorization.PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, server_pra.Authorization.PermissionHandler>();
 
 // הגדרות CORS
 builder.Services.AddCors(options =>
