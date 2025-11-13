@@ -28,7 +28,7 @@ namespace server_pra.Services
             _loadBulk = loadBulk ?? throw new ArgumentNullException(nameof(loadBulk));
             _validationService = validationService ?? throw new ArgumentNullException(nameof(validationService));
             _errorReport = errorReport ?? throw new ArgumentNullException(nameof(errorReport));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+          //  _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task RunAsync(int importControlId, CancellationToken ct = default)
@@ -51,7 +51,7 @@ namespace server_pra.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "שגיאה בתהליך הייבוא עבור ImportControlId={ImportControlId}", importControlId);
+              //  _logger.LogError(ex, "שגיאה בתהליך הייבוא עבור ImportControlId={ImportControlId}", importControlId);
                 await _errorReport.GenerateAndSendErrorReportAsync(importControlId);
             }
         }

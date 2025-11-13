@@ -25,18 +25,37 @@ namespace server_pra.Services
         {
             try
             {
-                _logger.LogInformation("Starting validation for ImportControlId {ImportControlId}", importControlId);
+                Console.WriteLine("Starting validation for ImportControlId {ImportControlId}", importControlId);
 
                 var rules = await GetValidationRulesAsync(importControlId);
                 var bulkData = await LoadBulkDataAsync(importControlId);
+                Console.WriteLine($"Rules count: {rules?.Count ?? 0}");
+                Console.WriteLine($"Bulk data rows count: {bulkData?.Rows.Count ?? 0}");
 
                 var errors = ExecuteValidationRules(rules, bulkData);
 
-                await WriteErrorsAsync(importControlId, errors);
+                try
+                {
+                    await WriteErrorsAsync(importControlId, errors);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Failed to write errors to the database.");
+                    throw;
+                }
+
                 await UpdateImportControlStatusAsync(importControlId, errors.Any());
 
-                _logger.LogInformation("Validation completed for ImportControlId {ImportControlId}", importControlId);
+                Console.WriteLine("Validation completed for ImportControlId {ImportControlId}", importControlId);
+                if (errors == null)
+                {
+                    throw new InvalidOperationException("The errors collection is null.");
+                }
+
+                Console.WriteLine($"Errors count: {errors?.Count ?? 0}");
                 return errors.Any();
+
+
             }
             catch (Exception ex)
             {
@@ -60,6 +79,12 @@ namespace server_pra.Services
                 .Include(r => r.Conditions)
                 .Include(r => r.Asserts)
                 .ToListAsync();
+            Console.WriteLine($"Validation rules count: {rules.Count}");
+            foreach (var rule in rules)
+            {
+                Console.WriteLine($"Rule: {rule.RuleName}, Enabled: {rule.IsEnabled}");
+            }
+
 
             return rules;
         }
@@ -75,7 +100,7 @@ namespace server_pra.Services
                 .Where(x => x.ImportDataSourceId == importDataSourceId)
                 .Select(x => x.TableName)
                 .FirstAsync();
-            _logger.LogInformation("Loading bulk data from table name: {TableName}", tableName);
+            Console.WriteLine("Loading bulk data from table name: {TableName}", tableName);
 
             var sql = $"SELECT * FROM [BULK_{tableName}]"; var connection = _dbContext.Database.GetDbConnection();
 
@@ -88,15 +113,25 @@ namespace server_pra.Services
                 dt.Load(reader);
 
             await connection.CloseAsync();
+            _logger.LogInformation($"Bulk data rows count: {dt.Rows.Count}");
+            foreach (DataRow row in dt.Rows)
+            {
+                _logger.LogInformation($"Row data: {string.Join(", ", row.ItemArray)}");
+            }
+
             return dt;
         }
 
         private List<ValidationError> ExecuteValidationRules(List<TabValidationRule> rules, DataTable bulkData)
         {
+
             var errors = new List<ValidationError>();
 
             foreach (var rule in rules)
             {
+                Console.WriteLine($"Processing rule: {rule.RuleName}");
+                Console.WriteLine($"Errors count after rule: {errors.Count}");
+
                 foreach (DataRow row in bulkData.Rows)
                 {
                     bool conditionOk = !rule.Conditions.Any() || EvaluateConditions((List<TabValidationRuleCondition>)rule.Conditions, row);
@@ -114,8 +149,13 @@ namespace server_pra.Services
                                 ErrorDetail = $"Rule '{rule.RuleName}' failed for column '{rule.ErrorColumnName}'",
                                 ImportErrorId = rule.ImportErrorId
                             };
+                            _logger.LogWarning($"? Rule failed: {rule.RuleName}, Column={rule.ErrorColumnName}");
+
                             errors.Add(err);
                         }
+                        Console.WriteLine($"Processing rule: {rule.RuleName}");
+                        Console.WriteLine($"Errors count after rule: {errors.Count}");
+
                     }
                 }
             }
@@ -146,7 +186,22 @@ namespace server_pra.Services
 
         private bool EvaluateAsserts(List<TabValidationRuleAssert> asserts, DataRow row)
         {
-            var grouped = asserts.GroupBy(a => a.GroupNo);
+            Console.WriteLine($"Asserts count: {asserts?.Count() ?? 0}");
+
+            if (asserts == null)
+            {
+                throw new InvalidOperationException("The asserts collection is null.");
+            }
+
+
+            var grouped = asserts.Where(a => a.GroupNo != null).GroupBy(a => a.GroupNo);
+            Console.WriteLine($"Grouped asserts count: {grouped.Count()}");
+
+            foreach (var assert in asserts)
+            {
+                Console.WriteLine($"As sert: GroupNo={assert.GroupNo}, Operator={assert.Operator}, GroupOperator={assert.GroupOperator}");
+            }
+
             var groupResults = new List<bool>();
 
             foreach (var group in grouped)
@@ -155,12 +210,14 @@ namespace server_pra.Services
                 foreach (var a in group)
                 {
                     bool aResult = EvaluateAssertion(a, row);
+                    Console.WriteLine($"Evaluating assertion: GroupNo={a.GroupNo}, Result={aResult}");
                     groupResult = a.GroupOperator?.ToUpper() == "OR"
                         ? (groupResult || aResult)
                         : (groupResult && aResult);
                 }
                 groupResults.Add(groupResult);
             }
+            _logger.LogInformation($"Group results: {string.Join(", ", groupResults)}");
 
             return groupResults.All(r => r);
         }
@@ -220,6 +277,8 @@ namespace server_pra.Services
 
         private bool LookupValueExists(string? lookupTable, string? lookupColumn, DataRow row)
         {
+            _logger.LogInformation($"Row data: {string.Join(", ", row.ItemArray)}");
+
             if (string.IsNullOrEmpty(lookupTable) || string.IsNullOrEmpty(lookupColumn))
                 return false;
 
@@ -274,6 +333,16 @@ namespace server_pra.Services
 
         private async Task WriteErrorsAsync(int importControlId, List<ValidationError> errors)
         {
+            _logger.LogInformation($"Writing {errors.Count} errors to the database.");
+
+            if (errors == null || errors.Count == 0)
+            {
+                _logger.LogWarning("No errors to write.");
+                return;
+            }
+
+            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             foreach (var e in errors)
             {
                 _dbContext.AppImportProblems.Add(new AppImportProblem
@@ -286,7 +355,19 @@ namespace server_pra.Services
                     ErrorDetail = e.ErrorDetail
                 });
             }
-            await _dbContext.SaveChangesAsync();
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                await transaction.CommitAsync();
+                _logger.LogInformation("Errors successfully written to AppImportProblems.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Failed to save AppImportProblems.");
+                throw;
+            }
         }
 
         private async Task UpdateImportControlStatusAsync(int importControlId, bool hasErrors)
@@ -297,6 +378,8 @@ namespace server_pra.Services
                 ic.ImportStatusId = hasErrors ? 2 : 3;
                 await _dbContext.SaveChangesAsync();
             }
+            _logger.LogInformation($"Updating status for ImportControlId={importControlId}, HasErrors={hasErrors}");
+
         }
     }
 

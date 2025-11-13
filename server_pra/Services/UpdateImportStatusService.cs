@@ -16,11 +16,12 @@ namespace server_pra.Services
             _scopeFactory = scopeFactory;
         }
 
+
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             while (!stoppingToken.IsCancellationRequested)
             {
-                Console.WriteLine($"[LOG] סבב התחיל ב: {DateTime.Now}");
+              //  Console.WriteLine($"[LOG] סבב התחיל ב: {DateTime.Now}");
 
                 try
                 {
@@ -51,10 +52,10 @@ namespace server_pra.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[LOG] שגיאה בלולאה: {ex}");
+              //      Console.WriteLine($"[LOG] שגיאה בלולאה: {ex}");
                 }
 
-                Console.WriteLine($"[LOG] סבב הסתיים ב: {DateTime.Now}");
+             //   Console.WriteLine($"[LOG] סבב הסתיים ב: {DateTime.Now}");
 
                 // לזמן בדיקה – המתן קצר יותר:
                 await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);

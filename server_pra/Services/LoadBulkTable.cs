@@ -35,7 +35,7 @@ namespace server_pra.Services
                     throw new ArgumentException($"Data source not found for ImportDataSourceId: {importDataSourceId}");
                 }
                 
-                _logger.LogInformation($"Found data source - UrlFile: '{dataSource.UrlFile}', TableName: '{dataSource.TableName}'");
+              //  _logger.LogInformation($"Found data source - UrlFile: '{dataSource.UrlFile}', TableName: '{dataSource.TableName}'");
                 
                 if (string.IsNullOrEmpty(dataSource.UrlFile))
                 {
@@ -50,7 +50,7 @@ namespace server_pra.Services
                 // עדכון סטטוס לבעיבוד (2)
                 dataSource.FileStatusId = 2;
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"Updated FileStatusId to 2 for ImportDataSourceId: {importDataSourceId}");
+               // _logger.LogInformation($"Updated FileStatusId to 2 for ImportDataSourceId: {importDataSourceId}");
 
                 // קריאת קובץ Excel
                 var dataTable = ReadExcelFile(dataSource.UrlFile);
@@ -59,20 +59,20 @@ namespace server_pra.Services
                 var bulkTableName = await FindBulkTableName(dataSource.TableName);
 
                 // מילוי הטבלה
-                await PopulateBulkTable(bulkTableName, dataTable, importDataSourceId);
+                await PopulateBulkTable(bulkTableName, dataTable, importControlId);
 
-                _logger.LogInformation($"Successfully loaded data for ImportDataSourceId: {importDataSourceId}");
+             //   _logger.LogInformation($"Successfully loaded data for ImportDataSourceId: {importDataSourceId}");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error loading bulk data for ImportDataSourceId: {importDataSourceId}");
+             //   _logger.LogError(ex, $"Error loading bulk data for ImportDataSourceId: {importDataSourceId}");
                 throw;
             }
         }
 
         private DataTable ReadExcelFile(string filePath)
         {
-            _logger.LogInformation($"Processing file: {filePath}");
+          //  _logger.LogInformation($"Processing file: {filePath}");
             
             if (string.IsNullOrEmpty(filePath))
             {
@@ -85,7 +85,7 @@ namespace server_pra.Services
             }
             
             var extension = Path.GetExtension(filePath).ToLower();
-            _logger.LogInformation($"File extension: {extension}");
+          //  _logger.LogInformation($"File extension: {extension}");
             
             if (extension == ".csv")
             {
@@ -157,7 +157,7 @@ namespace server_pra.Services
             }
         }
 
-        private async Task PopulateBulkTable(string tableName, DataTable dataTable, int importDataSourceId)
+        private async Task PopulateBulkTable(string tableName, DataTable dataTable, int importControlId)
         {
             var connectionString = _context.Database.GetConnectionString();
             
@@ -167,8 +167,8 @@ namespace server_pra.Services
                 
                 // יצירת DataTable זמני בזיכרון לצורך SqlBulkCopy
                 var bulkDataTable = new DataTable();
-                bulkDataTable.Columns.Add("Col0", typeof(int)); // ImportDataSourceId
-                
+                bulkDataTable.Columns.Add("Col0", typeof(int)); // importControlId
+
                 // הוספת עמודות נתוני הקובץ
                 for (int i = 0; i < dataTable.Columns.Count; i++)
                 {
@@ -179,8 +179,8 @@ namespace server_pra.Services
                 foreach (DataRow sourceRow in dataTable.Rows)
                 {
                     var newRow = bulkDataTable.NewRow();
-                    newRow[0] = importDataSourceId; // עמודה 1: ImportDataSourceId
-                    
+                    newRow[0] = importControlId; // עמודה 1: importControlId
+
                     for (int i = 0; i < dataTable.Columns.Count; i++)
                     {
                         newRow[i + 1] = sourceRow[i]; // עמודות 2,3,4...: נתוני הקובץ
