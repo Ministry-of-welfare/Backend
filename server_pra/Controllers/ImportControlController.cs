@@ -3,7 +3,6 @@ using BL.Models;
 using Microsoft.AspNetCore.Mvc;
 using server_pra.Services;
 using System;
-using server_pra.Services; // Add this to import ErrorReportService
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading.Tasks;
@@ -88,7 +87,7 @@ namespace server_pra.Controllers
         }
 
 
-       
+
         [HttpPost("{id}/generate-error-report")]
         public async Task<IActionResult> GenerateErrorReport(int id, [FromServices] ErrorReportService errorReportService)
         {
@@ -96,6 +95,6 @@ namespace server_pra.Controllers
             return Ok($"Error report generated and sent for ImportControlId {id}");
 
         }
+    }
 
-    }
-    }
+}

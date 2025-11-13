@@ -25,12 +25,12 @@ namespace server_pra.Services
         {
             try
             {
-                Console.WriteLine("Starting validation for ImportControlId {ImportControlId}", importControlId);
+          //      Console.WriteLine("Starting validation for ImportControlId {ImportControlId}", importControlId);
 
                 var rules = await GetValidationRulesAsync(importControlId);
                 var bulkData = await LoadBulkDataAsync(importControlId);
-                Console.WriteLine($"Rules count: {rules?.Count ?? 0}");
-                Console.WriteLine($"Bulk data rows count: {bulkData?.Rows.Count ?? 0}");
+          //      Console.WriteLine($"Rules count: {rules?.Count ?? 0}");
+           //     Console.WriteLine($"Bulk data rows count: {bulkData?.Rows.Count ?? 0}");
 
                 var errors = ExecuteValidationRules(rules, bulkData);
 
@@ -40,19 +40,19 @@ namespace server_pra.Services
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine("Failed to write errors to the database.");
+                 //   Console.WriteLine("Failed to write errors to the database.");
                     throw;
                 }
 
                 await UpdateImportControlStatusAsync(importControlId, errors.Any());
-
-                Console.WriteLine("Validation completed for ImportControlId {ImportControlId}", importControlId);
+              //  Console.WriteLine("Validation completed for ImportControlId {ImportControlId}", importControlId);
                 if (errors == null)
                 {
                     throw new InvalidOperationException("The errors collection is null.");
                 }
 
-                Console.WriteLine($"Errors count: {errors?.Count ?? 0}");
+
+              //  Console.WriteLine($"Errors count: {errors?.Count ?? 0}");
                 return errors.Any();
 
 
@@ -79,11 +79,11 @@ namespace server_pra.Services
                 .Include(r => r.Conditions)
                 .Include(r => r.Asserts)
                 .ToListAsync();
-            Console.WriteLine($"Validation rules count: {rules.Count}");
-            foreach (var rule in rules)
-            {
-                Console.WriteLine($"Rule: {rule.RuleName}, Enabled: {rule.IsEnabled}");
-            }
+         //   Console.WriteLine($"Validation rules count: {rules.Count}");
+            //foreach (var rule in rules)
+            //{
+          //      Console.WriteLine($"Rule: {rule.RuleName}, Enabled: {rule.IsEnabled}");
+           // }
 
 
             return rules;
@@ -100,7 +100,7 @@ namespace server_pra.Services
                 .Where(x => x.ImportDataSourceId == importDataSourceId)
                 .Select(x => x.TableName)
                 .FirstAsync();
-            Console.WriteLine("Loading bulk data from table name: {TableName}", tableName);
+           // Console.WriteLine("Loading bulk data from table name: {TableName}", tableName);
 
             var sql = $"SELECT * FROM [BULK_{tableName}]"; var connection = _dbContext.Database.GetDbConnection();
 
@@ -129,8 +129,8 @@ namespace server_pra.Services
 
             foreach (var rule in rules)
             {
-                Console.WriteLine($"Processing rule: {rule.RuleName}");
-                Console.WriteLine($"Errors count after rule: {errors.Count}");
+             //   Console.WriteLine($"Processing rule: {rule.RuleName}");
+              //  Console.WriteLine($"Errors count after rule: {errors.Count}");
 
                 foreach (DataRow row in bulkData.Rows)
                 {
@@ -153,8 +153,8 @@ namespace server_pra.Services
 
                             errors.Add(err);
                         }
-                        Console.WriteLine($"Processing rule: {rule.RuleName}");
-                        Console.WriteLine($"Errors count after rule: {errors.Count}");
+                      //  Console.WriteLine($"Processing rule: {rule.RuleName}");
+                      //  Console.WriteLine($"Errors count after rule: {errors.Count}");
 
                     }
                 }
@@ -297,35 +297,75 @@ namespace server_pra.Services
             _dbContext.Database.OpenConnection();
             var count = Convert.ToInt32(command.ExecuteScalar());
             _dbContext.Database.CloseConnection();
+            Console.WriteLine($"Executing lookup SQL: {sql}, Param: {param.Value}");
+
+            _logger.LogInformation($"Executing lookup SQL: {sql}, Param: {param.Value}");
 
             return count > 0;
         }
 
         private bool EvaluateOperator(string opType, object left, object right)
         {
+            if (string.IsNullOrEmpty(opType))
+                throw new ArgumentNullException(nameof(opType));
+
             string op = opType.ToUpper();
             string leftStr = left?.ToString() ?? "";
             string rightStr = right?.ToString() ?? "";
 
+            // טיפוסי עזר מספריים
+            bool leftIsNum = double.TryParse(leftStr, out double leftNum);
+            bool rightIsNum = double.TryParse(rightStr, out double rightNum);
+
             switch (op)
             {
-                case "=": return leftStr == rightStr;
-                case "!=": return leftStr != rightStr;
-                case ">": return Convert.ToDouble(left) > Convert.ToDouble(right);
-                case "<": return Convert.ToDouble(left) < Convert.ToDouble(right);
-                case ">=": return Convert.ToDouble(left) >= Convert.ToDouble(right);
-                case "<=": return Convert.ToDouble(left) <= Convert.ToDouble(right);
-                case "IS NULL": return string.IsNullOrWhiteSpace(leftStr);
-                case "IS NOT NULL": return !string.IsNullOrWhiteSpace(leftStr);
-                case "IN": return rightStr.Split(',').Contains(leftStr);
-                case "NOT IN": return !rightStr.Split(',').Contains(leftStr);
+                case "=":
+                    return leftStr == rightStr;
+
+                case "!=":
+                    return leftStr != rightStr;
+
+                case ">":
+                    return (leftIsNum && rightIsNum) && (leftNum > rightNum);
+
+                case "<":
+                    return (leftIsNum && rightIsNum) && (leftNum < rightNum);
+
+                case ">=":
+                    return (leftIsNum && rightIsNum) && (leftNum >= rightNum);
+
+                case "<=":
+                    return (leftIsNum && rightIsNum) && (leftNum <= rightNum);
+
+                case "IS NULL":
+                    return string.IsNullOrWhiteSpace(leftStr);
+
+                case "IS NOT NULL":
+                    return !string.IsNullOrWhiteSpace(leftStr);
+
+                case "IN":
+                    return rightStr.Split(',').Select(s => s.Trim()).Contains(leftStr);
+
+                case "NOT IN":
+                    return !rightStr.Split(',').Select(s => s.Trim()).Contains(leftStr);
+
                 case "BETWEEN":
-                    var range = rightStr.Split(',');
-                    if (range.Length != 2) throw new InvalidOperationException("BETWEEN requires two values");
-                    double val = Convert.ToDouble(left);
-                    return val >= Convert.ToDouble(range[0]) && val <= Convert.ToDouble(range[1]);
+                    {
+                        var range = rightStr.Split(',');
+                        if (range.Length != 2)
+                            throw new InvalidOperationException("BETWEEN requires two comma-separated values.");
+
+                        if (double.TryParse(leftStr, out double val)
+                            && double.TryParse(range[0], out double min)
+                            && double.TryParse(range[1], out double max))
+                            return val >= min && val <= max;
+
+                        return false;
+                    }
+
                 case "MATCHES":
                     return Regex.IsMatch(leftStr, rightStr);
+
                 default:
                     throw new InvalidOperationException($"Unsupported operator: {opType}");
             }
@@ -341,35 +381,36 @@ namespace server_pra.Services
                 return;
             }
 
-            await using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-            foreach (var e in errors)
-            {
-                _dbContext.AppImportProblems.Add(new AppImportProblem
-                {
-                    ImportControlId = importControlId,
-                    ErrorColumn = e.ErrorColumn,
-                    ErrorValue = e.ErrorValue,
-                    ErrorRow = int.TryParse(e.ErrorRow, out var n) ? n : 0,
-                    ImportErrorId = e.ImportErrorId,
-                    ErrorDetail = e.ErrorDetail
-                });
-            }
-
             try
             {
+                foreach (var e in errors)
+                {
+                    int errorRowNumber = 0;
+                    if (!int.TryParse(e.ErrorRow, out errorRowNumber))
+                    {
+                        errorRowNumber = 0;
+                    }
+
+                    _dbContext.AppImportProblems.Add(new AppImportProblem
+                    {
+                        ImportControlId = importControlId,
+                        ErrorColumn = e.ErrorColumn ?? "",
+                        ErrorValue = e.ErrorValue ?? "",
+                        ErrorRow = errorRowNumber,
+                        ImportErrorId = e.ImportErrorId,
+                        ErrorDetail = e.ErrorDetail ?? ""
+                    });
+                }
+
                 await _dbContext.SaveChangesAsync();
-                await transaction.CommitAsync();
                 _logger.LogInformation("Errors successfully written to AppImportProblems.");
             }
             catch (Exception ex)
             {
-                await transaction.RollbackAsync();
                 _logger.LogError(ex, "Failed to save AppImportProblems.");
                 throw;
             }
         }
-
         private async Task UpdateImportControlStatusAsync(int importControlId, bool hasErrors)
         {
             var ic = await _dbContext.AppImportControls.FindAsync(importControlId);

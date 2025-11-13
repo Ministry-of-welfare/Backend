@@ -1,4 +1,3 @@
-
 using BL;
 using BL.Api;
 using BL.Services;
@@ -23,16 +22,23 @@ using System.Net.Mail;
 using System.Xml;
 
 
-
-
+// JWT usings
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Threading.Tasks;
 
 Console.WriteLine("🟢 Starting server build...");
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 Console.WriteLine("✅ WebApplicationBuilder created");
 
+var columnOptions = new Serilog.Sinks.MSSqlServer.ColumnOptions();
+columnOptions.AdditionalColumns = new List<Serilog.Sinks.MSSqlServer.SqlColumn>
+{
+    new Serilog.Sinks.MSSqlServer.SqlColumn("UserName", System.Data.SqlDbType.NVarChar, dataLength: 255)
+};
 
 Console.WriteLine("⚙️ Configuring Serilog...");
 
@@ -40,19 +46,79 @@ Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .MinimumLevel.Override("server.Controllers", Serilog.Events.LogEventLevel.Information)
     .MinimumLevel.Override("server_pra.Services.FileCheckerBackgroundService", Serilog.Events.LogEventLevel.Fatal)
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
     .WriteTo.MSSqlServer(
         connectionString: builder.Configuration.GetConnectionString("LogsConnection"),
         sinkOptions: new Serilog.Sinks.MSSqlServer.MSSqlServerSinkOptions
         {
             TableName = "SerilogLogs",
-            AutoCreateSqlTable = false
-        })
+            AutoCreateSqlTable = true
+        },
+        columnOptions: columnOptions)
     .CreateLogger();
 
 builder.Host.UseSerilog();
 Console.WriteLine("✅ Serilog configured");
+
+// --- JWT configuration (adapted to your appsettings layout) ---
+var jwtSection = builder.Configuration.GetSection("Jwt");
+if (!jwtSection.Exists())
+{
+    // your appsettings.json places Jwt under Logging:Jwt — fall back to that
+    jwtSection = builder.Configuration.GetSection("Logging:Jwt");
+}
+
+if (jwtSection.Exists() && !string.IsNullOrEmpty(jwtSection["Key"]))
+{
+    Console.WriteLine("🔐 Configuring JWT authentication...");
+    
+    // --- build the signing key using the same logic as JwtService (try Base64, fallback to UTF8)
+    byte[] keyBytes;
+    try
+    {
+        keyBytes = Convert.FromBase64String(jwtSection["Key"]!);
+    }
+    catch
+    {
+        keyBytes = Encoding.UTF8.GetBytes(jwtSection["Key"]!);
+    }
+    var signingKey = new SymmetricSecurityKey(keyBytes);
+
+    builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false; // set true in production with HTTPS
+        options.SaveToken = true;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSection["Issuer"],
+            ValidAudience = jwtSection["Audience"],
+            IssuerSigningKey = signingKey,
+            RoleClaimType = System.Security.Claims.ClaimTypes.Role
+        };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine($"JWT auth failure: {ctx.Exception?.Message}");
+                return Task.CompletedTask;
+            }
+        };
+    });
+
+    builder.Services.AddAuthorization();
+}
+else
+{
+    Console.WriteLine("⚠️ JWT configuration not found or missing Key. Skipping JWT setup.");
+}
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 Console.WriteLine($"🔌 Loaded connection string: {connectionString}");
@@ -126,6 +192,10 @@ builder.Services.AddScoped<ErrorReportService>();
 builder.Services.AddScoped<LoadBulkTable>();
 builder.Services.AddScoped<mainImportSevice>();
 
+// --- register JwtService so RequestServices.GetService<JwtService>() returns an instance ---
+// register JwtService so controller can resolve it
+builder.Services.AddScoped<server_pra.Services.JwtService>();
+
 // Hosted services
 //builder.Services.AddSingleton<FileCheckerBackgroundService>();
 
@@ -149,45 +219,48 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngular");
 app.UseHttpsRedirection();
+
+// Ensure authentication middleware is registered before UseAuthorization
+app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapControllers();
 
 Console.WriteLine("🚀 Running the server...");
 
-
 Console.WriteLine("🚀 Testing the email...");
 try
-        {
-            string fromAddress = "rachel87549@gmail.com"; // כתובת הג'ימייל שלך
-            string appPassword = "ngtswaoklfefyrlv"; // בלי רווחים
-            string toAddress = "racheli5426@gmail.com"; // כתובת הנמען
-            string subject = "בדיקת שליחת מייל";
-            string body = "שלום! זהו מייל בדיקה שנשלח דרך קוד C#.";
+{
+    string fromAddress = "rachel87549@gmail.com"; // כתובת הג'ימייל שלך
+    string appPassword = "ngtswaoklfefyrlv"; // בלי רווחים
+    string toAddress = "racheli5426@gmail.com"; // כתובת הנמען
+    string subject = "בדיקת שליחת מייל";
+    string body = "שלום! זהו מייל בדיקה שנשלח דרך קוד C#.";
 
-            var smtp = new SmtpClient
-            {
-                Host = "smtp.gmail.com",
-                Port = 587, // TLS
-                EnableSsl = true,
-                DeliveryMethod = SmtpDeliveryMethod.Network,
-                UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(fromAddress, appPassword)
-            };
+    var smtp = new SmtpClient
+    {
+        Host = "smtp.gmail.com",
+        Port = 587, // TLS
+        EnableSsl = true,
+        DeliveryMethod = SmtpDeliveryMethod.Network,
+        UseDefaultCredentials = false,
+        Credentials = new NetworkCredential(fromAddress, appPassword)
+    };
 
-            using (var message = new MailMessage(fromAddress, toAddress)
-            {
-                Subject = subject,
-                Body = body
-            })
-            {
-                smtp.Send(message);
-            }
+    using (var message = new MailMessage(fromAddress, toAddress)
+    {
+        Subject = subject,
+        Body = body
+    })
+    {
+        smtp.Send(message);
+    }
 
-            Console.WriteLine("המייל נשלח בהצלחה!");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("שגיאה בשליחה: " + ex.Message);
-        }
-    
+    Console.WriteLine("המייל נשלח בהצלחה!");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("שגיאה בשליחה: " + ex.Message);
+}
+
 app.Run();
