@@ -63,8 +63,8 @@ DECLARE @ManagerUserId INT = (SELECT UserId FROM auth.TAB_User WHERE UserName = 
 DECLARE @EmployeeUserId INT = (SELECT UserId FROM auth.TAB_User WHERE UserName = 'employee1');
 DECLARE @ViewerUserId INT = (SELECT UserId FROM auth.TAB_User WHERE UserName = 'viewer1');
 
---IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole WHERE UserId = @AdminUserId AND RoleId = 1)
---    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) VALUES (@AdminUserId, 1, 'system', CAST(GETDATE() AS DATE));
+IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole WHERE UserId = @AdminUserId AND RoleId = 1)
+    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) VALUES (@AdminUserId, 1, 'system', CAST(GETDATE() AS DATE));
 
 --IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole WHERE UserId = @ManagerUserId AND RoleId = 2)
 --    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) VALUES (@ManagerUserId, 2, 'admin', CAST(GETDATE() AS DATE));
