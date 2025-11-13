@@ -255,6 +255,9 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.LastName)
                 .HasMaxLength(100)
                 .HasComment("שם משפחה של המשתמש");
+                    entity.Property(e => e.Password)
+            .HasMaxLength(255)
+            .HasComment("סיסמת המשתמש");
             entity.Property(e => e.UserName)
                 .IsRequired()
                 .HasMaxLength(100)

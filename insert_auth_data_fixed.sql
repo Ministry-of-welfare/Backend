@@ -62,13 +62,13 @@ IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.Use
     INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 
     SELECT u.UserId, 1, 'system', CAST(GETDATE() AS DATE) FROM auth.TAB_User u WHERE u.UserName = 'admin';
 
-IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.UserId = u.UserId WHERE u.UserName = 'manager1' AND ur.RoleId = 2)
-    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 
-    SELECT u.UserId, 2, 'admin', CAST(GETDATE() AS DATE) FROM auth.TAB_User u WHERE u.UserName = 'manager1';
+--IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.UserId = u.UserId WHERE u.UserName = 'manager1' AND ur.RoleId = 2)
+--    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 
+--    SELECT u.UserId, 2, 'admin', CAST(GETDATE() AS DATE) FROM auth.TAB_User u WHERE u.UserName = 'manager1';
 
-IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.UserId = u.UserId WHERE u.UserName = 'employee1' AND ur.RoleId = 3)
-    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 
-    SELECT u.UserId, 3, 'admin', CAST(GETDATE() AS DATE) FROM auth.TAB_User u WHERE u.UserName = 'employee1';
+--IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.UserId = u.UserId WHERE u.UserName = 'employee1' AND ur.RoleId = 3)
+--    INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 
+--    SELECT u.UserId, 3, 'admin', CAST(GETDATE() AS DATE) FROM auth.TAB_User u WHERE u.UserName = 'employee1';
 
 IF NOT EXISTS (SELECT 1 FROM auth.TAB_UserRole ur JOIN auth.TAB_User u ON ur.UserId = u.UserId WHERE u.UserName = 'viewer1' AND ur.RoleId = 4)
     INSERT INTO auth.TAB_UserRole (UserId, RoleId, AssignedBy, FromDate) 

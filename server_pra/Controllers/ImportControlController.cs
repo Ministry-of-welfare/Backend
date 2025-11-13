@@ -1,6 +1,8 @@
 ﻿using BL.Api;
 using BL.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.OpenApi.Models;
+using server_pra.Authorization;
 using server_pra.Services;
 using System;
 using System.Collections.Generic;
@@ -65,6 +67,8 @@ namespace server_pra.Controllers
         }
 
         //DELETE: api/ImportControl/5
+        [HasPermission("Delete")]
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteImportControl(int id)
         {
