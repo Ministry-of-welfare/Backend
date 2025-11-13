@@ -30,7 +30,13 @@ namespace server_pra.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAll() => Ok(_context.TabUsers.ToList());
+        public IActionResult GetAll() => Ok(_context.TabUsers.Select(u => new {
+            u.UserId,
+            u.UserName,
+            u.DisplayName,
+            u.Email,
+            u.IsActive
+        }).ToList());
 
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
@@ -49,6 +55,8 @@ namespace server_pra.Controllers
             entity.Email = item.Email;
             entity.FirstName = item.FirstName;
             entity.LastName = item.LastName;
+            entity.Password = item.Password;
+
             entity.IsActive = item.IsActive;
             entity.DisplayName = item.DisplayName;
 
@@ -73,6 +81,8 @@ namespace server_pra.Controllers
             if (string.IsNullOrWhiteSpace(request.UserName))
                 return BadRequest(new { message = "שם משתמש נדרש" });
 
+            if (string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest(new { message = "סיסמה נדרשת" });
             var user = await _context.TabUsers
                 .Include(u => u.TabUserRoles)
                     .ThenInclude(ur => ur.Role)
@@ -80,8 +90,8 @@ namespace server_pra.Controllers
                             .ThenInclude(rp => rp.Permission)
                 .FirstOrDefaultAsync(u => u.UserName == request.UserName && u.IsActive);
 
-            if (user == null)
-                return Unauthorized(new { message = "משתמש לא נמצא או לא פעיל" });
+            if (user == null || user.Password != request.Password)
+                return Unauthorized(new { message = "שם משתמש או סיסמה שגויים" });
 
             var today = DateOnly.FromDateTime(DateTime.Now);
             
@@ -121,5 +131,6 @@ namespace server_pra.Controllers
     public class LoginRequest
     {
         public string UserName { get; set; }
+        public string Password { get; set; }
     }
 }

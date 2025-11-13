@@ -38,6 +38,7 @@ public partial class TabUser
     /// <summary>
     /// כתובת מייל של המשתמש
     /// </summary>
+    public string Password { get; set; }
     public string Email { get; set; }
 
     /// <summary>
